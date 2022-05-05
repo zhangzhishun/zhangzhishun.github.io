@@ -82,6 +82,25 @@
     
     
     <entry>
+      <title>常用密码学库</title>
+      <link href="/2022/03/28/cryptography/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%BA%93%E6%80%BB%E7%BB%93/"/>
+      <url>/2022/03/28/cryptography/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%BA%93%E6%80%BB%E7%BB%93/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Go"><a href="#Go" class="headerlink" title="Go"></a>Go</h1><p><a href="https://pkg.go.dev/golang.org/x/crypto/bn256">Go官方</a> 已经不维护bn256.go包了，推荐使用<a href="https://github.com/cloudflare/bn256">cloudflare/bn256</a> ，但是也有安全漏洞.</p><p>CP-ABE实验中使用的包为<a href="https://github.com/fentec-project/bn256">fentec-project/bn256</a> ,此包是从 cloudflare/bn256 fork过来的，只是加了HashG1、HashG2方法</p><h1 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h1><p><a href="https://github.com/JHUISI/charm">Charm</a></p><p>Charm 是一个用于快速制作高级密码系统原型的框架。它基于 Python 语言，从头开始设计，以最大限度地减少开发时间和代码复杂性，同时促进组件的重用。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 密码学 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>30分钟创建一条区块链(二)</title>
       <link href="/2022/03/05/blockchain/other/30%E5%88%86%E9%92%9F%E5%88%9B%E5%BB%BA%E4%B8%80%E6%9D%A1%E5%8C%BA%E5%9D%97%E9%93%BE(%E4%BA%8C)/"/>
       <url>/2022/03/05/blockchain/other/30%E5%88%86%E9%92%9F%E5%88%9B%E5%BB%BA%E4%B8%80%E6%9D%A1%E5%8C%BA%E5%9D%97%E9%93%BE(%E4%BA%8C)/</url>

@@ -105,6 +105,28 @@
   </entry>
   
   <entry>
+    <title>常用密码学库</title>
+    <link href="https://zhangzhishun.github.io/2022/03/28/cryptography/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%BA%93%E6%80%BB%E7%BB%93/"/>
+    <id>https://zhangzhishun.github.io/2022/03/28/cryptography/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%BA%93%E6%80%BB%E7%BB%93/</id>
+    <published>2022-03-28T15:29:15.000Z</published>
+    <updated>2022-05-05T09:57:56.721Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Go"><a href="#Go" class="headerlink" title="Go"></a>Go</h1><p><a href="https://pkg.go.dev/golang.org/x/crypto/bn256">Go官方</a> 已经不维护bn256.go包了，推荐使用<a href="https://github.com/cloudflare/bn256">cloudflare/bn256</a> ，但是也有安全漏洞.</p><p>CP-ABE实验中使用的包为<a href="https://github.com/fentec-project/bn256">fentec-project/bn256</a> ,此包是从 cloudflare/bn256 fork过来的，只是加了HashG1、HashG2方法</p><h1 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h1><p><a href="https://github.com/JHUISI/charm">Charm</a></p><p>Charm 是一个用于快速制作高级密码系统原型的框架。它基于 Python 语言，从头开始设计，以最大限度地减少开发时间和代码复杂性，同时促进组件的重用。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;Go&quot;&gt;&lt;a href=&quot;#Go&quot; class=&quot;headerlink&quot; title=&quot;Go&quot;&gt;&lt;/a&gt;Go&lt;/h1&gt;&lt;p&gt;&lt;a href=&quot;https://pkg.go.dev/golang.org/x/crypto/bn256&quot;&gt;Go官方&lt;/a&gt; 已经不维护b</summary>
+      
+    
+    
+    
+    
+    <category term="密码学" scheme="https://zhangzhishun.github.io/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"/>
+    
+  </entry>
+  
+  <entry>
     <title>30分钟创建一条区块链(二)</title>
     <link href="https://zhangzhishun.github.io/2022/03/05/blockchain/other/30%E5%88%86%E9%92%9F%E5%88%9B%E5%BB%BA%E4%B8%80%E6%9D%A1%E5%8C%BA%E5%9D%97%E9%93%BE(%E4%BA%8C)/"/>
     <id>https://zhangzhishun.github.io/2022/03/05/blockchain/other/30%E5%88%86%E9%92%9F%E5%88%9B%E5%BB%BA%E4%B8%80%E6%9D%A1%E5%8C%BA%E5%9D%97%E9%93%BE(%E4%BA%8C)/</id>
@@ -473,28 +495,6 @@
     
     
     <category term="共识算法" scheme="https://zhangzhishun.github.io/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Fabric区块链应用开发</title>
-    <link href="https://zhangzhishun.github.io/2021/10/26/blockchain/fabric/%E7%AC%AC13%E7%AB%A0-%E5%8C%BA%E5%9D%97%E9%93%BE%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/"/>
-    <id>https://zhangzhishun.github.io/2021/10/26/blockchain/fabric/%E7%AC%AC13%E7%AB%A0-%E5%8C%BA%E5%9D%97%E9%93%BE%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/</id>
-    <published>2021-10-26T12:43:09.000Z</published>
-    <updated>2022-04-27T02:35:55.482Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Fabric区块链应用开发"><a href="#Fabric区块链应用开发" class="headerlink" title="Fabric区块链应用开发"></a>Fabric区块链应用开发</h1><h2 id="13-1-简介"><a href="#13-1-简介" class="headerlink" title="13.1 简介"></a>13.1 简介</h2><p>智能合约是无状态的、事件驱动的代码</p><h3 id="1-智能合约开发"><a href="#1-智能合约开发" class="headerlink" title="1. 智能合约开发"></a>1. 智能合约开发</h3><p>智能合约代码本质上是为了对上层业务逻辑进行支持</p><p>需要开发者具备的能力：</p><ul><li>了解所选用区块链平台的智能合约结构、语言特性、状态存储方式等知识</li><li>对智能合约的生命周期管理进行考虑，包括代码编写、版本管理、提交验证以及升级版本</li></ul><h3 id="2-应用程序开发"><a href="#2-应用程序开发" class="headerlink" title="2. 应用程序开发"></a>2. 应用程序开发</h3><p>应用程序通过调用智能合约提供的方法接口来实现业务逻辑。可以运行在区块链的网络节点上，也可以运行在中心化的服务器上。</p><p>需要开发者具备的能力：</p><ul><li>掌握至少一种应用程序开发语言</li><li>熟练使用智能合约SDK</li></ul><h2 id="13-2-链码的原理、接口与结构"><a href="#13-2-链码的原理、接口与结构" class="headerlink" title="13.2 链码的原理、接口与结构"></a>13.2 链码的原理、接口与结构</h2><p>链码职责：</p><ul><li>对Fabric应用程序发送的交易做出响应，执行代码逻辑，与账本进行交互</li><li>创建一些状态（state）并写入账本</li></ul><p>链码与节点的交互使用gRPC协议</p><h3 id="13-2-1-Chaincode接口"><a href="#13-2-1-Chaincode接口" class="headerlink" title="13.2.1 Chaincode接口"></a>13.2.1 Chaincode接口</h3><pre><code class="go">// Chaincode interface must be implemented by all chaincodes. The fabric runs// the transactions by calling these functions as specified.type Chaincode interface {    // Init is called during Instantiate transaction after the chaincode container    // has been established for the first time, allowing the chaincode to    // initialize its internal data    // 当链码收到实例化的交易时，Init方法会被调用（Fabric1.4版本）    Init(stub ChaincodeStubInterface) pb.Response    // Invoke is called to update or query the ledger in a proposal transaction.    // Updated state variables are not committed to the ledger until the    // transaction is committed.    // 当链码收到升级或查询类型的交易时，Invoke方法会被调用（Fabric1.4版本）    Invoke(stub ChaincodeStubInterface) pb.Response}</code></pre><h3 id="13-2-2-链码结构"><a href="#13-2-2-链码结构" class="headerlink" title="13.2.2 链码结构"></a>13.2.2 链码结构</h3><pre><code class="go">package main// 引入必要的包import (    "fmt"    // shim包提供了链码与账本交互的中间层。链码通过shim.ChaincodeStubInterface提供的方法来读取和修改账本状态    "github.com/hyperledger/fabric/core/chaincode/shim"    // Init和Invoke方法需要返回pb.Response类型    pb "github.com/hyperledger/fabric/protos/peer")// 声明一个结构体type SimpleChaincode struct {}// 为结构体添加Init方法func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {    // 该方法用来完成一些初始化的工作    return shim.Success(nil)}// 为结构体添加Invoke方法func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {    // 响应调用或查询的业务逻辑在该方法中实现    return shim.Success(nil)}// 主函数，需要调用shim.Start()方法func main() {    err := shim.Start(new(SimpleChaincode))    if err != nil {        fmt.Printf("Error starting Simple chaincode: %s", err)    }}</code></pre><h3 id="13-2-3-链码基本工作原理"><a href="#13-2-3-链码基本工作原理" class="headerlink" title="13.2.3 链码基本工作原理"></a>13.2.3 链码基本工作原理</h3><p><img src="https://img-blog.csdnimg.cn/2e6b5bf1c26e4f8396154f82fcbe29fe.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5LiA5p2v57OW5LiN5Yqg5ZKW5ZWh,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p><p>步骤：</p><ul><li>用户通过客户端（SDK或CLI）向Fabric的背书节点（endorser）发出调用链码的交易提案（proposal）。节点对提案进行包括ACL权限检查在内的各种检验，通过后则创建模拟执行这一交易的环境</li><li>节点和链码容器之间通过gRPC消息来交互，模拟执行交易并给出背书结论</li></ul><h2 id="13-3-链码开发API"><a href="#13-3-链码开发API" class="headerlink" title="13.3 链码开发API"></a>13.3 链码开发API</h2><h3 id="13-3-1-账本状态交互API"><a href="#13-3-1-账本状态交互API" class="headerlink" title="13.3.1 账本状态交互API"></a>13.3.1 账本状态交互API</h3><p><img src="https://img-blog.csdnimg.cn/edd578638df647ce87034b4e1ae34133.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5LiA5p2v57OW5LiN5Yqg5ZKW5ZWh,size_19,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p><h3 id="13-3-2-交易信息相关API"><a href="#13-3-2-交易信息相关API" class="headerlink" title="13.3.2 交易信息相关API"></a>13.3.2 交易信息相关API</h3><p><img src="https://img-blog.csdnimg.cn/53fea4951f7f457d8f9175cc3935a3cc.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5LiA5p2v57OW5LiN5Yqg5ZKW5ZWh,size_19,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p><h3 id="13-3-3-参数读取API"><a href="#13-3-3-参数读取API" class="headerlink" title="13.3.3 参数读取API"></a>13.3.3 参数读取API</h3><p><img src="https://img-blog.csdnimg.cn/e8c5d6e04792454dbeec1f4c3039cac7.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5LiA5p2v57OW5LiN5Yqg5ZKW5ZWh,size_19,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p><h3 id="13-3-4-其他API"><a href="#13-3-4-其他API" class="headerlink" title="13.3.4 其他API"></a>13.3.4 其他API</h3><p><img src="https://img-blog.csdnimg.cn/dde665b33019483ba78615f5f0ec9b37.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5LiA5p2v57OW5LiN5Yqg5ZKW5ZWh,size_19,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p><h2 id="13-4-应用开发案例一：转账"><a href="#13-4-应用开发案例一：转账" class="headerlink" title="13.4 应用开发案例一：转账"></a>13.4 应用开发案例一：转账</h2><p>目标：</p><ul><li>掌握智能合约的基本结构</li><li>掌握查询账本、修改账本、删除账本的方法</li></ul><p><a href="https://gitee.com/hbuzzs/fabric-chaincode-example/blob/master/chaincode/src/github.com/1.chaincode_example02/chaincode_example02.go">查看代码</a></p><h2 id="13-5-应用开发案例二：资产权属管理"><a href="#13-5-应用开发案例二：资产权属管理" class="headerlink" title="13.5 应用开发案例二：资产权属管理"></a>13.5 应用开发案例二：资产权属管理</h2><p>目标：</p><ul><li>掌握资产的创建、查询、转移所有权等操作</li></ul><p><a href="https://gitee.com/hbuzzs/fabric-chaincode-example/blob/master/chaincode/src/github.com/2.marbles02/marbles_chaincode.go">查看代码</a></p><h2 id="13-6-应用开发案例三：调用其他链码"><a href="#13-6-应用开发案例三：调用其他链码" class="headerlink" title="13.6 应用开发案例三：调用其他链码"></a>13.6 应用开发案例三：调用其他链码</h2><p>目标：</p><ul><li>掌握如何调用其他链码<br><a href="https://gitee.com/hbuzzs/fabric-chaincode-example/blob/master/chaincode/src/github.com/3.passthru/passthru.go">查看代码</a></li></ul><h2 id="13-7-应用开发案例四：发送事件"><a href="#13-7-应用开发案例四：发送事件" class="headerlink" title="13.7 应用开发案例四：发送事件"></a>13.7 应用开发案例四：发送事件</h2><p>目标：</p><ul><li>掌握如何发送事件</li></ul><p><a href="https://gitee.com/hbuzzs/fabric-chaincode-example/blob/master/chaincode/src/github.com/4.eventsender/eventsender.go">查看代码</a></p><h2 id="13-8-开发最佳实践小结"><a href="#13-8-开发最佳实践小结" class="headerlink" title="13.8 开发最佳实践小结"></a>13.8 开发最佳实践小结</h2><ol><li>重视资源限制</li><li>无状态设计</li><li>避免非确定性逻辑</li><li>链码结构设计</li><li>链码生命周期的管理</li></ol><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul><li>《区块链原理、设计与应用-杨保华、陈昌》</li></ul>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h1 id=&quot;Fabric区块链应用开发&quot;&gt;&lt;a href=&quot;#Fabric区块链应用开发&quot; class=&quot;headerlink&quot; title=&quot;Fabric区块链应用开发&quot;&gt;&lt;/a&gt;Fabric区块链应用开发&lt;/h1&gt;&lt;h2 id=&quot;13-1-简介&quot;&gt;&lt;a href=&quot;#13</summary>
-      
-    
-    
-    
-    
-    <category term="Fabric" scheme="https://zhangzhishun.github.io/tags/Fabric/"/>
     
   </entry>
   
