@@ -1,0 +1,575 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>以太坊源码分析-p2p-udp.go源码分析</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="p2p的网络发现协议使用了Kademlia protocol 来处理网络的节点发现。节点查找和节点更新。Kademlia protocol使用了UDP协议来进行网络通信。
+阅读这部分的代码建议先看看references里面的Kademlia协议简介来看看什么是Kademlia协议。
+首先看看数据结构。 网络传输了4种数据包(UDP协议是基于报文的协议。传输的是一个一个数据包)，分别是ping,pong,findnode和neighbors。 下面分别定义了4种报文的格式。 
+// RPC packet types
+const (
+    pingPacket = iota + 1 // zero is 'reserved'
+    pongPacket
+    findnodePacket
+    neig.."><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"><link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">以太坊源码分析-p2p-udp.go源码分析</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#udp%E4%BF%A1%E6%81%AF%E5%8A%A0%E5%AF%86%E5%92%8C%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98"><span class="toc-text">udp信息加密和安全问题</span></a></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">以太坊源码分析-p2p-udp.go源码分析</h1><time class="has-text-grey" datetime="2021-05-17T02:29:15.000Z">2021-05-17</time><article class="mt-2 post-content"><p>p2p的网络发现协议使用了Kademlia protocol 来处理网络的节点发现。节点查找和节点更新。Kademlia protocol使用了UDP协议来进行网络通信。</p>
+<p>阅读这部分的代码建议先看看references里面的Kademlia协议简介来看看什么是Kademlia协议。</p>
+<p>首先看看数据结构。 网络传输了4种数据包(UDP协议是基于报文的协议。传输的是一个一个数据包)，分别是ping,pong,findnode和neighbors。 下面分别定义了4种报文的格式。 </p>
+<pre><code>// RPC packet types
+const (
+    pingPacket = iota + 1 // zero is 'reserved'
+    pongPacket
+    findnodePacket
+    neighborsPacket
+)
+// RPC request structures
+type (
+    ping struct {
+        Version    uint             //协议版本
+        From, To   rpcEndpoint        //源IP地址 目的IP地址
+        Expiration uint64            //超时时间
+        // Ignore additional fields (for forward compatibility).
+        //可以忽略的字段。 为了向前兼容
+        Rest []rlp.RawValue `rlp:"tail"`
+    }
+
+    // pong is the reply to ping.
+    // ping包的回应
+    pong struct {
+        // This field should mirror the UDP envelope address
+        // of the ping packet, which provides a way to discover the
+        // the external address (after NAT).
+        // 目的IP地址
+        To rpcEndpoint
+        // 说明这个pong包是回应那个ping包的。 包含了ping包的hash值
+        ReplyTok   []byte // This contains the hash of the ping packet.
+        //包超时的绝对时间。 如果收到包的时候超过了这个时间，那么包被认为是超时的。
+        Expiration uint64 // Absolute timestamp at which the packet becomes invalid.
+        // Ignore additional fields (for forward compatibility).
+        Rest []rlp.RawValue `rlp:"tail"`
+    }
+    // findnode 是用来查询距离target比较近的节点
+    // findnode is a query for nodes close to the given target.
+    findnode struct {
+        // 目的节点
+        Target     NodeID // doesn't need to be an actual public key
+        Expiration uint64
+        // Ignore additional fields (for forward compatibility).
+        Rest []rlp.RawValue `rlp:"tail"`
+    }
+
+    // reply to findnode
+    // findnode的回应
+    neighbors struct {
+        //距离target比较近的节点值。
+        Nodes      []rpcNode
+        Expiration uint64
+        // Ignore additional fields (for forward compatibility).
+        Rest []rlp.RawValue `rlp:"tail"`
+    }
+
+    rpcNode struct {
+        IP  net.IP // len 4 for IPv4 or 16 for IPv6
+        UDP uint16 // for discovery protocol
+        TCP uint16 // for RLPx protocol
+        ID  NodeID
+    }
+
+    rpcEndpoint struct {
+        IP  net.IP // len 4 for IPv4 or 16 for IPv6
+        UDP uint16 // for discovery protocol
+        TCP uint16 // for RLPx protocol
+    }
+)
+</code></pre>
+<p>定义了两个接口类型，packet接口类型应该是给4种不同类型的包分派不同的handle方法。 conn接口定义了一个udp的连接的功能。</p>
+<pre><code>type packet interface {
+    handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error
+    name() string
+}
+
+type conn interface {
+    ReadFromUDP(b []byte) (n int, addr *net.UDPAddr, err error)
+    WriteToUDP(b []byte, addr *net.UDPAddr) (n int, err error)
+    Close() error
+    LocalAddr() net.Addr
+}
+</code></pre>
+<p>udp的结构， 需要注意的是最后一个字段*Table是go里面的匿名字段。  也就是说udp可以直接调用匿名字段Table的方法。</p>
+<pre><code>// udp implements the RPC protocol.
+type udp struct {
+    conn        conn                    //网络连接
+    netrestrict *netutil.Netlist
+    priv        *ecdsa.PrivateKey        //私钥，自己的ID是通过这个来生成的。
+    ourEndpoint rpcEndpoint
+
+    addpending chan *pending            //用来申请一个pending
+    gotreply   chan reply                //用来获取回应的队列
+
+    closing chan struct{}                //用来关闭的队列
+    nat     nat.Interface                
+
+    *Table
+}
+</code></pre>
+<p>pending 和reply 结构。 这两个结构用户内部的go routine之间进行通信的结构体。</p>
+<pre><code>// pending represents a pending reply.
+// some implementations of the protocol wish to send more than one
+// reply packet to findnode. in general, any neighbors packet cannot
+// be matched up with a specific findnode packet.
+// our implementation handles this by storing a callback function for
+// each pending reply. incoming packets from a node are dispatched
+// to all the callback functions for that node.
+// pending结构 代表正在等待一个reply
+// 我们通过为每一个pending reply 存储一个callback来实现这个功能。从一个节点来的所有数据包都会分配到这个节点对应的callback上面。
+type pending struct {
+    // these fields must match in the reply.
+    from  NodeID
+    ptype byte
+
+    // time when the request must complete
+    deadline time.Time
+
+    // callback is called when a matching reply arrives. if it returns
+    // true, the callback is removed from the pending reply queue.
+    // if it returns false, the reply is considered incomplete and
+    // the callback will be invoked again for the next matching reply.
+    //如果返回值是true。那么callback会从队列里面移除。 如果返回false,那么认为reply还没有完成，会继续等待下一次reply.
+    callback func(resp interface{}) (done bool)
+
+    // errc receives nil when the callback indicates completion or an
+    // error if no further reply is received within the timeout.
+    errc chan&lt;- error
+}
+
+type reply struct {
+    from  NodeID
+    ptype byte
+    data  interface{}
+    // loop indicates whether there was
+    // a matching request by sending on this channel.
+    //通过往这个channel上面发送消息来表示匹配到一个请求。
+    matched chan&lt;- bool
+}
+</code></pre>
+<p>UDP的创建</p>
+<pre><code>// ListenUDP returns a new table that listens for UDP packets on laddr.
+func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBPath string, netrestrict *netutil.Netlist) (*Table, error) {
+    addr, err := net.ResolveUDPAddr("udp", laddr)
+    if err != nil {
+        return nil, err
+    }
+    conn, err := net.ListenUDP("udp", addr)
+    if err != nil {
+        return nil, err
+    }
+    tab, _, err := newUDP(priv, conn, natm, nodeDBPath, netrestrict)
+    if err != nil {
+        return nil, err
+    }
+    log.Info("UDP listener up", "self", tab.self)
+    return tab, nil
+}
+
+func newUDP(priv *ecdsa.PrivateKey, c conn, natm nat.Interface, nodeDBPath string, netrestrict *netutil.Netlist) (*Table, *udp, error) {
+    udp := &amp;udp{
+        conn:        c,
+        priv:        priv,
+        netrestrict: netrestrict,
+        closing:     make(chan struct{}),
+        gotreply:    make(chan reply),
+        addpending:  make(chan *pending),
+    }
+    realaddr := c.LocalAddr().(*net.UDPAddr)
+    if natm != nil {   //natm nat mapping 用来获取外网地址
+        if !realaddr.IP.IsLoopback() {  //如果地址是本地环回地址
+            go nat.Map(natm, udp.closing, "udp", realaddr.Port, realaddr.Port, "ethereum discovery")
+        }
+        // TODO: react to external IP changes over time.
+        if ext, err := natm.ExternalIP(); err == nil {
+            realaddr = &amp;net.UDPAddr{IP: ext, Port: realaddr.Port}
+        }
+    }
+    // TODO: separate TCP port
+    udp.ourEndpoint = makeEndpoint(realaddr, uint16(realaddr.Port))
+    //创建一个table 后续会介绍。 Kademlia的主要逻辑在这个类里面实现。
+    tab, err := newTable(udp, PubkeyID(&amp;priv.PublicKey), realaddr, nodeDBPath)
+    if err != nil {
+        return nil, nil, err
+    }
+    udp.Table = tab   //匿名字段的赋值
+    
+    go udp.loop()        //go routine 
+    go udp.readLoop()    //用来网络数据读取。
+    return udp.Table, udp, nil
+}
+</code></pre>
+<p>ping方法与pending的处理，之前谈到了pending是等待一个reply。 这里通过代码来分析是如何实现等待reply的。</p>
+<p>pending方法把pending结构体发送给addpending. 然后等待消息的处理和接收。</p>
+<pre><code>// ping sends a ping message to the given node and waits for a reply.
+func (t *udp) ping(toid NodeID, toaddr *net.UDPAddr) error {
+    // TODO: maybe check for ReplyTo field in callback to measure RTT
+    errc := t.pending(toid, pongPacket, func(interface{}) bool { return true })
+    t.send(toaddr, pingPacket, &amp;ping{
+        Version:    Version,
+        From:       t.ourEndpoint,
+        To:         makeEndpoint(toaddr, 0), // TODO: maybe use known TCP port from DB
+        Expiration: uint64(time.Now().Add(expiration).Unix()),
+    })
+    return &lt;-errc
+}
+// pending adds a reply callback to the pending reply queue.
+// see the documentation of type pending for a detailed explanation.
+func (t *udp) pending(id NodeID, ptype byte, callback func(interface{}) bool) &lt;-chan error {
+    ch := make(chan error, 1)
+    p := &amp;pending{from: id, ptype: ptype, callback: callback, errc: ch}
+    select {
+    case t.addpending &lt;- p:
+        // loop will handle it
+    case &lt;-t.closing:
+        ch &lt;- errClosed
+    }
+    return ch
+}
+</code></pre>
+<p>addpending消息的处理。 之前创建udp的时候调用了newUDP方法。里面启动了两个goroutine。 其中的loop()就是用来处理pending消息的。</p>
+<pre><code>// loop runs in its own goroutine. it keeps track of
+// the refresh timer and the pending reply queue.
+func (t *udp) loop() {
+    var (
+        plist        = list.New()
+        timeout      = time.NewTimer(0)
+        nextTimeout  *pending // head of plist when timeout was last reset
+        contTimeouts = 0      // number of continuous timeouts to do NTP checks
+        ntpWarnTime  = time.Unix(0, 0)
+    )
+    &lt;-timeout.C // ignore first timeout
+    defer timeout.Stop()
+
+    resetTimeout := func() {  
+        //这个方法的主要功能是查看队列里面是否有需要超时的pending消息。 如果有。那么
+        //根据最先超时的时间设置超时醒来。 
+        if plist.Front() == nil || nextTimeout == plist.Front().Value {
+            return
+        }
+        // Start the timer so it fires when the next pending reply has expired.
+        now := time.Now()
+        for el := plist.Front(); el != nil; el = el.Next() {
+            nextTimeout = el.Value.(*pending)
+            if dist := nextTimeout.deadline.Sub(now); dist &lt; 2*respTimeout {
+                timeout.Reset(dist)
+                return
+            }
+            // Remove pending replies whose deadline is too far in the
+            // future. These can occur if the system clock jumped
+            // backwards after the deadline was assigned.
+            //如果有消息的deadline在很远的未来，那么直接设置超时，然后移除。
+            //这种情况在修改系统时间的时候有可能发生，如果不处理可能导致堵塞太长时间。
+            nextTimeout.errc &lt;- errClockWarp
+            plist.Remove(el)
+        }
+        nextTimeout = nil
+        timeout.Stop()
+    }
+
+    for {
+        resetTimeout()  //首先处理超时。
+
+        select {
+        case &lt;-t.closing:  //收到关闭信息。 超时所有的堵塞的队列
+            for el := plist.Front(); el != nil; el = el.Next() {
+                el.Value.(*pending).errc &lt;- errClosed
+            }
+            return
+
+        case p := &lt;-t.addpending:  //增加一个pending 设置deadline
+            p.deadline = time.Now().Add(respTimeout)
+            plist.PushBack(p)
+
+        case r := &lt;-t.gotreply:  //收到一个reply 寻找匹配的pending
+            var matched bool
+            for el := plist.Front(); el != nil; el = el.Next() {
+                p := el.Value.(*pending)
+                if p.from == r.from &amp;&amp; p.ptype == r.ptype { //如果来自同一个人。 而且类型相同
+                    matched = true
+                    // Remove the matcher if its callback indicates
+                    // that all replies have been received. This is
+                    // required for packet types that expect multiple
+                    // reply packets.
+                    if p.callback(r.data) { //如果callback返回值是true 。说明pending已经完成。 给p.errc写入nil。 pending完成。
+                        p.errc &lt;- nil
+                        plist.Remove(el)
+                    }
+                    // Reset the continuous timeout counter (time drift detection)
+                    contTimeouts = 0
+                }
+            }
+            r.matched &lt;- matched //写入reply的matched
+
+        case now := &lt;-timeout.C:   //处理超时信息
+            nextTimeout = nil
+
+            // Notify and remove callbacks whose deadline is in the past.
+            for el := plist.Front(); el != nil; el = el.Next() {
+                p := el.Value.(*pending)
+                if now.After(p.deadline) || now.Equal(p.deadline) { //如果超时写入超时信息并移除
+                    p.errc &lt;- errTimeout
+                    plist.Remove(el)
+                    contTimeouts++
+                }
+            }
+            // If we've accumulated too many timeouts, do an NTP time sync check
+            if contTimeouts &gt; ntpFailureThreshold {
+                //如果连续超时很多次。 那么查看是否是时间不同步。 和NTP服务器进行同步。
+                if time.Since(ntpWarnTime) &gt;= ntpWarningCooldown {
+                    ntpWarnTime = time.Now()
+                    go checkClockDrift()
+                }
+                contTimeouts = 0
+            }
+        }
+    }
+}
+</code></pre>
+<p>上面看到了pending的处理。 不过loop()方法种还有一个gotreply的处理。 这个实在readLoop()这个goroutine中产生的。</p>
+<pre><code>// readLoop runs in its own goroutine. it handles incoming UDP packets.
+func (t *udp) readLoop() {
+    defer t.conn.Close()
+    // Discovery packets are defined to be no larger than 1280 bytes.
+    // Packets larger than this size will be cut at the end and treated
+    // as invalid because their hash won't match.
+    buf := make([]byte, 1280)
+    for {
+        nbytes, from, err := t.conn.ReadFromUDP(buf)
+        if netutil.IsTemporaryError(err) {
+            // Ignore temporary read errors.
+            log.Debug("Temporary UDP read error", "err", err)
+            continue
+        } else if err != nil {
+            // Shut down the loop for permament errors.
+            log.Debug("UDP read error", "err", err)
+            return
+        }
+        t.handlePacket(from, buf[:nbytes])
+    }
+}
+
+func (t *udp) handlePacket(from *net.UDPAddr, buf []byte) error {
+    packet, fromID, hash, err := decodePacket(buf)
+    if err != nil {
+        log.Debug("Bad discv4 packet", "addr", from, "err", err)
+        return err
+    }
+    err = packet.handle(t, from, fromID, hash)
+    log.Trace("&lt;&lt; "+packet.name(), "addr", from, "err", err)
+    return err
+}
+
+func (req *ping) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
+    if expired(req.Expiration) {
+        return errExpired
+    }
+    t.send(from, pongPacket, &amp;pong{
+        To:         makeEndpoint(from, req.From.TCP),
+        ReplyTok:   mac,
+        Expiration: uint64(time.Now().Add(expiration).Unix()),
+    })
+    if !t.handleReply(fromID, pingPacket, req) {
+        // Note: we're ignoring the provided IP address right now
+        go t.bond(true, fromID, from, req.From.TCP)
+    }
+    return nil
+}
+
+func (t *udp) handleReply(from NodeID, ptype byte, req packet) bool {
+    matched := make(chan bool, 1)
+    select {
+    case t.gotreply &lt;- reply{from, ptype, req, matched}:
+        // loop will handle it
+        return &lt;-matched
+    case &lt;-t.closing:
+        return false
+    }
+}
+</code></pre>
+<p>上面介绍了udp的大致处理的流程。 下面介绍下udp的主要处理的业务。 udp主要发送两种请求，对应的也会接收别人发送的这两种请求， 对应这两种请求又会产生两种回应。</p>
+<p>ping请求，可以看到ping请求希望得到一个pong回答。 然后返回。</p>
+<pre><code>// ping sends a ping message to the given node and waits for a reply.
+func (t *udp) ping(toid NodeID, toaddr *net.UDPAddr) error {
+    // TODO: maybe check for ReplyTo field in callback to measure RTT
+    errc := t.pending(toid, pongPacket, func(interface{}) bool { return true })
+    t.send(toaddr, pingPacket, &amp;ping{
+        Version:    Version,
+        From:       t.ourEndpoint,
+        To:         makeEndpoint(toaddr, 0), // TODO: maybe use known TCP port from DB
+        Expiration: uint64(time.Now().Add(expiration).Unix()),
+    })
+    return &lt;-errc
+}
+</code></pre>
+<p>pong回答,如果pong回答没有匹配到一个对应的ping请求。那么返回errUnsolicitedReply异常。</p>
+<pre><code>func (req *pong) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
+    if expired(req.Expiration) {
+        return errExpired
+    }
+    if !t.handleReply(fromID, pongPacket, req) {
+        return errUnsolicitedReply
+    }
+    return nil
+}
+</code></pre>
+<p>findnode请求, 发送findnode请求，然后等待node回应 k个邻居。</p>
+<pre><code>// findnode sends a findnode request to the given node and waits until
+// the node has sent up to k neighbors.
+func (t *udp) findnode(toid NodeID, toaddr *net.UDPAddr, target NodeID) ([]*Node, error) {
+    nodes := make([]*Node, 0, bucketSize)
+    nreceived := 0
+    errc := t.pending(toid, neighborsPacket, func(r interface{}) bool {
+        reply := r.(*neighbors)
+        for _, rn := range reply.Nodes {
+            nreceived++
+            n, err := t.nodeFromRPC(toaddr, rn)
+            if err != nil {
+                log.Trace("Invalid neighbor node received", "ip", rn.IP, "addr", toaddr, "err", err)
+                continue
+            }
+            nodes = append(nodes, n)
+        }
+        return nreceived &gt;= bucketSize
+    })
+    t.send(toaddr, findnodePacket, &amp;findnode{
+        Target:     target,
+        Expiration: uint64(time.Now().Add(expiration).Unix()),
+    })
+    err := &lt;-errc
+    return nodes, err
+}
+</code></pre>
+<p>neighbors回应, 很简单。 把回应发送给gotreply队列。 如果没有找到匹配的findnode请求。返回errUnsolicitedReply错误</p>
+<pre><code>func (req *neighbors) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
+    if expired(req.Expiration) {
+        return errExpired
+    }
+    if !t.handleReply(fromID, neighborsPacket, req) {
+        return errUnsolicitedReply
+    }
+    return nil
+}
+</code></pre>
+<p>收到别的节点发送的ping请求，发送pong回答。 如果没有匹配上一个pending(说明不是自己方请求的结果)。 就调用bond方法把这个节点加入自己的bucket缓存。(这部分原理在table.go里面会详细介绍)</p>
+<pre><code>func (req *ping) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
+    if expired(req.Expiration) {
+        return errExpired
+    }
+    t.send(from, pongPacket, &amp;pong{
+        To:         makeEndpoint(from, req.From.TCP),
+        ReplyTok:   mac,
+        Expiration: uint64(time.Now().Add(expiration).Unix()),
+    })
+    if !t.handleReply(fromID, pingPacket, req) {
+        // Note: we're ignoring the provided IP address right now
+        go t.bond(true, fromID, from, req.From.TCP)
+    }
+    return nil
+}
+</code></pre>
+<p>收到别人发送的findnode请求。这个请求希望把和target距离相近的k个节点发送回去。 算法的详细请参考references目录下面的pdf文档。</p>
+<pre><code>func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
+    if expired(req.Expiration) {
+        return errExpired
+    }
+    if t.db.node(fromID) == nil {
+        // No bond exists, we don't process the packet. This prevents
+        // an attack vector where the discovery protocol could be used
+        // to amplify traffic in a DDOS attack. A malicious actor
+        // would send a findnode request with the IP address and UDP
+        // port of the target as the source address. The recipient of
+        // the findnode packet would then send a neighbors packet
+        // (which is a much bigger packet than findnode) to the victim.
+        return errUnknownNode
+    }
+    target := crypto.Keccak256Hash(req.Target[:])
+    t.mutex.Lock()
+    //获取bucketSize个和target距离相近的节点。 这个方法在table.go内部实现。后续会详细介绍
+    closest := t.closest(target, bucketSize).entries
+    t.mutex.Unlock()
+
+    p := neighbors{Expiration: uint64(time.Now().Add(expiration).Unix())}
+    // Send neighbors in chunks with at most maxNeighbors per packet
+    // to stay below the 1280 byte limit.
+    for i, n := range closest {
+        if netutil.CheckRelayIP(from.IP, n.IP) != nil {
+            continue
+        }
+        p.Nodes = append(p.Nodes, nodeToRPC(n))
+        if len(p.Nodes) == maxNeighbors || i == len(closest)-1 {
+            t.send(from, neighborsPacket, &amp;p)
+            p.Nodes = p.Nodes[:0]
+        }
+    }
+    return nil
+}
+</code></pre>
+<h3 id="udp信息加密和安全问题"><a href="#udp信息加密和安全问题" class="headerlink" title="udp信息加密和安全问题"></a>udp信息加密和安全问题</h3><p>discover协议因为没有承载什么敏感数据，所以数据是以明文传输，但是为了确保数据的完整性和不被篡改，所以在数据包的包头加上了数字签名。</p>
+<pre><code>func encodePacket(priv *ecdsa.PrivateKey, ptype byte, req interface{}) ([]byte, error) {
+    b := new(bytes.Buffer)
+    b.Write(headSpace)
+    b.WriteByte(ptype)
+    if err := rlp.Encode(b, req); err != nil {
+        log.Error("Can't encode discv4 packet", "err", err)
+        return nil, err
+    }
+    packet := b.Bytes()
+    sig, err := crypto.Sign(crypto.Keccak256(packet[headSize:]), priv)
+    if err != nil {
+        log.Error("Can't sign discv4 packet", "err", err)
+        return nil, err
+    }
+    copy(packet[macSize:], sig)
+    // add the hash to the front. Note: this doesn't protect the
+    // packet in any way. Our public key will be part of this hash in
+    // The future.
+    copy(packet, crypto.Keccak256(packet[macSize:]))
+    return packet, nil
+}
+
+func decodePacket(buf []byte) (packet, NodeID, []byte, error) {
+    if len(buf) &lt; headSize+1 {
+        return nil, NodeID{}, nil, errPacketTooSmall
+    }
+    hash, sig, sigdata := buf[:macSize], buf[macSize:headSize], buf[headSize:]
+    shouldhash := crypto.Keccak256(buf[macSize:])
+    if !bytes.Equal(hash, shouldhash) {
+        return nil, NodeID{}, nil, errBadHash
+    }
+    fromID, err := recoverNodeID(crypto.Keccak256(buf[headSize:]), sig)
+    if err != nil {
+        return nil, NodeID{}, hash, err
+    }
+    var req packet
+    switch ptype := sigdata[0]; ptype {
+    case pingPacket:
+        req = new(ping)
+    case pongPacket:
+        req = new(pong)
+    case findnodePacket:
+        req = new(findnode)
+    case neighborsPacket:
+        req = new(neighbors)
+    default:
+        return nil, fromID, hash, fmt.Errorf("unknown type: %d", ptype)
+    }
+    s := rlp.NewStream(bytes.NewReader(sigdata[1:]), 0)
+    err = s.Decode(req)
+    return req, fromID, hash, err
+}
+</code></pre>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-p2p-table.go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="以太坊源码分析-p2p-table.go源码分析"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: 以太坊源码分析-p2p-table.go源码分析</span></a><a class="button is-default" href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-pow%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/" title="以太坊源码分析-pow一致性算法"><span class="has-text-weight-semibold">Next: 以太坊源码分析-pow一致性算法</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>

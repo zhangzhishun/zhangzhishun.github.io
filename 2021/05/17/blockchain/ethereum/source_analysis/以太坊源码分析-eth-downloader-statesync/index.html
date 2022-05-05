@@ -1,0 +1,297 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>以太坊源码分析-eth-downloader-statesync</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="statesync 用来获取pivot point所指定的区块的所有的state 的trie树，也就是所有的账号的信息，包括普通账号和合约账户。
+数据结构stateSync调度下载由给定state root所定义的特定state trie的请求。
+// stateSync schedules requests for downloading a particular state trie defined
+// by a given state root.
+type stateSync struct {
+    d *Downloader // Downloader instance to access and manage current peerset
+
+    sched  *trie.TrieSync.."><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"><link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">以太坊源码分析-eth-downloader-statesync</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-text">数据结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8"><span class="toc-text">启动</span></a></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">以太坊源码分析-eth-downloader-statesync</h1><time class="has-text-grey" datetime="2021-05-17T02:29:15.000Z">2021-05-17</time><article class="mt-2 post-content"><p>statesync 用来获取pivot point所指定的区块的所有的state 的trie树，也就是所有的账号的信息，包括普通账号和合约账户。</p>
+<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><p>stateSync调度下载由给定state root所定义的特定state trie的请求。</p>
+<pre><code>// stateSync schedules requests for downloading a particular state trie defined
+// by a given state root.
+type stateSync struct {
+    d *Downloader // Downloader instance to access and manage current peerset
+
+    sched  *trie.TrieSync             // State trie sync scheduler defining the tasks
+    keccak hash.Hash                  // Keccak256 hasher to verify deliveries with
+    tasks  map[common.Hash]*stateTask // Set of tasks currently queued for retrieval
+
+    numUncommitted   int
+    bytesUncommitted int
+
+    deliver    chan *stateReq // Delivery channel multiplexing peer responses
+    cancel     chan struct{}  // Channel to signal a termination request
+    cancelOnce sync.Once      // Ensures cancel only ever gets called once
+    done       chan struct{}  // Channel to signal termination completion
+    err        error          // Any error hit during sync (set before completion)
+}
+</code></pre>
+<p>构造函数</p>
+<pre><code>func newStateSync(d *Downloader, root common.Hash) *stateSync {
+    return &amp;stateSync{
+        d:       d,
+        sched:   state.NewStateSync(root, d.stateDB),
+        keccak:  sha3.NewKeccak256(),
+        tasks:   make(map[common.Hash]*stateTask),
+        deliver: make(chan *stateReq),
+        cancel:  make(chan struct{}),
+        done:    make(chan struct{}),
+    }
+}
+</code></pre>
+<p>NewStateSync</p>
+<pre><code>// NewStateSync create a new state trie download scheduler.
+func NewStateSync(root common.Hash, database trie.DatabaseReader) *trie.TrieSync {
+    var syncer *trie.TrieSync
+    callback := func(leaf []byte, parent common.Hash) error {
+        var obj Account
+        if err := rlp.Decode(bytes.NewReader(leaf), &amp;obj); err != nil {
+            return err
+        }
+        syncer.AddSubTrie(obj.Root, 64, parent, nil)
+        syncer.AddRawEntry(common.BytesToHash(obj.CodeHash), 64, parent)
+        return nil
+    }
+    syncer = trie.NewTrieSync(root, database, callback)
+    return syncer
+}
+</code></pre>
+<p>syncState， 这个函数是downloader调用的。</p>
+<pre><code>// syncState starts downloading state with the given root hash.
+func (d *Downloader) syncState(root common.Hash) *stateSync {
+    s := newStateSync(d, root)
+    select {
+    case d.stateSyncStart &lt;- s:
+    case &lt;-d.quitCh:
+        s.err = errCancelStateFetch
+        close(s.done)
+    }
+    return s
+}
+</code></pre>
+<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><p>在downloader中启动了一个新的goroutine 来运行stateFetcher函数。 这个函数首先试图往stateSyncStart通道来以获取信息。  而syncState这个函数会给stateSyncStart通道发送数据。</p>
+<pre><code>// stateFetcher manages the active state sync and accepts requests
+// on its behalf.
+func (d *Downloader) stateFetcher() {
+    for {
+        select {
+        case s := &lt;-d.stateSyncStart:
+            for next := s; next != nil; { // 这个for循环代表了downloader可以通过发送信号来随时改变需要同步的对象。
+                next = d.runStateSync(next)
+            }
+        case &lt;-d.stateCh:
+            // Ignore state responses while no sync is running.
+        case &lt;-d.quitCh:
+            return
+        }
+    }
+}
+</code></pre>
+<p>我们下面看看哪里会调用syncState()函数。processFastSyncContent这个函数会在最开始发现peer的时候启动。</p>
+<pre><code>// processFastSyncContent takes fetch results from the queue and writes them to the
+// database. It also controls the synchronisation of state nodes of the pivot block.
+func (d *Downloader) processFastSyncContent(latest *types.Header) error {
+    // Start syncing state of the reported head block.
+    // This should get us most of the state of the pivot block.
+    stateSync := d.syncState(latest.Root)
+</code></pre>
+<p>runStateSync,这个方法从stateCh获取已经下载好的状态，然后把他投递到deliver通道上等待别人处理。</p>
+<pre><code>// runStateSync runs a state synchronisation until it completes or another root
+// hash is requested to be switched over to.
+func (d *Downloader) runStateSync(s *stateSync) *stateSync {
+    var (
+        active   = make(map[string]*stateReq) // Currently in-flight requests
+        finished []*stateReq                  // Completed or failed requests
+        timeout  = make(chan *stateReq)       // Timed out active requests
+    )
+    defer func() {
+        // Cancel active request timers on exit. Also set peers to idle so they're
+        // available for the next sync.
+        for _, req := range active {
+            req.timer.Stop()
+            req.peer.SetNodeDataIdle(len(req.items))
+        }
+    }()
+    // Run the state sync.
+    // 运行状态同步
+    go s.run()
+    defer s.Cancel()
+
+    // Listen for peer departure events to cancel assigned tasks
+    peerDrop := make(chan *peerConnection, 1024)
+    peerSub := s.d.peers.SubscribePeerDrops(peerDrop)
+    defer peerSub.Unsubscribe()
+
+    for {
+        // Enable sending of the first buffered element if there is one.
+        var (
+            deliverReq   *stateReq
+            deliverReqCh chan *stateReq
+        )
+        if len(finished) &gt; 0 {
+            deliverReq = finished[0]
+            deliverReqCh = s.deliver
+        }
+
+        select {
+        // The stateSync lifecycle:
+        // 另外一个stateSync申请运行。 我们退出。
+        case next := &lt;-d.stateSyncStart:
+            return next
+
+        case &lt;-s.done:
+            return nil
+
+        // Send the next finished request to the current sync:
+        // 发送已经下载好的数据给sync
+        case deliverReqCh &lt;- deliverReq:
+            finished = append(finished[:0], finished[1:]...)
+
+        // Handle incoming state packs:
+        // 处理进入的数据包。 downloader接收到state的数据会发送到这个通道上面。
+        case pack := &lt;-d.stateCh:
+            // Discard any data not requested (or previsouly timed out)
+            req := active[pack.PeerId()]
+            if req == nil {
+                log.Debug("Unrequested node data", "peer", pack.PeerId(), "len", pack.Items())
+                continue
+            }
+            // Finalize the request and queue up for processing
+            req.timer.Stop()
+            req.response = pack.(*statePack).states
+
+            finished = append(finished, req)
+            delete(active, pack.PeerId())
+
+            // Handle dropped peer connections:
+        case p := &lt;-peerDrop:
+            // Skip if no request is currently pending
+            req := active[p.id]
+            if req == nil {
+                continue
+            }
+            // Finalize the request and queue up for processing
+            req.timer.Stop()
+            req.dropped = true
+
+            finished = append(finished, req)
+            delete(active, p.id)
+
+        // Handle timed-out requests:
+        case req := &lt;-timeout:
+            // If the peer is already requesting something else, ignore the stale timeout.
+            // This can happen when the timeout and the delivery happens simultaneously,
+            // causing both pathways to trigger.
+            if active[req.peer.id] != req {
+                continue
+            }
+            // Move the timed out data back into the download queue
+            finished = append(finished, req)
+            delete(active, req.peer.id)
+
+        // Track outgoing state requests:
+        case req := &lt;-d.trackStateReq:
+            // If an active request already exists for this peer, we have a problem. In
+            // theory the trie node schedule must never assign two requests to the same
+            // peer. In practive however, a peer might receive a request, disconnect and
+            // immediately reconnect before the previous times out. In this case the first
+            // request is never honored, alas we must not silently overwrite it, as that
+            // causes valid requests to go missing and sync to get stuck.
+            if old := active[req.peer.id]; old != nil {
+                log.Warn("Busy peer assigned new state fetch", "peer", old.peer.id)
+
+                // Make sure the previous one doesn't get siletly lost
+                old.timer.Stop()
+                old.dropped = true
+
+                finished = append(finished, old)
+            }
+            // Start a timer to notify the sync loop if the peer stalled.
+            req.timer = time.AfterFunc(req.timeout, func() {
+                select {
+                case timeout &lt;- req:
+                case &lt;-s.done:
+                    // Prevent leaking of timer goroutines in the unlikely case where a
+                    // timer is fired just before exiting runStateSync.
+                }
+            })
+            active[req.peer.id] = req
+        }
+    }
+}
+</code></pre>
+<p>run和loop方法，获取任务，分配任务，获取结果。</p>
+<pre><code>func (s *stateSync) run() {
+    s.err = s.loop()
+    close(s.done)
+}
+
+// loop is the main event loop of a state trie sync. It it responsible for the
+// assignment of new tasks to peers (including sending it to them) as well as
+// for the processing of inbound data. Note, that the loop does not directly
+// receive data from peers, rather those are buffered up in the downloader and
+// pushed here async. The reason is to decouple processing from data receipt
+// and timeouts.
+func (s *stateSync) loop() error {
+    // Listen for new peer events to assign tasks to them
+    newPeer := make(chan *peerConnection, 1024)
+    peerSub := s.d.peers.SubscribeNewPeers(newPeer)
+    defer peerSub.Unsubscribe()
+
+    // Keep assigning new tasks until the sync completes or aborts
+    // 一直等到 sync完成或者被被终止
+    for s.sched.Pending() &gt; 0 {
+        // 把数据从缓存里面刷新到持久化存储里面。 这也就是命令行 --cache指定的大小。
+        if err := s.commit(false); err != nil {
+            return err
+        }
+        // 指派任务，
+        s.assignTasks()
+        // Tasks assigned, wait for something to happen
+        select {
+        case &lt;-newPeer:
+            // New peer arrived, try to assign it download tasks
+
+        case &lt;-s.cancel:
+            return errCancelStateFetch
+
+        case req := &lt;-s.deliver:
+            // 接收到runStateSync方法投递过来的返回信息，注意 返回信息里面包含了成功请求的也包含了未成功请求的。
+            // Response, disconnect or timeout triggered, drop the peer if stalling
+            log.Trace("Received node data response", "peer", req.peer.id, "count", len(req.response), "dropped", req.dropped, "timeout", !req.dropped &amp;&amp; req.timedOut())
+            if len(req.items) &lt;= 2 &amp;&amp; !req.dropped &amp;&amp; req.timedOut() {
+                // 2 items are the minimum requested, if even that times out, we've no use of
+                // this peer at the moment.
+                log.Warn("Stalling state sync, dropping peer", "peer", req.peer.id)
+                s.d.dropPeer(req.peer.id)
+            }
+            // Process all the received blobs and check for stale delivery
+            stale, err := s.process(req)
+            if err != nil {
+                log.Warn("Node data write error", "err", err)
+                return err
+            }
+            // The the delivery contains requested data, mark the node idle (otherwise it's a timed out delivery)
+            if !stale {
+                req.peer.SetNodeDataIdle(len(req.response))
+            }
+        }
+    }
+    return s.commit(true)
+}
+</code></pre>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-eth-downloader-peer%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="以太坊源码分析-eth-downloader-peer源码分析"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: 以太坊源码分析-eth-downloader-peer源码分析</span></a><a class="button is-default" href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-eth%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="以太坊源码分析-eth源码分析"><span class="has-text-weight-semibold">Next: 以太坊源码分析-eth源码分析</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>

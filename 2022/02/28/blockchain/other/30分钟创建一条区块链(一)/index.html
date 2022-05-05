@@ -1,0 +1,184 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>30分钟创建一条区块链(一)</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="如何从技术上实现一条区块链？首先，这里假定读者有基本的编程能力，虽然本文用了Javascript来写，但掌握任意一门编程语言的读者阅读起来应该不会有任何难度。
+开发准备我们首先需要安装最新版的Node.js
+第一步，搭建区块链模型我们首先来搭一个能够新建区块，创建交易的区块链的模型。
+'use strict';
+
+//定义一个class，叫BlockChain，每一个区块链都是这个class的实例
+class BlockChain {
+    constructor() {
+        this.chain = []; // 储存所有区块
+        this.difficulty = 4; // 挖矿的难度
+    }
+
+    isProofValid(tentativeBlock) {
+   .."><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"><link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">30分钟创建一条区块链(一)</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E5%87%86%E5%A4%87"><span class="toc-text">开发准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%8C%E6%90%AD%E5%BB%BA%E5%8C%BA%E5%9D%97%E9%93%BE%E6%A8%A1%E5%9E%8B"><span class="toc-text">第一步，搭建区块链模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%9F%BA%E6%9C%AC%E5%8A%9F%E8%83%BD"><span class="toc-text">第二步，实现基本功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%90%86%E8%A7%A3%E6%8C%96%E7%9F%BF%EF%BC%9A%E6%89%BE%E5%88%B0%E6%9C%89%E6%95%88%E7%9A%84Proof"><span class="toc-text">理解挖矿：找到有效的Proof</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E6%8C%96%E7%9F%BF"><span class="toc-text">实现挖矿</span></a></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3"><i class="tag post-item-tag">部署文档</i></a><a href="/tags/Other"><i class="tag post-item-tag">Other</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">30分钟创建一条区块链(一)</h1><time class="has-text-grey" datetime="2022-02-28T01:10:53.000Z">2022-02-28</time><article class="mt-2 post-content"><p>如何从技术上实现一条区块链？<br>首先，这里假定读者有基本的编程能力，虽然本文用了Javascript来写，但掌握任意一门编程语言的读者阅读起来应该不会有任何难度。</p>
+<h2 id="开发准备"><a href="#开发准备" class="headerlink" title="开发准备"></a>开发准备</h2><p>我们首先需要安装最新版的Node.js</p>
+<h2 id="第一步，搭建区块链模型"><a href="#第一步，搭建区块链模型" class="headerlink" title="第一步，搭建区块链模型"></a>第一步，搭建区块链模型</h2><p>我们首先来搭一个能够新建区块，创建交易的区块链的模型。</p>
+<pre><code class="javascript">'use strict';
+
+//定义一个class，叫BlockChain，每一个区块链都是这个class的实例
+class BlockChain {
+    constructor() {
+        this.chain = []; // 储存所有区块
+        this.difficulty = 4; // 挖矿的难度
+    }
+
+    isProofValid(tentativeBlock) {
+        // 这里我们判断newProof是不是一个合法的proof的方法是
+    }
+
+    createBlock(transaction, previousHash = undefined) {
+        // 创造一个新区块
+    }
+
+    createTransaction(sender, receiver, value) {
+        // 创建一个交易
+    }
+
+    static hash(block) {
+        // 对一个区块进行哈希:
+    }
+
+    lastBlock() {
+        // 取得链上的最后一个区块
+    }
+
+    miner() {
+        // 挖矿程序
+    }
+}
+</code></pre>
+<p>这里要解释一下区块(block)和交易(transaction)各自长什么样，虽然不同区块链的区块模型有很大差异，但最基本的一些元素都是相通的。一个最基本的区块大概长下面这样：</p>
+<pre><code class="javascript">var block = {   
+    timestamp: 1516245715528, 
+    id: 0,
+    proof: 786453290000,
+    previousBlockHash: "12f79cda4fb3f084531de2034e6b4acf",
+    transactions: [{
+        sender: "0xca35b7d915458ef540ade6068dfe2f44e8fa733c",
+        receiver: "0x14723a09acff6d2a60dcdf7aa4aff308fddc160c",
+        value: 100
+    }]
+}
+</code></pre>
+<p>可以看到，一个区块包含了它被挖出来的时间戳(timestamp)，它在区块链里的位置(id)，它的证明(proof, 更多的会在之后讲到)，前一个区块的整体哈希值(previousBlockHash)，包含的交易(transactions)。 作为一个最基本的交易模型，每一个交易只包含了发送者的地址(sender)，接受者的地址(receiver)，以及这次交易的价值(value)。</p>
+<h2 id="第二步，实现基本功能"><a href="#第二步，实现基本功能" class="headerlink" title="第二步，实现基本功能"></a>第二步，实现基本功能</h2><p>工具函数<br>这里我们首先实现一个工具函数Hash(block), 它会帮助我们将一个区块进行哈希。这个函数会在我们进行挖矿(发掘新区块)的时候用到。</p>
+<pre><code class="javascript">static hash(block) {
+    // 对一个区块进行哈希:
+    // 现将block 转换成base64
+    // 将得到的结果进行SHA哈希
+    const blockStr = JSON.stringify(block);
+    const blockB64 = new Buffer(blockStr).toString("base64");
+    const newHash = crypto.createHash("sha256");
+    newHash.update(blockB64);
+    return newHash.digest("hex");
+}
+</code></pre>
+<p>这个函数将一个区块，也就是一个Javascript object，哈希成一段字符串。我们使用了crypto这个工具，在最新版的Node.js里面已经是内置了，所以我们并不需要安装它。</p>
+<p>创建一个新交易<br>下一步，我们实现创建新交易的方法。</p>
+<pre><code class="javascript">createTransaction(sender, receiver, value) {
+    // 创建一个交易
+    // 根据提供的sender, receiver地址，以及转账的价值，建立一个交易
+    // 并把它加入到我们的区块链里
+    const transaction = {
+        sender: sender,
+        receiver: receiver,
+        value: value
+    };
+    this._packTransactions.push(transaction);
+    return this.miner();
+}
+</code></pre>
+<p>非常直观，我们只是创建了一个object，加入到区块链里并返回而已。</p>
+<p>创建一个新区块<br>我们现在来实现创建一个区块的代码。当我们的区块链连一个区块也没有的时候，我们需要建立第一个区块(genesis block)，这一点我们在constructor里面实现。</p>
+<pre><code class="javascript">constructor() {
+    this.chain = []; // 储存所有区块
+    this.difficulty = 4; // 挖矿的难度
+    this.createBlock(["Genesis Block"], 1); // 创建第一个区块
+    this._packTransactions = []; // 当前需要打包的数据
+}
+createBlock(transaction, previousHash = undefined) {
+    // 创造一个新区块
+    // 一开始的proof是0，不一定是有效的，所以我们需要mineProof来找到有效的proof
+    let block = {
+        timestamp: Date.now(),
+        id: this.chain.length,
+        proof: 0,
+        previousBlockHash: previousHash || this.constructor.hash(this.lastBlock()),
+        transactions: transaction
+    };
+    const hash = this.mineProof(block);
+    this.chain.push(block);
+    return hash;
+}
+</code></pre>
+<p>在创建一个新区块的时候，我们用了当前时间的时间戳，以现在区块链的长度作为id，初始的proof设置为0(proof会在下一步详细讲到)，并将上一个区块整体进行哈希并赋值给previousBlockHash。在创建genesis 区块的时候，我们将previousBlockHash设置为1。 为了便于理解，我们建立新区块的时候没有附上任何交易，实际的情况是矿工可以自主选择包含哪些交易，并需要对这些交易进行处理得到一个默克尔树。</p>
+<h2 id="理解挖矿：找到有效的Proof"><a href="#理解挖矿：找到有效的Proof" class="headerlink" title="理解挖矿：找到有效的Proof"></a>理解挖矿：找到有效的Proof</h2><p>读者朋友们应该都听说过工作量证明(Proof of Work)，POW是区块链中用来创造区块的核心算法或者机制。POW本身的目的是为了找到一个数字来解决一个数学问题，而找到这个数字的难度是越来越高的，但一旦找到之后，要证明它解决了这个数学问题又是非常容易的，任何人都能很快做到。 当然除了Proof of Work之外，我们还有Proof of Space, Proof of Stake，在代码里我们就用proof来代表找到的这个数字。 那么这个数学问题到底是什么呢？我们用一个例子来回答。</p>
+<p>给定一个数字A，我们想找到数字B，使得Hash(A<em>B)的结果C的最后1位等于0。也就是说，C可以是Hash(A</em>B)=2ba83…6d0，因为它的最后一位是0。</p>
+<h2 id="实现挖矿"><a href="#实现挖矿" class="headerlink" title="实现挖矿"></a>实现挖矿</h2><p>知道了如何挖矿之后，我们将上面的代码融合到我们的区块链模型里。</p>
+<pre><code class="javascript">    isProofValid(tentativeBlock) {
+        // 这里我们判断newProof是不是一个合法的proof的方法是
+        // 将整个区块进行哈希
+        // 如果得到的散列值指的最后n位都是0，那么这是一个valid proof
+        // 其中，n = difficulty
+        const result = this.constructor.hash(tentativeBlock);
+        return result.substr(result.length - this.difficulty) === '0'.repeat(this.difficulty);
+    }
+
+    mineProof(tentativeBlock) {
+        console.log("miner block start: " + JSON.stringify(tentativeBlock));
+        while (!this.isProofValid(tentativeBlock)) {
+            tentativeBlock.proof += 1; // 如果不是可用的proof，我们就接着枚举
+        }
+        const hash = this.constructor.hash(tentativeBlock);
+        console.log("miner block success. Hash: " + hash);
+        return hash;
+    }
+
+    createBlock(transaction, previousHash = undefined) {
+        // 创造一个新区块
+        // 一开始的proof是0，不一定是有效的，所以我们需要mineProof来找到有效的proof
+        let block = {
+            timestamp: Date.now(),
+            id: this.chain.length,
+            proof: 0,
+            previousBlockHash: previousHash || this.constructor.hash(this.lastBlock()),
+            transactions: transaction
+        };
+        const hash = this.mineProof(block);
+        this.chain.push(block);
+        return hash;
+    }
+
+    miner() {
+        // 挖矿程序
+        if (this._packTransactions.length &gt; 0) {
+            const hash = this.createBlock([this._packTransactions[this._packTransactions.length - 1]]);
+            if (hash) {
+                this._packTransactions.pop();
+                return hash
+            }
+        }
+    }
+</code></pre>
+<p>完整代码：<a target="_blank" rel="noopener" href="https://github.com/zhangzhishun/sugar-blockchain-js/blob/master/blockchain.js">blockchain</a></p>
+<p>参考：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/6jwIj_m86dpGk62biEJyIA">30分钟自己写一条区块链(一)</a></li>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/UbLx2mHEb9OyPeJBwP2bvg">30分钟自己写一条区块链(二)</a></li>
+</ol>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2022/03/05/blockchain/other/30%E5%88%86%E9%92%9F%E5%88%9B%E5%BB%BA%E4%B8%80%E6%9D%A1%E5%8C%BA%E5%9D%97%E9%93%BE(%E4%BA%8C)/" title="30分钟创建一条区块链(二)"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: 30分钟创建一条区块链(二)</span></a><a class="button is-default" href="/2022/02/26/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC721%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="NFT框架 OpenZeppelin ERC721源码分析"><span class="has-text-weight-semibold">Next: NFT框架 OpenZeppelin ERC721源码分析</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>

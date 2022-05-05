@@ -1,0 +1,602 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>以太坊源码分析-eth-fetcher源码分析</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="fetcher包含基于块通知的同步。当我们接收到NewBlockHashesMsg消息得时候，我们只收到了很多Block的hash值。 需要通过hash值来同步区块，然后更新本地区块链。 fetcher就提供了这样的功能。
+数据结构
+// announce is the hash notification of the availability of a new block in the
+// network.
+// announce 是一个hash通知，表示网络上有合适的新区块出现。
+type announce struct {
+    hash   common.Hash   // Hash of the block being announced //新区块的hash值
+    number uint.."><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"><link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">以太坊源码分析-eth-fetcher源码分析</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8C%BA%E5%9D%97%E5%A4%B4%E7%9A%84%E8%BF%87%E6%BB%A4%E6%B5%81%E7%A8%8B"><span class="toc-text">区块头的过滤流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#FilterHeaders%E8%AF%B7%E6%B1%82"><span class="toc-text">FilterHeaders请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#headerFilter%E7%9A%84%E5%A4%84%E7%90%86"><span class="toc-text">headerFilter的处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#bodyFilter%E7%9A%84%E5%A4%84%E7%90%86"><span class="toc-text">bodyFilter的处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#notification%E7%9A%84%E5%A4%84%E7%90%86"><span class="toc-text">notification的处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Enqueue%E5%A4%84%E7%90%86"><span class="toc-text">Enqueue处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9A%E6%97%B6%E5%99%A8%E7%9A%84%E5%A4%84%E7%90%86"><span class="toc-text">定时器的处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E7%9A%84%E4%B8%80%E4%BA%9B%E6%96%B9%E6%B3%95"><span class="toc-text">其他的一些方法</span></a></li></ol></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">以太坊源码分析-eth-fetcher源码分析</h1><time class="has-text-grey" datetime="2021-05-17T02:29:15.000Z">2021-05-17</time><article class="mt-2 post-content"><p>fetcher包含基于块通知的同步。当我们接收到NewBlockHashesMsg消息得时候，我们只收到了很多Block的hash值。 需要通过hash值来同步区块，然后更新本地区块链。 fetcher就提供了这样的功能。</p>
+<p>数据结构</p>
+<pre><code>// announce is the hash notification of the availability of a new block in the
+// network.
+// announce 是一个hash通知，表示网络上有合适的新区块出现。
+type announce struct {
+    hash   common.Hash   // Hash of the block being announced //新区块的hash值
+    number uint64        // Number of the block being announced (0 = unknown | old protocol) 区块的高度值，
+    header *types.Header // Header of the block partially reassembled (new protocol)    重新组装的区块头
+    time   time.Time     // Timestamp of the announcement
+
+    origin string // Identifier of the peer originating the notification
+
+    fetchHeader headerRequesterFn // Fetcher function to retrieve the header of an announced block  获取区块头的函数指针， 里面包含了peer的信息。就是说找谁要这个区块头
+    fetchBodies bodyRequesterFn   // Fetcher function to retrieve the body of an announced block 获取区块体的函数指针
+}
+
+// headerFilterTask represents a batch of headers needing fetcher filtering.
+type headerFilterTask struct {
+    peer    string          // The source peer of block headers
+    headers []*types.Header // Collection of headers to filter
+    time    time.Time       // Arrival time of the headers
+}
+
+// headerFilterTask represents a batch of block bodies (transactions and uncles)
+// needing fetcher filtering.
+type bodyFilterTask struct {
+    peer         string                 // The source peer of block bodies
+    transactions [][]*types.Transaction // Collection of transactions per block bodies
+    uncles       [][]*types.Header      // Collection of uncles per block bodies
+    time         time.Time              // Arrival time of the blocks' contents
+}
+
+// inject represents a schedules import operation. 
+// 当节点收到NewBlockMsg的消息时候，会插入一个区块
+type inject struct {
+    origin string
+    block  *types.Block
+}
+
+// Fetcher is responsible for accumulating block announcements from various peers
+// and scheduling them for retrieval.
+type Fetcher struct {
+    // Various event channels
+    notify chan *announce    //announce的通道，
+    inject chan *inject        //inject的通道
+
+    blockFilter  chan chan []*types.Block     //通道的通道？
+    headerFilter chan chan *headerFilterTask
+    bodyFilter   chan chan *bodyFilterTask
+
+    done chan common.Hash
+    quit chan struct{}
+
+    // Announce states
+    announces  map[string]int              // Per peer announce counts to prevent memory exhaustion key是peer的名字， value是announce的count， 为了避免内存占用太大。
+    announced  map[common.Hash][]*announce // Announced blocks, scheduled for fetching 等待调度fetching的announce
+    fetching   map[common.Hash]*announce   // Announced blocks, currently fetching 正在fetching的announce
+    fetched    map[common.Hash][]*announce // Blocks with headers fetched, scheduled for body retrieval // 已经获取区块头的，等待获取区块body
+    completing map[common.Hash]*announce   // Blocks with headers, currently body-completing  //头和体都已经获取完成的announce
+
+    // Block cache
+    queue  *prque.Prque            // Queue containing the import operations (block number sorted) //包含了import操作的队列(按照区块号排列)
+    queues map[string]int          // Per peer block counts to prevent memory exhaustion key是peer，value是block数量。 避免内存消耗太多。
+    queued map[common.Hash]*inject // Set of already queued blocks (to dedup imports)  已经放入队列的区块。 为了去重。
+
+    // Callbacks  依赖了一些回调函数。
+    getBlock       blockRetrievalFn   // Retrieves a block from the local chain
+    verifyHeader   headerVerifierFn   // Checks if a block's headers have a valid proof of work
+    broadcastBlock blockBroadcasterFn // Broadcasts a block to connected peers
+    chainHeight    chainHeightFn      // Retrieves the current chain's height
+    insertChain    chainInsertFn      // Injects a batch of blocks into the chain
+    dropPeer       peerDropFn         // Drops a peer for misbehaving
+
+    // Testing hooks  仅供测试使用。
+    announceChangeHook func(common.Hash, bool) // Method to call upon adding or deleting a hash from the announce list
+    queueChangeHook    func(common.Hash, bool) // Method to call upon adding or deleting a block from the import queue
+    fetchingHook       func([]common.Hash)     // Method to call upon starting a block (eth/61) or header (eth/62) fetch
+    completingHook     func([]common.Hash)     // Method to call upon starting a block body fetch (eth/62)
+    importedHook       func(*types.Block)      // Method to call upon successful block import (both eth/61 and eth/62)
+}
+</code></pre>
+<p>启动fetcher， 直接启动了一个goroutine来处理。 这个函数有点长。 后续再分析。</p>
+<pre><code>// Start boots up the announcement based synchroniser, accepting and processing
+// hash notifications and block fetches until termination requested.
+func (f *Fetcher) Start() {
+    go f.loop()
+}
+</code></pre>
+<p>loop函数函数太长。 我先帖一个省略版本的出来。fetcher通过四个map(announced,fetching,fetched,completing )记录了announce的状态(等待fetch,正在fetch,fetch完头等待fetch body, fetch完成)。 loop其实通过定时器和各种消息来对各种map里面的announce进行状态转换。</p>
+<pre><code>// Loop is the main fetcher loop, checking and processing various notification
+// events.
+func (f *Fetcher) loop() {
+    // Iterate the block fetching until a quit is requested
+    fetchTimer := time.NewTimer(0)  //fetch的定时器。
+    completeTimer := time.NewTimer(0) // compelte的定时器。
+
+    for {
+        // Clean up any expired block fetches
+        // 如果fetching的时间超过5秒，那么放弃掉这个fetching
+        for hash, announce := range f.fetching {
+            if time.Since(announce.time) &gt; fetchTimeout {
+                f.forgetHash(hash)
+            }
+        }
+        // Import any queued blocks that could potentially fit
+        // 这个fetcher.queue里面缓存了已经完成fetch的block等待按照顺序插入到本地的区块链中
+        //fetcher.queue是一个优先级队列。 优先级别就是他们的区块号的负数，这样区块数小的排在最前面。
+        height := f.chainHeight()
+        for !f.queue.Empty() { // 
+            op := f.queue.PopItem().(*inject)
+            if f.queueChangeHook != nil {
+                f.queueChangeHook(op.block.Hash(), false)
+            }
+            // If too high up the chain or phase, continue later
+            number := op.block.NumberU64()
+            if number &gt; height+1 { //当前的区块的高度太高，还不能import
+                f.queue.Push(op, -float32(op.block.NumberU64()))
+                if f.queueChangeHook != nil {
+                    f.queueChangeHook(op.block.Hash(), true)
+                }
+                break
+            }
+            // Otherwise if fresh and still unknown, try and import
+            hash := op.block.Hash()
+            if number+maxUncleDist &lt; height || f.getBlock(hash) != nil {
+                // 区块的高度太低 低于当前的height-maxUncleDist
+                // 或者区块已经被import了
+                f.forgetBlock(hash)
+                continue
+            }
+            // 插入区块
+            f.insert(op.origin, op.block)
+        }
+        // Wait for an outside event to occur
+        select {
+        case &lt;-f.quit:
+            // Fetcher terminating, abort all operations
+            return
+
+        case notification := &lt;-f.notify: //在接收到NewBlockHashesMsg的时候，对于本地区块链还没有的区块的hash值会调用fetcher的Notify方法发送到notify通道。
+            ...
+
+        case op := &lt;-f.inject: // 在接收到NewBlockMsg的时候会调用fetcher的Enqueue方法，这个方法会把当前接收到的区块发送到inject通道。
+            ...
+            f.enqueue(op.origin, op.block)
+
+        case hash := &lt;-f.done: //当完成一个区块的import的时候会发送该区块的hash值到done通道。
+            ...
+
+        case &lt;-fetchTimer.C: // fetchTimer定时器，定期对需要fetch的区块头进行fetch
+            ...
+
+        case &lt;-completeTimer.C: // completeTimer定时器定期对需要fetch的区块体进行fetch
+            ...
+
+        case filter := &lt;-f.headerFilter: //当接收到BlockHeadersMsg的消息的时候(接收到一些区块头),会把这些消息投递到headerFilter队列。 这边会把属于fetcher请求的数据留下，其他的会返回出来，给其他系统使用。
+            ...
+
+        case filter := &lt;-f.bodyFilter: //当接收到BlockBodiesMsg消息的时候，会把这些消息投递给bodyFilter队列。这边会把属于fetcher请求的数据留下，其他的会返回出来，给其他系统使用。
+            ...
+        }
+    }
+}
+</code></pre>
+<h3 id="区块头的过滤流程"><a href="#区块头的过滤流程" class="headerlink" title="区块头的过滤流程"></a>区块头的过滤流程</h3><h4 id="FilterHeaders请求"><a href="#FilterHeaders请求" class="headerlink" title="FilterHeaders请求"></a>FilterHeaders请求</h4><p>FilterHeaders方法在接收到BlockHeadersMsg的时候被调用。这个方法首先投递了一个channel filter到headerFilter。 然后往filter投递了一个headerFilterTask的任务。然后阻塞等待filter队列返回消息。</p>
+<pre><code>// FilterHeaders extracts all the headers that were explicitly requested by the fetcher,
+// returning those that should be handled differently.
+func (f *Fetcher) FilterHeaders(peer string, headers []*types.Header, time time.Time) []*types.Header {
+    log.Trace("Filtering headers", "peer", peer, "headers", len(headers))
+
+    // Send the filter channel to the fetcher
+    filter := make(chan *headerFilterTask)
+
+    select {
+    case f.headerFilter &lt;- filter:
+    case &lt;-f.quit:
+        return nil
+    }
+    // Request the filtering of the header list
+    select {
+    case filter &lt;- &amp;headerFilterTask{peer: peer, headers: headers, time: time}:
+    case &lt;-f.quit:
+        return nil
+    }
+    // Retrieve the headers remaining after filtering
+    select {
+    case task := &lt;-filter:
+        return task.headers
+    case &lt;-f.quit:
+        return nil
+    }
+}
+</code></pre>
+<h4 id="headerFilter的处理"><a href="#headerFilter的处理" class="headerlink" title="headerFilter的处理"></a>headerFilter的处理</h4><p>这个处理在loop()的goroutine中。</p>
+<pre><code>case filter := &lt;-f.headerFilter:
+            // Headers arrived from a remote peer. Extract those that were explicitly
+            // requested by the fetcher, and return everything else so it's delivered
+            // to other parts of the system.
+            var task *headerFilterTask
+            select {
+            case task = &lt;-filter:
+            case &lt;-f.quit:
+                return
+            }
+            headerFilterInMeter.Mark(int64(len(task.headers)))
+
+            // Split the batch of headers into unknown ones (to return to the caller),
+            // known incomplete ones (requiring body retrievals) and completed blocks.
+            unknown, incomplete, complete := []*types.Header{}, []*announce{}, []*types.Block{}
+            for _, header := range task.headers {
+                hash := header.Hash()
+
+                // Filter fetcher-requested headers from other synchronisation algorithms
+                // 根据情况看这个是否是我们的请求返回的信息。
+                if announce := f.fetching[hash]; announce != nil &amp;&amp; announce.origin == task.peer &amp;&amp; f.fetched[hash] == nil &amp;&amp; f.completing[hash] == nil &amp;&amp; f.queued[hash] == nil {
+                    // If the delivered header does not match the promised number, drop the announcer
+                    // 如果返回的header的区块高度和我们请求的不同，那么删除掉返回这个header的peer。 并且忘记掉这个hash(以便于重新获取区块信息)
+                    if header.Number.Uint64() != announce.number {
+                        log.Trace("Invalid block number fetched", "peer", announce.origin, "hash", header.Hash(), "announced", announce.number, "provided", header.Number)
+                        f.dropPeer(announce.origin)
+                        f.forgetHash(hash)
+                        continue
+                    }
+                    // Only keep if not imported by other means
+                    if f.getBlock(hash) == nil {
+                        announce.header = header
+                        announce.time = task.time
+
+                        // If the block is empty (header only), short circuit into the final import queue
+                        // 根据区块头查看，如果这个区块不包含任何交易或者是Uncle区块。那么我们就不用获取区块的body了。 那么直接插入完成列表。
+                        if header.TxHash == types.DeriveSha(types.Transactions{}) &amp;&amp; header.UncleHash == types.CalcUncleHash([]*types.Header{}) {
+                            log.Trace("Block empty, skipping body retrieval", "peer", announce.origin, "number", header.Number, "hash", header.Hash())
+
+                            block := types.NewBlockWithHeader(header)
+                            block.ReceivedAt = task.time
+
+                            complete = append(complete, block)
+                            f.completing[hash] = announce
+                            continue
+                        }
+                        // Otherwise add to the list of blocks needing completion
+                        // 否则，插入到未完成列表等待fetch blockbody
+                        incomplete = append(incomplete, announce)
+                    } else {
+                        log.Trace("Block already imported, discarding header", "peer", announce.origin, "number", header.Number, "hash", header.Hash())
+                        f.forgetHash(hash)
+                    }
+                } else {
+                    // Fetcher doesn't know about it, add to the return list
+                    // Fetcher并不知道这个header。 增加到返回列表等待返回。
+                    unknown = append(unknown, header)
+                }
+            }
+            headerFilterOutMeter.Mark(int64(len(unknown)))
+            select {
+            // 把返回结果返回。
+            case filter &lt;- &amp;headerFilterTask{headers: unknown, time: task.time}:
+            case &lt;-f.quit:
+                return
+            }
+            // Schedule the retrieved headers for body completion
+            for _, announce := range incomplete {
+                hash := announce.header.Hash()
+                if _, ok := f.completing[hash]; ok { //如果已经在其他的地方完成
+                    continue
+                }
+                // 放到等待获取body的map等待处理。
+                f.fetched[hash] = append(f.fetched[hash], announce)
+                if len(f.fetched) == 1 { //如果fetched map只有刚刚加入的一个元素。 那么重置计时器。
+                    f.rescheduleComplete(completeTimer)
+                }
+            }
+            // Schedule the header-only blocks for import
+            // 这些只有header的区块放入queue等待import
+            for _, block := range complete {
+                if announce := f.completing[block.Hash()]; announce != nil {
+                    f.enqueue(announce.origin, block)
+                }
+            }
+</code></pre>
+<h4 id="bodyFilter的处理"><a href="#bodyFilter的处理" class="headerlink" title="bodyFilter的处理"></a>bodyFilter的处理</h4><p>和上面的处理类似。</p>
+<pre><code>    case filter := &lt;-f.bodyFilter:
+        // Block bodies arrived, extract any explicitly requested blocks, return the rest
+        var task *bodyFilterTask
+        select {
+        case task = &lt;-filter:
+        case &lt;-f.quit:
+            return
+        }
+        bodyFilterInMeter.Mark(int64(len(task.transactions)))
+
+        blocks := []*types.Block{}
+        for i := 0; i &lt; len(task.transactions) &amp;&amp; i &lt; len(task.uncles); i++ {
+            // Match up a body to any possible completion request
+            matched := false
+
+            for hash, announce := range f.completing {
+                if f.queued[hash] == nil {
+                    txnHash := types.DeriveSha(types.Transactions(task.transactions[i]))
+                    uncleHash := types.CalcUncleHash(task.uncles[i])
+
+                    if txnHash == announce.header.TxHash &amp;&amp; uncleHash == announce.header.UncleHash &amp;&amp; announce.origin == task.peer {
+                        // Mark the body matched, reassemble if still unknown
+                        matched = true
+                        
+                        if f.getBlock(hash) == nil {
+                            block := types.NewBlockWithHeader(announce.header).WithBody(task.transactions[i], task.uncles[i])
+                            block.ReceivedAt = task.time
+
+                            blocks = append(blocks, block)
+                        } else {
+                            f.forgetHash(hash)
+                        }
+                    }
+                }
+            }
+            if matched {
+                task.transactions = append(task.transactions[:i], task.transactions[i+1:]...)
+                task.uncles = append(task.uncles[:i], task.uncles[i+1:]...)
+                i--
+                continue
+            }
+        }
+
+        bodyFilterOutMeter.Mark(int64(len(task.transactions)))
+        select {
+        case filter &lt;- task:
+        case &lt;-f.quit:
+            return
+        }
+        // Schedule the retrieved blocks for ordered import
+        for _, block := range blocks {
+            if announce := f.completing[block.Hash()]; announce != nil {
+                f.enqueue(announce.origin, block)
+            }
+        }
+</code></pre>
+<h4 id="notification的处理"><a href="#notification的处理" class="headerlink" title="notification的处理"></a>notification的处理</h4><p>在接收到NewBlockHashesMsg的时候，对于本地区块链还没有的区块的hash值会调用fetcher的Notify方法发送到notify通道。</p>
+<pre><code>// Notify announces the fetcher of the potential availability of a new block in
+// the network.
+func (f *Fetcher) Notify(peer string, hash common.Hash, number uint64, time time.Time,
+    headerFetcher headerRequesterFn, bodyFetcher bodyRequesterFn) error {
+    block := &amp;announce{
+        hash:        hash,
+        number:      number,
+        time:        time,
+        origin:      peer,
+        fetchHeader: headerFetcher,
+        fetchBodies: bodyFetcher,
+    }
+    select {
+    case f.notify &lt;- block:
+        return nil
+    case &lt;-f.quit:
+        return errTerminated
+    }
+}
+</code></pre>
+<p>在loop中的处理，主要是检查一下然后加入了announced这个容器等待定时处理。</p>
+<pre><code>case notification := &lt;-f.notify:
+        // A block was announced, make sure the peer isn't DOSing us
+        propAnnounceInMeter.Mark(1)
+
+        count := f.announces[notification.origin] + 1
+        if count &gt; hashLimit {  //hashLimit 256 一个远端最多只存在256个announces
+            log.Debug("Peer exceeded outstanding announces", "peer", notification.origin, "limit", hashLimit)
+            propAnnounceDOSMeter.Mark(1)
+            break
+        }
+        // If we have a valid block number, check that it's potentially useful
+        // 查看是潜在是否有用。 根据这个区块号和本地区块链的距离， 太大和太小对于我们都没有意义。
+        if notification.number &gt; 0 {
+            if dist := int64(notification.number) - int64(f.chainHeight()); dist &lt; -maxUncleDist || dist &gt; maxQueueDist {
+                log.Debug("Peer discarded announcement", "peer", notification.origin, "number", notification.number, "hash", notification.hash, "distance", dist)
+                propAnnounceDropMeter.Mark(1)
+                break
+            }
+        }
+        // All is well, schedule the announce if block's not yet downloading
+        // 检查我们是否已经存在了。
+        if _, ok := f.fetching[notification.hash]; ok {
+            break
+        }
+        if _, ok := f.completing[notification.hash]; ok {
+            break
+        }
+        f.announces[notification.origin] = count
+        f.announced[notification.hash] = append(f.announced[notification.hash], notification)
+        if f.announceChangeHook != nil &amp;&amp; len(f.announced[notification.hash]) == 1 {
+            f.announceChangeHook(notification.hash, true)
+        }
+        if len(f.announced) == 1 {
+            f.rescheduleFetch(fetchTimer)
+        }
+</code></pre>
+<h4 id="Enqueue处理"><a href="#Enqueue处理" class="headerlink" title="Enqueue处理"></a>Enqueue处理</h4><p>在接收到NewBlockMsg的时候会调用fetcher的Enqueue方法，这个方法会把当前接收到的区块发送到inject通道。 可以看到这个方法生成了一个inject对象然后发送到inject通道</p>
+<pre><code>// Enqueue tries to fill gaps the the fetcher's future import queue.
+func (f *Fetcher) Enqueue(peer string, block *types.Block) error {
+    op := &amp;inject{
+        origin: peer,
+        block:  block,
+    }
+    select {
+    case f.inject &lt;- op:
+        return nil
+    case &lt;-f.quit:
+        return errTerminated
+    }
+}
+</code></pre>
+<p>inject通道处理非常简单，直接加入到队列等待import</p>
+<pre><code>case op := &lt;-f.inject:
+        // A direct block insertion was requested, try and fill any pending gaps
+        propBroadcastInMeter.Mark(1)
+        f.enqueue(op.origin, op.block)
+</code></pre>
+<p>enqueue</p>
+<pre><code>// enqueue schedules a new future import operation, if the block to be imported
+// has not yet been seen.
+func (f *Fetcher) enqueue(peer string, block *types.Block) {
+    hash := block.Hash()
+
+    // Ensure the peer isn't DOSing us
+    count := f.queues[peer] + 1
+    if count &gt; blockLimit { blockLimit 64 如果缓存的对方的block太多。
+        log.Debug("Discarded propagated block, exceeded allowance", "peer", peer, "number", block.Number(), "hash", hash, "limit", blockLimit)
+        propBroadcastDOSMeter.Mark(1)
+        f.forgetHash(hash)
+        return
+    }
+    // Discard any past or too distant blocks
+    // 距离我们的区块链太远。
+    if dist := int64(block.NumberU64()) - int64(f.chainHeight()); dist &lt; -maxUncleDist || dist &gt; maxQueueDist { 
+        log.Debug("Discarded propagated block, too far away", "peer", peer, "number", block.Number(), "hash", hash, "distance", dist)
+        propBroadcastDropMeter.Mark(1)
+        f.forgetHash(hash)
+        return
+    }
+    // Schedule the block for future importing
+    // 插入到队列。
+    if _, ok := f.queued[hash]; !ok {
+        op := &amp;inject{
+            origin: peer,
+            block:  block,
+        }
+        f.queues[peer] = count
+        f.queued[hash] = op
+        f.queue.Push(op, -float32(block.NumberU64()))
+        if f.queueChangeHook != nil {
+            f.queueChangeHook(op.block.Hash(), true)
+        }
+        log.Debug("Queued propagated block", "peer", peer, "number", block.Number(), "hash", hash, "queued", f.queue.Size())
+    }
+}
+</code></pre>
+<h4 id="定时器的处理"><a href="#定时器的处理" class="headerlink" title="定时器的处理"></a>定时器的处理</h4><p>一共存在两个定时器。fetchTimer和completeTimer，分别负责获取区块头和获取区块body。</p>
+<p>状态转换 announced  –fetchTimer(fetch header)—&gt; fetching  –(headerFilter)–&gt; fetched –completeTimer(fetch body)–&gt;completing –(bodyFilter)–&gt; enqueue –task.done–&gt; forgetHash</p>
+<p>发现一个问题。 completing的容器有可能泄露。如果发送了一个hash的body请求。 但是请求失败，对方并没有返回。 这个时候completing容器没有清理。 是否有可能导致问题。</p>
+<pre><code>    case &lt;-fetchTimer.C:
+        // At least one block's timer ran out, check for needing retrieval
+        request := make(map[string][]common.Hash)
+
+        for hash, announces := range f.announced {
+            // TODO 这里的时间限制是什么意思
+            // 最早收到的announce，并经过arriveTimeout-gatherSlack这么长的时间。
+            if time.Since(announces[0].time) &gt; arriveTimeout-gatherSlack {
+                // Pick a random peer to retrieve from, reset all others
+                // announces代表了同一个区块的来自多个peer的多个announce
+                announce := announces[rand.Intn(len(announces))]
+                f.forgetHash(hash)
+
+                // If the block still didn't arrive, queue for fetching
+                if f.getBlock(hash) == nil {
+                    request[announce.origin] = append(request[announce.origin], hash)
+                    f.fetching[hash] = announce
+                }
+            }
+        }
+        // Send out all block header requests
+        // 发送所有的请求。
+        for peer, hashes := range request {
+            log.Trace("Fetching scheduled headers", "peer", peer, "list", hashes)
+
+            // Create a closure of the fetch and schedule in on a new thread
+            fetchHeader, hashes := f.fetching[hashes[0]].fetchHeader, hashes
+            go func() {
+                if f.fetchingHook != nil {
+                    f.fetchingHook(hashes)
+                }
+                for _, hash := range hashes {
+                    headerFetchMeter.Mark(1)
+                    fetchHeader(hash) // Suboptimal, but protocol doesn't allow batch header retrievals
+                }
+            }()
+        }
+        // Schedule the next fetch if blocks are still pending
+        f.rescheduleFetch(fetchTimer)
+
+    case &lt;-completeTimer.C:
+        // At least one header's timer ran out, retrieve everything
+        request := make(map[string][]common.Hash)
+
+        for hash, announces := range f.fetched {
+            // Pick a random peer to retrieve from, reset all others
+            announce := announces[rand.Intn(len(announces))]
+            f.forgetHash(hash)
+
+            // If the block still didn't arrive, queue for completion
+            if f.getBlock(hash) == nil {
+                request[announce.origin] = append(request[announce.origin], hash)
+                f.completing[hash] = announce
+            }
+        }
+        // Send out all block body requests
+        for peer, hashes := range request {
+            log.Trace("Fetching scheduled bodies", "peer", peer, "list", hashes)
+
+            // Create a closure of the fetch and schedule in on a new thread
+            if f.completingHook != nil {
+                f.completingHook(hashes)
+            }
+            bodyFetchMeter.Mark(int64(len(hashes)))
+            go f.completing[hashes[0]].fetchBodies(hashes)
+        }
+        // Schedule the next fetch if blocks are still pending
+        f.rescheduleComplete(completeTimer)
+</code></pre>
+<h4 id="其他的一些方法"><a href="#其他的一些方法" class="headerlink" title="其他的一些方法"></a>其他的一些方法</h4><p>fetcher insert方法。 这个方法把给定的区块插入本地的区块链。</p>
+<pre><code>// insert spawns a new goroutine to run a block insertion into the chain. If the
+// block's number is at the same height as the current import phase, if updates
+// the phase states accordingly.
+func (f *Fetcher) insert(peer string, block *types.Block) {
+    hash := block.Hash()
+
+    // Run the import on a new thread
+    log.Debug("Importing propagated block", "peer", peer, "number", block.Number(), "hash", hash)
+    go func() {
+        defer func() { f.done &lt;- hash }()
+
+        // If the parent's unknown, abort insertion
+        parent := f.getBlock(block.ParentHash())
+        if parent == nil {
+            log.Debug("Unknown parent of propagated block", "peer", peer, "number", block.Number(), "hash", hash, "parent", block.ParentHash())
+            return
+        }
+        // Quickly validate the header and propagate the block if it passes
+        // 如果区块头通过验证，那么马上对区块进行广播。 NewBlockMsg
+        switch err := f.verifyHeader(block.Header()); err {
+        case nil:
+            // All ok, quickly propagate to our peers
+            propBroadcastOutTimer.UpdateSince(block.ReceivedAt)
+            go f.broadcastBlock(block, true)
+
+        case consensus.ErrFutureBlock:
+            // Weird future block, don't fail, but neither propagate
+
+        default:
+            // Something went very wrong, drop the peer
+            log.Debug("Propagated block verification failed", "peer", peer, "number", block.Number(), "hash", hash, "err", err)
+            f.dropPeer(peer)
+            return
+        }
+        // Run the actual import and log any issues
+        if _, err := f.insertChain(types.Blocks{block}); err != nil {
+            log.Debug("Propagated block import failed", "peer", peer, "number", block.Number(), "hash", hash, "err", err)
+            return
+        }
+        // If import succeeded, broadcast the block
+        // 如果插入成功， 那么广播区块， 第二个参数为false。那么只会对区块的hash进行广播。NewBlockHashesMsg
+        propAnnounceOutTimer.UpdateSince(block.ReceivedAt)
+        go f.broadcastBlock(block, false)
+
+        // Invoke the testing hook if needed
+        if f.importedHook != nil {
+            f.importedHook(block)
+        }
+    }()
+}
+</code></pre>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-eth-downloader-queue.go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="以太坊源码分析-eth-downloader-queue.go源码分析"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: 以太坊源码分析-eth-downloader-queue.go源码分析</span></a><a class="button is-default" href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-p2p-rlpx%E8%8A%82%E7%82%B9%E4%B9%8B%E9%97%B4%E7%9A%84%E5%8A%A0%E5%AF%86%E9%93%BE%E8%B7%AF/" title="以太坊源码分析-p2p-rlpx节点之间的加密链路"><span class="has-text-weight-semibold">Next: 以太坊源码分析-p2p-rlpx节点之间的加密链路</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>

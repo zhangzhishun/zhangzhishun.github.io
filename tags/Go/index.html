@@ -1,0 +1,61 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>Sugar's blog</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/widget-post-list.css"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"><link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><span>Tags · Go</span></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><article class="post-container is-flex is-justify-content-center section container is-max-widescreen pt-4 px-2"><div class="columns is-variable is-1-tablet is-3-desktop-only is-2-widescreen is-full-width"><section class="column"><article class="post-item-card"><header class="is-relative is-flex"><div class="post-cover-backdrop is-hidden"><img src="/images/go_core_programming/Untitled.png" alt="loading.."></div><a class="post-cover-link has-text-centered skeleton" href="/2022/01/17/go/Go%E8%AF%AD%E8%A8%80%E6%A0%B8%E5%BF%83%E7%BC%96%E7%A8%8B/"><img class="post-cover-img js-img-fadeIn" src="/images/go_core_programming/Untitled.png" alt="loading.." data-backdrop="true"></a></header><section class="content post-card-content p-4 pb-5"><header><a href="/tags/Go"><i class="tag post-item-tag">Go</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/01/17/go/Go%E8%AF%AD%E8%A8%80%E6%A0%B8%E5%BF%83%E7%BC%96%E7%A8%8B/">Go语言核心编程</a></h2><time class="has-text-grey" datetime="2022-01-17T02:29:15.000Z">2022-01-17</time><p class="is-flex-grow-2 mt-2">Go Core Programming第 1 章 基础知识1.1 语言简介1.1.1 Go语言的诞生背景
+当前编程语言对并发的支持不是很好，不能很好地发挥多核CPU的威力
+程序规模越来越大，编译速度越来越慢
+现有的编程语言设计越来越复杂，某些特性的实现不怎么优雅
+
+1.1.3 Go语言的特性
+
+1.3 Go词法单元1.3.1 tokentoken是构成源程序的基本不可再分割的单元。
+编译器编译源程序的第一步就是将源程序分割成一个个独立的token，这个过程就是词法分析。
+Go语言的token可以分为关键字、标识符、操作符、分隔符和字面常量
+
+1.3.2 标识符
+标识符用来标识变量、类型、常量等语法对象的符号名称，其在语法分析时作为一个token存在。
+标识符分为两类：
+语言设计者预留的标识符：语言设计者确定..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/01/17/go/Go%E8%AF%AD%E8%A8%80%E6%A0%B8%E5%BF%83%E7%BC%96%E7%A8%8B/">Read more</a></section></article><article class="post-item-card"><header class="is-relative is-flex"><div class="post-cover-backdrop is-hidden"><img src="/images/go_interview/GO-r-01.jpg" alt="loading.."></div><a class="post-cover-link has-text-centered skeleton" href="/2022/01/16/go/Go%E9%9D%A2%E8%AF%95%E9%A2%98%E6%89%8B%E5%86%99/"><img class="post-cover-img js-img-fadeIn" src="/images/go_interview/GO-r-01.jpg" alt="loading.." data-backdrop="true"></a></header><section class="content post-card-content p-4 pb-5"><header><a href="/tags/Go"><i class="tag post-item-tag">Go</i></a><a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98"><i class="tag post-item-tag">面试题</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/01/16/go/Go%E9%9D%A2%E8%AF%95%E9%A2%98%E6%89%8B%E5%86%99/">Go面试题手写内容</a></h2><time class="has-text-grey" datetime="2022-01-16T02:29:15.000Z">2022-01-16</time><p class="is-flex-grow-2 mt-2">
+</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/01/16/go/Go%E9%9D%A2%E8%AF%95%E9%A2%98%E6%89%8B%E5%86%99/">Read more</a></section></article><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/Go"><i class="tag post-item-tag">Go</i></a><a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98"><i class="tag post-item-tag">面试题</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/01/16/go/Go%E9%9D%A2%E8%AF%95%E9%A2%98/">Go面试题</a></h2><time class="has-text-grey" datetime="2022-01-16T02:29:15.000Z">2022-01-16</time><p class="is-flex-grow-2 mt-2">参考链接
+一、Go 语言笔试面试题(基础语法)1. = 和 := 的区别？答案:= 声明+赋值= 仅赋值
+var foo int
+foo = 10
+// 等价于
+foo := 10
+
+2. 指针的作用？答案指针用来保存变量的地址。例如
+var x =  5
+var p *int = &amp;amp;x
+fmt.Printf(&quot;x = %d&quot;,  *p) // x 可以用 *p 访问
+
+
+运算符，也称为解引用运算符，用于访问地址中的值。＆运算符，也称为地址运算符，用于返回变量的地址。Q3 Go 允许多个返回值吗？答案允许func swap(x, y string) (string, string) {
+ return y, x
+}
+
+
+
+func main() {   a, b := swap(“A”, “B”) ..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/01/16/go/Go%E9%9D%A2%E8%AF%95%E9%A2%98/">Read more</a></section></article></section><aside class="column is-hidden-mobile is-4-tablet is-3-widescreen"><div style="position: sticky; top: 50px;"><main class="aside-card-container tag-widget is-in-tag-page"><h3>Tags</h3><section><a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95"><span class="tag post-item-tag" style="margin-bottom: 5px;">数据结构与算法</span></a><a href="/tags/Go"><span class="tag post-item-tag" style="margin-bottom: 5px;">Go</span></a><a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98"><span class="tag post-item-tag" style="margin-bottom: 5px;">面试题</span></a><a href="/tags/%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3"><span class="tag post-item-tag" style="margin-bottom: 5px;">部署文档</span></a><a href="/tags/Other"><span class="tag post-item-tag" style="margin-bottom: 5px;">Other</span></a><a href="/tags/Arweave"><span class="tag post-item-tag" style="margin-bottom: 5px;">Arweave</span></a><a href="/tags/Avalanche"><span class="tag post-item-tag" style="margin-bottom: 5px;">Avalanche</span></a><a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95"><span class="tag post-item-tag" style="margin-bottom: 5px;">共识算法</span></a><a href="/tags/Ethereum"><span class="tag post-item-tag" style="margin-bottom: 5px;">Ethereum</span></a><a href="/tags/Fabric"><span class="tag post-item-tag" style="margin-bottom: 5px;">Fabric</span></a><a href="/tags/Layer2"><span class="tag post-item-tag" style="margin-bottom: 5px;">Layer2</span></a><a href="/tags/NFT"><span class="tag post-item-tag" style="margin-bottom: 5px;">NFT</span></a><a href="/tags/Distributed%20Storage"><span class="tag post-item-tag" style="margin-bottom: 5px;">Distributed Storage</span></a></section></main></div></aside></div></article><script>$claudia.fadeInImage(null, $claudia.blurBackdropImg)
+
+window.addEventListener('resize', $claudia.throttle(function () {
+    var images = document.querySelectorAll('.js-img-fadeIn')
+
+    images.forEach($claudia.blurBackdropImg)
+}, 150))</script></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script>$claudia.fadeInImage(null, $claudia.blurBackdropImg)
+
+window.addEventListener('resize', $claudia.throttle(function () {
+    var images = document.querySelectorAll('.js-img-fadeIn')
+
+    images.forEach($claudia.blurBackdropImg)
+}, 150))</script></body></html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>共识算法</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="主要内容
+拜占庭将军问题概述
+共识算法定义(作用)
+共识算法种类
+共识算法优缺点对比以及应用
+
+拜占庭将军问题莱斯利·兰波特在其论文中描述了如下问题：
+
+一组拜占庭将军分别各率领一支军队共同围困一座城市。为了简化问题，将各支军队的行动策略限定为进攻或撤离两种。因为部分军队进攻部分军队撤离可能会造成灾难性后果，因此各位将军必须通过投票来达成一致策略，即所有军队一起进攻或所有军队一起撤离。因为各位将军分处城市不同方向，他们只能通过信使互相联系。在投票过程中每位将军都将自己投票给进攻还是撤退的信息通过信使分别通知其他所有将军，这样一来每位将军根据自己的投票和其他所有将军送来的信息就可以知道共同的投票结果而决定行动策略。
+
+系统的问题在于，可能将军中出现叛徒，他们不仅可能向较为糟糕的策略投票，还可能选择性地发送投票.."><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"><link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">共识算法</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E5%86%85%E5%AE%B9"><span class="toc-text">主要内容</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8B%9C%E5%8D%A0%E5%BA%AD%E5%B0%86%E5%86%9B%E9%97%AE%E9%A2%98"><span class="toc-text">拜占庭将军问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95"><span class="toc-text">共识算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-%E4%BD%9C%E7%94%A8"><span class="toc-text">定义(作用)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%97%E6%B3%95%E9%9C%80%E6%BB%A1%E8%B6%B3%E7%9A%84%E6%9D%A1%E4%BB%B6"><span class="toc-text">算法需满足的条件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%97%E6%B3%95%E8%AF%A6%E6%83%85"><span class="toc-text">算法详情</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Paxos%EF%BC%88CTF%EF%BC%89"><span class="toc-text">Paxos（CTF）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Raft%EF%BC%88CTF%EF%BC%89"><span class="toc-text">Raft（CTF）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PoW%EF%BC%88BFT%EF%BC%89"><span class="toc-text">PoW（BFT）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PoS%EF%BC%88BFT%EF%BC%89"><span class="toc-text">PoS（BFT）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DPoS%EF%BC%88BFT%EF%BC%89"><span class="toc-text">DPoS（BFT）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PBFT%EF%BC%88BFT%EF%BC%89"><span class="toc-text">PBFT（BFT）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DBFT%EF%BC%88BFT%EF%BC%89"><span class="toc-text">DBFT（BFT）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%97%E6%B3%95%E4%BC%98%E7%BC%BA%E7%82%B9%E4%B8%8E%E5%BA%94%E7%94%A8"><span class="toc-text">算法优缺点与应用</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%95%E5%8F%91%E6%80%9D%E8%80%83"><span class="toc-text">引发思考</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-text">参考资料</span></a></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95"><i class="tag post-item-tag">共识算法</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">共识算法</h1><time class="has-text-grey" datetime="2022-01-08T06:25:01.000Z">2022-01-08</time><article class="mt-2 post-content"><h1 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h1><ol>
+<li>拜占庭将军问题概述</li>
+<li>共识算法定义(作用)</li>
+<li>共识算法种类</li>
+<li>共识算法优缺点对比以及应用</li>
+</ol>
+<h1 id="拜占庭将军问题"><a href="#拜占庭将军问题" class="headerlink" title="拜占庭将军问题"></a>拜占庭将军问题</h1><p>莱斯利·兰波特在其论文中描述了如下问题：</p>
+<blockquote>
+<p>一组拜占庭将军分别各率领一支军队共同围困一座城市。为了简化问题，将各支军队的行动策略限定为进攻或撤离两种。因为部分军队进攻部分军队撤离可能会造成灾难性后果，因此各位将军必须通过投票来达成一致策略，即所有军队一起进攻或所有军队一起撤离。因为各位将军分处城市不同方向，他们只能通过信使互相联系。在投票过程中每位将军都将自己投票给进攻还是撤退的信息通过信使分别通知其他所有将军，这样一来每位将军根据自己的投票和其他所有将军送来的信息就可以知道共同的投票结果而决定行动策略。</p>
+</blockquote>
+<p>系统的问题在于，可能将军中出现叛徒，他们不仅可能向较为糟糕的策略投票，还可能选择性地发送投票信息。</p>
+<p>上述的故事映射到计算机系统里便是：</p>
+<p>在分布式系统中存在恶意的计算机节点，这些节点会选择性响应某些请求或篡改系统中的数据。 那么<font color="red">在上述不可靠的信道上，系统中所有非恶意节点如何通过消息传递达成共识？</font></p>
+<h1 id="共识算法"><a href="#共识算法" class="headerlink" title="共识算法"></a>共识算法</h1><h2 id="定义-作用"><a href="#定义-作用" class="headerlink" title="定义(作用)"></a>定义(作用)</h2><p>共识算法<font color="red">使高度分散且彼此不信任的网络环境中的节点就某个事务达成一致且不分叉</font></p>
+<p>按拜占庭容错性分类：</p>
+<ol>
+<li><p>容忍非拜占庭错误（CTF）：容忍网络环境中存在故障节点但不存在恶意节点</p>
+</li>
+<li><p>容忍拜占庭错误（BFT）：容忍网络环境中同时存在故障节点和恶意节点</p>
+</li>
+</ol>
+<h2 id="算法需满足的条件"><a href="#算法需满足的条件" class="headerlink" title="算法需满足的条件"></a>算法需满足的条件</h2><p>FLP不可能问题：在异步网络中，哪怕只有一个节点故障也不可能存在能够容忍节点故障的一致性算法。</p>
+<p>需满足的约束条件：</p>
+<ol>
+<li><strong>消息安全</strong>：节点件必须采用非对称加密对消息进行签名保证消息可传递（不可用对称加密，因为信道不安全）</li>
+<li><strong>处理FLP不可能问题</strong>：设置消息最大时延</li>
+<li><strong>共识结论合法</strong>：结论必须是一个节点的提案</li>
+</ol>
+<h2 id="算法详情"><a href="#算法详情" class="headerlink" title="算法详情"></a>算法详情</h2><h3 id="Paxos（CTF）"><a href="#Paxos（CTF）" class="headerlink" title="Paxos（CTF）"></a>Paxos（CTF）</h3><ol>
+<li><p>概念</p>
+<p>Paxos原理基于<font color="red">“两阶段提交”</font>算法并进行泛化和扩展，通过消息传递来逐步消除系统中的不确定状态，是Raft、ZAB设计的基础</p>
+<p>Paxos角色：</p>
+<ul>
+<li><strong>提案者（Proposer）</strong>：提出一个提案等待大家批准为结案（value）</li>
+<li><strong>接受者（Acceptor）</strong>：对提案进行投票，接受提案</li>
+<li><strong>学习者（Learner）</strong>：获取批准结果，不参与投票</li>
+</ul>
+</li>
+<li><p>共识过程</p>
+<p><img src="/images/consensus/paxos_flow_chart.png" alt="img.png"><br>pok：收到提议请求； aok：收到提交请求；最大提案编号：MaxN；AcceptN：接收到的提案编号； AcceptV：接收到的提案值；</p>
+</li>
+<li><p>举例说明 假设集群中有2个Proposer、3个Acceptor、1个Learner</p>
+<ul>
+<li>有两个Proposer，两个都提出 prepare request。来自 Proposer A的 request 先于Proposer B 的 request 到达 Acceptor X和 Acceptor Y， 但来自Proposer B的 request 首先到达 Proposer Z.<br><img src="/images/consensus/paxos_prepare1.png" alt="img.png"></li>
+<li>如果接收（accept）prepare request 的 Acceptor 之前没有看到其他的提议，则 Acceptor 以 prepare response 作出响应， 该 prepare response承诺永远不接受具有较低提议编号的另一提议。<br><img src="/images/consensus/paxos_prepare2.png" alt="img.png"></li>
+<li>Acceptor Z收到了 Proposer A 的 request ，Acceptor X和 Acceptor Y收到了 Proposer B的 request 。 如果 Proposer 之前已经看到具有更高提议号的request ，则忽略晚到的 request，如Acceptor Z将忽略 Proposer A的 request（因为2&lt;4）。 如果 Proposer 之前没有看到更高编号的 request，它再次承诺忽略具有较低提议编号的任何请求，并发回其已接受的编号最高的提议以及该提议的值。 如 Acceptor X和Y 对Proposer B的 request 的做法。<br><img src="/images/consensus/paxos_prepare3.png" alt="img.png"></li>
+<li>一旦 Proposer 收到大多数 Acceptor 的准备响应，它就可以发出接受请求<ul>
+<li>对于Proposer A：由于 Proposer A仅收到表明没有先前提案的答复， 因此它向每个具有与其初始提案相同的提议编号和值的 Acceptor 发送 accept request（n = 2，v = 8）。然而，这些 request 都将被忽略，因为目标 Acceptor 都承诺不接受的提议编号低于4 的 request（这是对 Proposer B 的承诺）</li>
+<li>对于Proposer B：Proposer B 向每个 Acceptor 发送 accept request ， 该 request 包含先前使用的提议号（n = 4）以及与其接收的准备响应消息中的最高提议号相关联的值（v = 8）。 请注意，这不是 Proposer B 最初提出的值，而是它看到的 prepare response 消息中的最高值。<br><img src="/images/consensus/paxos_accept1.png" alt="img.png"></li>
+</ul>
+</li>
+<li>如果 Acceptor accept 的 accept request 的 编号 比其已经看到的更高或相等，则它会 accept 并向每个 Learner 节点发送通知。 当 Learner 发现大多数 Acceptor已接受某个值时，Paxos算法会选择该值<br><img src="/images/consensus/paxos_sync1.png" alt="img.png"></li>
+<li>一旦Paxos选择了一个值，与其他 Proposer 的进一步沟通就无法改变这个值。 如果另一个 Proposer（如 Proposer C）发送的 request 的 提案号比之前看到的提案号更高，并且具有不同的值（例如，n= 6，v = 7）， 则每个接受者都会使用之前的最高提案进行响应（n = 4，v = 8）。这要求提议者C发送包含[n = 6，v = 8] 的接受请求，该请求仅确认已经选择的值。此外，如果一些少数接受者还没有选择一个价值，这个过程可以确保他们最终就同一价值达成共识。 （批注，这个过程总是成立的，具体论证过程见上）</li>
+</ul>
+</li>
+</ol>
+<h3 id="Raft（CTF）"><a href="#Raft（CTF）" class="headerlink" title="Raft（CTF）"></a>Raft（CTF）</h3><ol>
+<li><p>概念</p>
+<p>Raft相比Paxos是一种旨在<font color="red">易于理解</font>的共识算法。</p>
+<p>Raft角色：</p>
+<ul>
+<li><strong>领导者（Leader）</strong></li>
+<li><strong>候选领导者（Candidate）</strong></li>
+<li><strong>跟随者（Follower）</strong></li>
+</ul>
+</li>
+<li><p>共识过程</p>
+<p><a target="_blank" rel="noopener" href="http://www.kailing.pub/raft/index.html">Raft演示地址</a></p>
+<p>主要阶段：</p>
+<ul>
+<li><strong>Leader选举</strong></li>
+<li><strong>同步日志</strong></li>
+</ul>
+</li>
+</ol>
+<h3 id="PoW（BFT）"><a href="#PoW（BFT）" class="headerlink" title="PoW（BFT）"></a>PoW（BFT）</h3><ol>
+<li><p>概念</p>
+<p>POW <font color="red">工作量证明共识机制</font>，系统通过让所有节点公平地去计算一个随机数，最先寻找到随机数的节点即拥有记账权</p>
+</li>
+<li><p>比特币共识过程</p>
+<ul>
+<li>客户端发起交易广播到网络中等待确认</li>
+<li>网络中的用户将所有等待确认的交易打包到一个区块链中</li>
+<li><strong>不断修改区块头中的Nonce值以使该区块头的hash值小于一个特定的目标值</strong></li>
+<li>计算出Nonce后向全网广播</li>
+<li>网络中收到提案区块的节点对Nonce进行验证，验证合法交易被确认，该块加入链</li>
+</ul>
+</li>
+</ol>
+<h3 id="PoS（BFT）"><a href="#PoS（BFT）" class="headerlink" title="PoS（BFT）"></a>PoS（BFT）</h3><p>权益证明机制，是为解决PoW算法大量浪费资源问题而提出的一种替代算法，该算法中区块的记账权<font color="red">由权益最高的节点获得</font></p>
+<h3 id="DPoS（BFT）"><a href="#DPoS（BFT）" class="headerlink" title="DPoS（BFT）"></a>DPoS（BFT）</h3><ol>
+<li><p>概念</p>
+<p>股份授权证明机制，是PoS的一种衍生算法，算法的思想是<font color="red">系统中持有权益的节点投票选举出一部分代表，再由这些代表轮流获取区块链记账权</font>，类似于股份制公司的“董事会”</p>
+</li>
+<li><p>共识过程</p>
+<ul>
+<li>每个节点将自己持有的权益转换为选票投给自己信任的节点</li>
+<li>选票最多的N个节点当选为见证人（Witness），即代表</li>
+<li>见证人在一个规定时间内随机排列并轮流对交易打包，生成新区块连接到最长链，见证人收获m％的交易手续费</li>
+</ul>
+</li>
+</ol>
+<h3 id="PBFT（BFT）"><a href="#PBFT（BFT）" class="headerlink" title="PBFT（BFT）"></a>PBFT（BFT）</h3><ol>
+<li><p>概念</p>
+<p><font color="red">PBFT在保证可用性和安全性的前提下，提供了(n-1)/3的容错性</font>，意思就是如果系统内有n个节点，那么系统最多能容忍的作恶/故障节点为(n-1)/3个。（作恶节点可以不响应或者回应错误的信息）</p>
+</li>
+<li><p>共识过程</p>
+<p>​    <img src="/images/consensus/pbft_flow_chart.png" alt="共识算法系列：PBFT算法关键点综述、优缺点总结"></p>
+<p>定义：</p>
+<ul>
+<li><p>f：恶意节点</p>
+</li>
+<li><p>Digest(m)：消息摘要</p>
+</li>
+</ul>
+<p>过程：</p>
+<ul>
+<li><strong>预准备阶段</strong>：发送原本的消息m，让每个节点都获取原始消息</li>
+<li><strong>准备阶段</strong>：用Digest(m)去发送，如果一个节点收到<strong>2f+1</strong>个prepare消息，就认为准备阶段结束，说明已经有大部分节点认同了这个m</li>
+<li><strong>提交阶段</strong>：用Digest(m)去发送，如果一个节点收到<strong>2f+1</strong>个commit，那么就可以认为，就说明已经有大多数节点“执行”了这些m，这个阶段主要是为了View Change服务</li>
+<li><strong>回执阶段</strong>：提交结束后将结果返回给客户端，客户端收到至少<strong>f+1</strong>个消息即可确认</li>
+</ul>
+</li>
+</ol>
+<h3 id="DBFT（BFT）"><a href="#DBFT（BFT）" class="headerlink" title="DBFT（BFT）"></a>DBFT（BFT）</h3><ol>
+<li><p>概念</p>
+<p>授权拜占庭容错，系统中的代币持有者<font color="red">通过投票选举出自己所支持的共识节点，这些选出来的共识节点再通过BFT来达成共识并生成区块</font></p>
+</li>
+<li><p>共识过程</p>
+<p><img src="/images/consensus/dbft_flow_chart.png" alt="image-20220108234438067"></p>
+<p>过程：</p>
+<ul>
+<li>节点<strong>投票</strong>选出一定数量的共识节点</li>
+<li>议长设置视图并广播提案<code>&lt;PrepareRequest&gt;</code>消息</li>
+<li>议员收到提案对其验证，验证通过后议员向全网发送<code>&lt;PrepareResponse&gt;</code>消息</li>
+<li>当收到n-f条<code>&lt;PrepareResponse&gt;</code>消息时，议员们发布一个新的区块，对区块签名，发送给其他节点进行同步<code>&lt;Synchronization&gt;</code></li>
+<li>其他节点收到完整区块后达到相同的区块高度，清除本地内存中所存储的当前视图交易数据，准备下一次共识</li>
+</ul>
+</li>
+</ol>
+<h2 id="算法优缺点与应用"><a href="#算法优缺点与应用" class="headerlink" title="算法优缺点与应用"></a>算法优缺点与应用</h2><table>
+<thead>
+<tr>
+<th>算法</th>
+<th>优点</th>
+<th>缺点</th>
+<th>应用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Paxos</td>
+<td>- 容忍非拜占庭错误节点能力高<br>- 性能高</td>
+<td>- 算法难以理解<br>- 不能容忍拜占庭错误节点</td>
+<td>ZooKeeper、GoogleChubby</td>
+</tr>
+<tr>
+<td>Raft</td>
+<td>- 算法容忍非拜占庭错误节点能力高<br>- 性能高<br>- 易于理解和实现</td>
+<td>- 不能容忍拜占庭错误节点</td>
+<td>IPFS Private Cluster、R3 CodaQuorum</td>
+</tr>
+<tr>
+<td>Pow</td>
+<td>- 算法逻辑简单<br>- 安全性高<br>- 容错性高</td>
+<td>- 资源消耗过高<br>- 系统吞吐量低</td>
+<td>Bitcoin、Ethereum、Dogcoin、Litecoin、Zcash</td>
+</tr>
+<tr>
+<td>PoS</td>
+<td>- 缓解PoW资源浪费问题<br>- 相对PoW提高了出块速度</td>
+<td>- 易出现持币人屯币现象，造成寡头优势</td>
+<td>Blackcoin、ADA、Peercoin、Casper、Nxt</td>
+</tr>
+<tr>
+<td>DPoS</td>
+<td>- 解决了PoW资源浪费问题<br>- 性能较高<br>- 出块速度较快</td>
+<td>- 相比其他算法该算法趋于中心化<br>- 投票无门槛，权益余额大票数越大，易造成联合选举行为</td>
+<td>EOS、Bitshares、Steemit、Lisk、Ark、GXChain、ASCH</td>
+</tr>
+<tr>
+<td>PBFT</td>
+<td>- 无代币<br>- 性能效率高<br>- 安全性高</td>
+<td>- 确认流程过多，通信开销大<br>- 无法避免恶意节点担任主节点<br>- 节点不可进行动态增删<br>- 无法承受大规模节点</td>
+<td>Fabric</td>
+</tr>
+<tr>
+<td>DBFT</td>
+<td>- 借鉴DPoS，参与共识节点数量较少，因此提高了性能</td>
+<td>- 相比其他算法该算法趋于中心化</td>
+<td>NEO</td>
+</tr>
+</tbody></table>
+<h1 id="引发思考"><a href="#引发思考" class="headerlink" title="引发思考"></a>引发思考</h1><ol>
+<li><p>PBFT在节点数超过100后性能继续下降，如何缓解？</p>
+<ul>
+<li><p>方法一：带宽优化：</p>
+<ul>
+<li>客户端将请求发给任意节点，而不是只发给主节点，然后节点直接将请求广播给所有节点</li>
+<li>设计共享交易池，预先进行交易的广播，仅共识交易哈希值主节点打包交易hash，广播包含hash的提案消息，而不是广播交易数据</li>
+<li>从节点在提交之前主动向主节点获取可能缺失的交易，最终提交之前确认交易合法性</li>
+</ul>
+<p><img src="/images/consensus/pbft_bandwidth_optimization.png" alt="image-20220109102820146"></p>
+</li>
+<li><p>方法二：BFT问题转换成CFT问题，即规避拜占庭行为</p>
+<p><img src="/images/consensus/fast_bft_flow_chart.png" alt="image-20220109104150146"></p>
+</li>
+<li><p>方法三：点对点网络转换为星型网络</p>
+<p><img src="/images/consensus/hot_stuff_flow_chart.png" alt="image-20220109104400275"></p>
+</li>
+</ul>
+</li>
+<li><p>PBFT无法动态增删节点，如何解决？</p>
+<p>先请求分布式CA，再通过配置交易的方式，准入与删除共识节点</p>
+<p><img src="/images/consensus/pbft_add_delete_node.png" alt="image-20220109103818671"></p>
+</li>
+<li><p>PBFT中prepare和commit阶段为何都要2f+1个节点反馈确认?（这2f+1节点反馈的结果并不一定是相同的）</p>
+<p>对于prepare和commit来说，节点需要在2f+1个状态复制机的沟通内就要做出决定，这是刚好可以保证一致性的，考虑最坏的情况：我们假设收到的有f个是正常节点发过来的，也有f个是恶意节点发过来的，那么，第2f+1个只可能是正常节点发过来的。（因为我们限制了最多只有f个恶意节点）由此可知，“大多数”正常的节点还是可以让系统工作下去的。所以2f+1这个参数和n&gt;3f+1的要求是逻辑自洽的。</p>
+</li>
+<li><p>PBFT中client为何只需要f+1个相同的回复就可确认？</p>
+<p>之前我们说，prepare和commit阶段为何都要2f+1个节点反馈，才能确认。client只需要f+1个相同的reply就可以了呢？我们还是来考虑最坏的情况，我们假设这f+1个相同的reply中，有f个都是恶意节点。</p>
+<p>所以至少有一个rely是正常节点发出来的，因为在prepare阶段，这个正常的节点已经可以保证prepared(m,v,n,i)为真，所以已经能代表大多数的意见，所以，client只需要f+1个相同的reply就能保证他拿到的是整个系统内“大多数正常节点“的意见，从而达到一致性。</p>
+</li>
+<li><p>PBFT中如果primary是恶意节点呢？</p>
+<p>对于一致性，我们可以这么看：如果prepared(m，v，n，i)为真，那么prepared(m’，v，n，j)一定是错误的，因为对于同一个提案我们不可能有两种结果，从而保证整个系统的一致性。</p>
+<p>假设primary节点是恶意的，那么意味着在replicas节点中⾄多有f-1个恶意的节点，prepared(m，v，n，i)为真，则证明有f+1个善意节点达成了了⼀致，prepared(m’，v，n，j)为真，意味着另外f+1个善意节点达成了一致，因为系统中只有2f+1个善意节点，因此最少有⼀个善意节点发送了两个冲突的prepare消息，这是不可能的。所以prepared(m，v，n，i)为真，那么prepared(m’，v，n，j)是错误的。</p>
+</li>
+</ol>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://b23.tv/c2IGPiA">李永乐老师讲解拜占庭将军问题</a></li>
+<li><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%8B%9C%E5%8D%A0%E5%BA%AD%E5%B0%86%E5%86%9B%E9%97%AE%E9%A2%98">维基百科对拜占庭将军问题的解释</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/alinyua/article/details/86153013">Paxos学习笔记及图解</a></li>
+<li><a target="_blank" rel="noopener" href="https://pmg.csail.mit.edu/papers/osdi99.pdf">PBFT提出者论文《Practical Byzantine Fault Tolerance》</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/53897982">共识算法系列：PBFT算法关键点综述、优缺点总结</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.jsjkx.com/CN/article/openArticlePDF.jsp?id=19169">区块链共识算法对比研究</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.modb.pro/doc/42136">联盟区块链共识算法的实践与挑战 - 端豪 杭州趣链科技架构师</a></li>
+<li><a target="_blank" rel="noopener" href="http://lamport.azurewebsites.net/pubs/paxos-simple.pdf">Paxos论文</a></li>
+</ol>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2022/01/12/other/%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91/" title="论文翻译"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: 论文翻译</span></a><a class="button is-default" href="/2021/10/26/blockchain/fabric/%E7%AC%AC13%E7%AB%A0-%E5%8C%BA%E5%9D%97%E9%93%BE%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/" title="Fabric区块链应用开发"><span class="has-text-weight-semibold">Next: Fabric区块链应用开发</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>
