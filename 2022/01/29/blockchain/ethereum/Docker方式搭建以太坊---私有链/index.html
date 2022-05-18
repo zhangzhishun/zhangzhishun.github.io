@@ -1,0 +1,288 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>Docker方式搭建以太坊网络-私有链</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="本文涉及的知识和技术有：
+
+Docker：一种时下流行的容器
+geth：以太坊客户端的go实现
+truffle：以太坊合约部署工具
+
+主机配置此处需要补充一点的是，如果您使用的是虚拟机、云主机或者老破小机器，需要确保分配给主机的内存至少2GB。因为以太坊为了抵御比特大陆这样的ASIC矿机对算力的垄断，采用了和比特币完全不同的PoW算法——ethash。该算法的特点是算力不敏感，内存敏感。该算法目前需要在内存创建大约1GB的DAG用来做PoW运算，且DAG会随着区块的增加呈阶梯状增长，因此建议至少给挖矿节点的宿主机器分配至少2GB的内存，且保留扩大内存容量的灵活性。
+获取geth镜像docker hub上有现成的geth镜像。直接获取：
+docker pull ethereum/client-go:v1.8..."><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Docker方式搭建以太坊网络-私有链</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E9%85%8D%E7%BD%AE"><span class="toc-text">主机配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96geth%E9%95%9C%E5%83%8F"><span class="toc-text">获取geth镜像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BADocker%E7%BD%91%E7%BB%9C"><span class="toc-text">创建Docker网络</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E4%BB%A5%E5%A4%AA%E5%9D%8A%E7%BD%91%E7%BB%9C"><span class="toc-text">配置以太坊网络</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E8%B4%A6%E6%88%B7"><span class="toc-text">创建账户</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%88%9B%E4%B8%96%E5%8C%BA%E5%9D%97"><span class="toc-text">创建创世区块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8C%E6%88%90%E4%BB%A5%E5%A4%AA%E5%9D%8A%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE"><span class="toc-text">完成以太坊网络配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8C%96%E7%9F%BF"><span class="toc-text">挖矿</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E2%80%9C%E4%B8%BB%E2%80%9D%E7%9F%BF%E5%B7%A5%E8%8A%82%E7%82%B9"><span class="toc-text">创建“主”矿工节点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAentrypoint%E8%84%9A%E6%9C%AC"><span class="toc-text">创建entrypoint脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E8%87%AA%E5%8A%A8%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC"><span class="toc-text">创建自动运行脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%AE%B9%E5%99%A8"><span class="toc-text">创建容器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E2%80%9C%E4%BB%8E%E2%80%9D%E7%9F%BF%E5%B7%A5%E8%8A%82%E7%82%B9"><span class="toc-text">创建“从”矿工节点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E8%87%AA%E5%8A%A8%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC-1"><span class="toc-text">创建自动运行脚本</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E8%8A%82%E7%82%B9"><span class="toc-text">操作节点</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8A%82%E7%82%B9%E5%8F%91%E7%8E%B0"><span class="toc-text">节点发现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E8%8A%82%E7%82%B9%E4%BF%A1%E6%81%AF"><span class="toc-text">查看节点信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E9%9D%99%E6%80%81%E8%8A%82%E7%82%B9%E6%96%87%E4%BB%B6"><span class="toc-text">配置静态节点文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E8%BF%9E%E6%8E%A5%E4%B8%8A%E7%9A%84%E8%8A%82%E7%82%B9"><span class="toc-text">查看连接上的节点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E6%B7%BB%E5%8A%A0%E8%8A%82%E7%82%B9"><span class="toc-text">动态添加节点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%96%E7%9F%BF-1"><span class="toc-text">挖矿</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E5%90%88%E7%BA%A6"><span class="toc-text">部署合约</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAtruffle%E9%95%9C%E5%83%8F"><span class="toc-text">创建truffle镜像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B0%E5%BB%BAtruffle%E5%B7%A5%E7%A8%8B"><span class="toc-text">新建truffle工程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8truffle%E5%AE%B9%E5%99%A8"><span class="toc-text">启动truffle容器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E8%8A%82%E7%82%B9RPC"><span class="toc-text">测试节点RPC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9truffle-js"><span class="toc-text">修改truffle.js</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E5%86%99%E5%90%88%E7%BA%A6Migrations-sol%EF%BC%88truffle%E5%86%85%E7%BD%AE%EF%BC%89"><span class="toc-text">编写合约Migrations.sol（truffle内置）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B0%E5%BB%BA%E9%83%A8%E7%BD%B2%E8%84%9A%E6%9C%AC"><span class="toc-text">新建部署脚本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E5%90%88%E7%BA%A6"><span class="toc-text">编译合约</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E5%90%88%E7%BA%A6-1"><span class="toc-text">部署合约</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5%EF%BC%9A"><span class="toc-text">参考链接：</span></a></div><div class="column is-9"><header class="my-4"><a href="/tags/%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3"><i class="tag post-item-tag">部署文档</i></a><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">Docker方式搭建以太坊网络-私有链</h1><time class="has-text-grey" datetime="2022-01-29T11:29:23.000Z">2022-01-29</time><article class="mt-2 post-content"><p>本文涉及的知识和技术有：</p>
+<ul>
+<li>Docker：一种时下流行的容器</li>
+<li>geth：以太坊客户端的go实现</li>
+<li>truffle：以太坊合约部署工具</li>
+</ul>
+<h2 id="主机配置"><a href="#主机配置" class="headerlink" title="主机配置"></a>主机配置</h2><p>此处需要补充一点的是，如果您使用的是虚拟机、云主机或者老破小机器，需要确保分配给主机的内存至少2GB。因为以太坊为了抵御比特大陆这样的ASIC矿机对算力的垄断，采用了和比特币完全不同的PoW算法——ethash。该算法的特点是算力不敏感，内存敏感。该算法目前需要在内存创建大约1GB的DAG用来做PoW运算，且DAG会随着区块的增加呈阶梯状增长，因此建议至少给挖矿节点的宿主机器分配至少2GB的内存，且保留扩大内存容量的灵活性。</p>
+<h2 id="获取geth镜像"><a href="#获取geth镜像" class="headerlink" title="获取geth镜像"></a>获取geth镜像</h2><p>docker hub上有现成的geth镜像。直接获取：</p>
+<pre><code class="bash">docker pull ethereum/client-go:v1.8.12
+</code></pre>
+<h2 id="创建Docker网络"><a href="#创建Docker网络" class="headerlink" title="创建Docker网络"></a>创建Docker网络</h2><p>旧版本的docker容器相互之间是依靠link建立关系。<br>新版本docker推荐创建自有网路，再将需要互联的容器配置到相同的网络中。<br>于是，我们创建一个名为“ethnet“的网络。该网络配置如下：</p>
+<ul>
+<li>子网172.19.0.0/16<ul>
+<li>IP段172.19.0.0</li>
+<li>掩码255.255.0.0</li>
+<li>IP范围172.19.0.1~172.19.255.254</li>
+<li>IP广播172.19.255.255</li>
+</ul>
+</li>
+</ul>
+<pre><code class="bash">docker network create -d bridge --subnet=172.19.0.0/16 ethnet
+docker network ls
+</code></pre>
+<h1 id="配置以太坊网络"><a href="#配置以太坊网络" class="headerlink" title="配置以太坊网络"></a>配置以太坊网络</h1><p>运行如下命令进入一个容器：</p>
+<pre><code class="bash">docker run -it --rm --network ethnet --ip 172.19.0.50 -v /opt/docker-project/eth/workspace:/workspace --entrypoint /bin/sh ethereum/client-go:v1.8.12
+</code></pre>
+<blockquote>
+<p>–network ethnet参数指定了该容器加入刚才创建的ethnet网络<br> –ip 172.19.0.50指定了一个固定IP给该容器。</p>
+</blockquote>
+<h2 id="创建账户"><a href="#创建账户" class="headerlink" title="创建账户"></a>创建账户</h2><p>首先，在容器内的/workspace目录创建目录和文件</p>
+<p>执行以下命令：</p>
+<pre><code class="bash">mkdir -p /workspacedapp
+mkdir -p /workspace/dapp/miner
+mkdir -p /workspace/dapp/data
+touch /workspace/dapp/genesis.json
+</code></pre>
+<p>然后运行如下命令创建账户：</p>
+<pre><code class="bash">geth -datadir /workspace/dapp/miner/data account new
+</code></pre>
+<p>输入两次password，获得地址。将地址记录下来，后面要用到。</p>
+<blockquote>
+<p>重复如上步骤可以创建多个账户。</p>
+</blockquote>
+<h2 id="创建创世区块"><a href="#创建创世区块" class="headerlink" title="创建创世区块"></a>创建创世区块</h2><p>编辑刚才创建的文件</p>
+<pre><code class="bash">vi /workspace/dapp/data/genesis.json
+</code></pre>
+<p>文件内容：</p>
+<pre><code class="json">{
+  "config": {
+    "chainId": 88,
+    "homesteadBlock": 0,
+    "eip155Block": 0,
+    "eip158Block": 0
+  },
+  "alloc"      : {
+    "b126d89780d2221ceffe5c94efd9ca6a005a9f0c": {"balance": "100000000000000000000"},
+    "93415bb68da6816c581537a4fa74727ddf6f4f4d": {"balance": "1000000000000000000"},
+    "fa5773a704ee9e91e60ffb8fe4207e934f70619f": {"balance": "1000000000000000000"}
+  },
+  "coinbase"   : "0x0000000000000000000000000000000000000000",
+  "difficulty" : "0x400",
+  "extraData"  : "",
+  "gasLimit"   : "0x2fefd8",
+  "nonce"      : "0x0000000000000000",
+  "mixhash"    :
+  "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "parentHash" :
+  "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "timestamp"  : "0x00"
+}
+</code></pre>
+<ul>
+<li>genesis.json是用来创建创世区块的配置文件</li>
+<li>加入同一私链的节点必须使用同一配置文件</li>
+<li>chainid是私链网络的标识，可以是任意数字。</li>
+<li>即使chainid相同，如果genesis.json配置不一样，也将是两个不兼容的网络</li>
+<li>alloc下面列举了4个账户地址，分别是上一步创建并记录下来的地址。</li>
+<li>balance是创世区块为每个账户分配的初始以太币。这里看似分配了很多，其实单位是wei。1eth=10^18wei。也就是除了第一个账户给了100eth外，其它几个账户分别只拥有1eth。这里给第一个账户多分点，是因为我们之后需要用它来部署合约。</li>
+</ul>
+<h2 id="完成以太坊网络配置"><a href="#完成以太坊网络配置" class="headerlink" title="完成以太坊网络配置"></a>完成以太坊网络配置</h2><p>此时可以退出刚才的容器。由于我们运行容器是加了–rm参数，刚才的容器会被删除，但宿主机的/workspace下的文件会被保存下来。</p>
+<h1 id="挖矿"><a href="#挖矿" class="headerlink" title="挖矿"></a>挖矿</h1><p>上述步骤只是配置好了一个以太坊私有网络，并没有真正创建网络。我们知道，以太坊网络是一个分布式的网络，有了矿工，才有的网络。于是，我们首先得有一个矿工。</p>
+<h2 id="创建“主”矿工节点"><a href="#创建“主”矿工节点" class="headerlink" title="创建“主”矿工节点"></a>创建“主”矿工节点</h2><p>我们接下来打算创建的矿工节点，成为“主”矿工，因为它需要拥有如下特性：</p>
+<ul>
+<li>它是一个容器，并且是持久的容器</li>
+<li>它会自动读取genesis.json文件，并初始化以太坊网络</li>
+<li>它能够连接其它节点（容器）</li>
+<li>它能够接受各种rpc调用，并能够部署合约</li>
+<li>它已经配置好挖矿账户，可以一键挖矿</li>
+</ul>
+<p>于是，我们按照这个要求，开始一步步创建矿工节点。</p>
+<h3 id="创建entrypoint脚本"><a href="#创建entrypoint脚本" class="headerlink" title="创建entrypoint脚本"></a>创建entrypoint脚本</h3><p>创建一个文件：</p>
+<pre><code class="bash">vi /opt/docker-project/eth/workspace/dapp/init.sh
+</code></pre>
+<p> 文件内容如下：</p>
+<pre><code class="bash">#!/bin/sh
+geth -datadir ~/data/ init /workspace/dapp/data/genesis.json
+
+if [  $# -lt 1 ]; then 
+  exec "/bin/sh"
+else
+  exec /bin/sh -c "$@"
+fi
+</code></pre>
+<blockquote>
+<p>该脚本的功能是让以太坊节点（容器）自动初始化以太坊网络，并且接受一个自动运行脚本作为输入。</p>
+</blockquote>
+<h3 id="创建自动运行脚本"><a href="#创建自动运行脚本" class="headerlink" title="创建自动运行脚本"></a>创建自动运行脚本</h3><p>创建一个文件：</p>
+<pre><code class="bash">vi /opt/docker-project/eth/workspace/dapp/mine.sh
+</code></pre>
+<p>内容如下：</p>
+<pre><code class="bash">#!/bin/sh
+account='b126d89780d2221ceffe5c94efd9ca6a005a9f0c'
+cp -r /workspace/dapp/miner/data/keystore/* ~/data/keystore/
+geth -datadir ~/data/ --networkid 88 --rpc --rpcaddr "172.19.0.50" --rpcapi admin,eth,miner,web3,personal,net,txpool --unlock ${account} --etherbase ${account} console
+</code></pre>
+<ul>
+<li>第一行命令是将刚才生成的账户私钥文件拷贝到容器的home目录下。因为/workspace是宿主目录挂载的，并不是linux文件系统，直接将datadir指定到该目录会导致geth报错。</li>
+<li>第二行命令是启动以太坊节点的命令。<ul>
+<li>–networkid 88指定了networkid，这个必须与genesis.json内设置保持一致</li>
+<li>–rpc –rpcaddr “172.19.0.50” –rpcapi …. 这些参数表示该节点接受rpc，并且指定了rpc的协议</li>
+<li>–unlock “0x…” 加入该参数会需要用户输入账户密码。密码校验后会解锁该账户。账户解锁后，该节点就能使用此账户的私钥进行签名加密等动作，用以进行交易、发布合约等。</li>
+<li>–etherbase 参数指定了挖矿收益账户</li>
+</ul>
+</li>
+</ul>
+<h3 id="创建容器"><a href="#创建容器" class="headerlink" title="创建容器"></a>创建容器</h3><pre><code class="bash">chmod +x /opt/docker-project/eth/workspace/dapp/init.sh
+chmod +x /opt/docker-project/eth/workspace/dapp/mine.sh
+docker run -it --name=miner --network ethnet --ip 172.19.0.50 --hostname node -v /opt/docker-project/eth/workspace:/workspace --entrypoint /workspace/dapp/init.sh ethereum/client-go:v1.8.12 /workspace/dapp/mine.sh
+</code></pre>
+<blockquote>
+<p>该命令会创建一个持久化的容器。容器的entrypoint和自动运行脚本指定为我们刚创建的那两个脚本。</p>
+</blockquote>
+<p>如果报错：</p>
+<pre><code class="bash">Fatal: Failed to unlock account (no key for given address or file)
+</code></pre>
+<p>可能原因是没有修改上面的mine.sh脚本的account参数为第一个账户地址</p>
+<h2 id="创建“从”矿工节点"><a href="#创建“从”矿工节点" class="headerlink" title="创建“从”矿工节点"></a>创建“从”矿工节点</h2><p>只有一个节点的网络，怎么看都不像“分布式”网络。所以我们需要创建更多的节点来形成一个“分布式网络”。我们称这些节点叫做“从”矿工。<br> 这类矿工不需要交易，不需要发布合约，因此不需要unlock账户，也不需要接受rpc。它们只知道埋头挖矿。</p>
+<h3 id="创建自动运行脚本-1"><a href="#创建自动运行脚本-1" class="headerlink" title="创建自动运行脚本"></a>创建自动运行脚本</h3><p>“从”矿工节点和“主”矿工节点共享entrypoint，以保证它们创建出完全相同的网络。<br> 只有自动运行脚本不太一样，</p>
+<pre><code class="bash">vi /opt/docker-project/eth/workspace/dapp/node.sh
+</code></pre>
+<p>文件内容：</p>
+<pre><code class="bash">#!/bin/sh
+cp -r /workspace/dapp/miner/data/keystore/* ~/data/keystore/
+geth -datadir ~/data/ --networkid 88 console 
+</code></pre>
+<p>创建容器:</p>
+<pre><code class="bash">chmod +x /opt/docker-project/eth/workspace/dapp/node.sh
+docker run -it --name=node1 --network ethnet --ip 172.19.0.51 --hostname node1 -v /opt/docker-project/eth/workspace:/workspace --entrypoint /workspace/dapp/init.sh ethereum/client-go:v1.8.12 /workspace/dapp/node.sh
+</code></pre>
+<h1 id="操作节点"><a href="#操作节点" class="headerlink" title="操作节点"></a>操作节点</h1><p>以上创建出了多个以太坊节点，运行在同一网络下。每个节点都可以执行如下操作。供参考。</p>
+<h2 id="节点发现"><a href="#节点发现" class="headerlink" title="节点发现"></a>节点发现</h2><h3 id="查看节点信息"><a href="#查看节点信息" class="headerlink" title="查看节点信息"></a>查看节点信息</h3><pre><code class="bash">geth -datadir ~/data/ --networkid 88 console
+&gt;admin.nodeInfo.enode
+# 输出
+"enode://708b66364c83af2d3725c309f2bdc0e7d4e395c6ac7310e1a1147b9dfe084649e6c6a3ce6c483c51ab6e924f6abade647246c2b57ecc49d9a573cea896cdf0e6@[::]:30303"
+</code></pre>
+<h3 id="配置静态节点文件"><a href="#配置静态节点文件" class="headerlink" title="配置静态节点文件"></a>配置静态节点文件</h3><p>~/data/geth/static-nodes.json</p>
+<pre><code class="json">[
+    "enode://&lt;node public key&gt;@&lt;node IP address&gt;:&lt;node port&gt;"
+]
+</code></pre>
+<h3 id="查看连接上的节点"><a href="#查看连接上的节点" class="headerlink" title="查看连接上的节点"></a>查看连接上的节点</h3><pre><code class="bash">geth -datadir ~/data/ --networkid 88 console
+&gt;admin.peers
+</code></pre>
+<h3 id="动态添加节点"><a href="#动态添加节点" class="headerlink" title="动态添加节点"></a>动态添加节点</h3><pre><code class="bash">&gt;admin.addPeer("enode://&lt;node public key&gt;@&lt;node IP address&gt;:&lt;node port&gt;")
+</code></pre>
+<h2 id="挖矿-1"><a href="#挖矿-1" class="headerlink" title="挖矿"></a>挖矿</h2><p>启动miner容器</p>
+<pre><code class="bash">&gt;miner.start(1)
+</code></pre>
+<ul>
+<li>参数1指定了挖矿的线程数。</li>
+<li>首次启动节点会消耗大约20~30分钟产生DAG</li>
+<li>某开始挖矿后，其它节点将会收到新区块并打印</li>
+</ul>
+<h1 id="部署合约"><a href="#部署合约" class="headerlink" title="部署合约"></a>部署合约</h1><h2 id="创建truffle镜像"><a href="#创建truffle镜像" class="headerlink" title="创建truffle镜像"></a>创建truffle镜像</h2><p>由于没有找到好用的truffle镜像，我自己创建了一个。Dockerfile内容如下：</p>
+<pre><code class="ruby">FROM alpine:3.8
+MAINTAINER Cary Tan hbuzzs@163.com
+ENV PS1='[truffle@docker $PWD]\$ '
+RUN echo "http://mirrors.tuna.tsinghua.edu.cn/alpine/v3.8/main" &gt; /etc/apk/repositories \
+      &amp;&amp; echo "http://mirrors.tuna.tsinghua.edu.cn/alpine/v3.8/community" &gt;&gt; /etc/apk/repositories \
+      &amp;&amp; apk update \
+          &amp;&amp; apk add curl \
+      &amp;&amp; apk add npm \
+      &amp;&amp; apk add git \
+      &amp;&amp; mkdir -p /workspace \
+      &amp;&amp; npm config set registry https://registry.npm.taobao.org \
+      &amp;&amp; npm install -g truffle
+WORKDIR /workspace
+CMD /bin/sh
+</code></pre>
+<p>也可使用他人上传的镜像：</p>
+<pre><code class="bash">docker pull txcary/truffle:180806
+# 这个镜像没有curl 需要安装
+apk add curl
+</code></pre>
+<h2 id="新建truffle工程"><a href="#新建truffle工程" class="headerlink" title="新建truffle工程"></a>新建truffle工程</h2><pre><code class="bash">mkdir -p /opt/docker-project/truffle/workspace/VanToken
+cd /opt/docker-project/truffle/workspace/VanToken
+git clone https://github.com/trufflesuite/truffle-init-bare.git
+</code></pre>
+<h2 id="启动truffle容器"><a href="#启动truffle容器" class="headerlink" title="启动truffle容器"></a>启动truffle容器</h2><pre><code class="bash">docker run -it --rm -v /opt/docker-project/truffle/workspace:/workspace --network ethnet txcary/truffle:180806
+</code></pre>
+<h3 id="测试节点RPC"><a href="#测试节点RPC" class="headerlink" title="测试节点RPC"></a>测试节点RPC</h3><pre><code class="bash">curl 172.19.0.50:8545 -X POST --data '{"id":1,"jsonrpc":"2.0","method":"eth_accounts", "params":[]}' -H "Content-Type: application/json"
+
+curl 172.19.0.50:8545 -X POST --data '{"id":1,"jsonrpc":"2.0","method":"eth_getBalance", "params":["0x4c283287839fd441b8c8d18771321bc06a81edae","latest"]}' -H "Content-Type: application/json"
+</code></pre>
+<ul>
+<li>第一条命令获取节点上的账户</li>
+<li>第二条命令获取账户余额</li>
+<li>如果这两条命令成功了，说明以太坊私有网络搭建成功，并且节点rpc调用成功</li>
+</ul>
+<h3 id="修改truffle-js"><a href="#修改truffle-js" class="headerlink" title="修改truffle.js"></a>修改truffle.js</h3><pre><code class="javascript">module.exports = {
+        networks: {
+            development: {
+                host: "172.19.0.50",
+                port: 8545,
+                network_id: 88,
+                gas: 2900000,
+                gasPrice: 10000000000
+            }
+        }
+};
+</code></pre>
+<ul>
+<li>gas使用默认值会导致超限错误，研究半天不知道为什么。要是搞明白的可以给我留言，谢谢！</li>
+<li>gasPrice为默认值</li>
+</ul>
+<h2 id="编写合约Migrations-sol（truffle内置）"><a href="#编写合约Migrations-sol（truffle内置）" class="headerlink" title="编写合约Migrations.sol（truffle内置）"></a>编写合约Migrations.sol（truffle内置）</h2><pre><code class="solidity">pragma solidity &gt;=0.4.22 &lt;0.6.0;
+
+contract Migrations {
+    address public owner;
+    uint public lastCompletedMigration;
+
+    modifier restricted() {
+        if (msg.sender == owner) _;
+    }
+
+    constructor() public {
+        owner = msg.sender;
+    }
+
+    function setCompleted(uint completed) public restricted {
+        lastCompletedMigration = completed;
+    }
+
+    function upgrade(address newAddress) public restricted {
+        Migrations upgraded = Migrations(newAddress);
+        upgraded.setCompleted(lastCompletedMigration);
+    }
+}
+</code></pre>
+<h2 id="新建部署脚本"><a href="#新建部署脚本" class="headerlink" title="新建部署脚本"></a>新建部署脚本</h2><p>deploy_contracts.js</p>
+<pre><code class="javascript">var contractsName = artifacts.require("./Storage.sol");
+
+module.exports = function(deployer) {
+  deployer.deploy(contractsName);
+};
+</code></pre>
+<h2 id="编译合约"><a href="#编译合约" class="headerlink" title="编译合约"></a>编译合约</h2><pre><code class="bash">truffle compile
+</code></pre>
+<h2 id="部署合约-1"><a href="#部署合约-1" class="headerlink" title="部署合约"></a>部署合约</h2><pre><code class="bash">truffle migrate --network development --verbose-rpc
+</code></pre>
+<p>部署成功</p>
+<p><img src="/images/eth_network_set_up/image-20220204103544178.png" alt="image-20220204103544178"></p>
+<h1 id="参考链接："><a href="#参考链接：" class="headerlink" title="参考链接："></a>参考链接：</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/7994db7a2b89?from=singlemessage">https://www.jianshu.com/p/7994db7a2b89?from=singlemessage</a></li>
+</ul>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2022/02/07/blockchain/avalanche/What's%20Avalanche/" title="What's Avalanche?"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: What's Avalanche?</span></a><a class="button is-default" href="/2022/01/18/data_struct_algorithm/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90/" title="数据结构与算法分析"><span class="has-text-weight-semibold">Next: 数据结构与算法分析</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>

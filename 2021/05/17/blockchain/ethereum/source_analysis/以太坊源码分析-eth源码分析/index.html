@@ -1,0 +1,64 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>以太坊源码分析-eth源码分析</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="eth的源码又下面几个包
+
+downloader         主要用于和网络同步，包含了传统同步方式和快速同步方式
+fetcher            主要用于基于块通知的同步，接收到当我们接收到NewBlockHashesMsg消息得时候，我们只收到了很多Block的hash值。 需要通过hash值来同步区块。
+filter            提供基于RPC的过滤功能，包括实时数据的同步(PendingTx)，和历史的日志查询(Log filter)
+gasprice            提供gas的价格建议， 根据过去几个区块的gasprice，来得到当前的gasprice的建议价格
+
+eth 协议部分源码分析
+
+以太坊的网络协议大概流程
+
+
+
+fetcher部分的源码分析
+
+fetch部分.."><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">以太坊源码分析-eth源码分析</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile is-hidden"></div><div class="column is-9"><header class="my-4"><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">以太坊源码分析-eth源码分析</h1><time class="has-text-grey" datetime="2021-05-17T02:29:15.000Z">2021-05-17</time><article class="mt-2 post-content"><p>eth的源码又下面几个包</p>
+<ul>
+<li>downloader         主要用于和网络同步，包含了传统同步方式和快速同步方式</li>
+<li>fetcher            主要用于基于块通知的同步，接收到当我们接收到NewBlockHashesMsg消息得时候，我们只收到了很多Block的hash值。 需要通过hash值来同步区块。</li>
+<li>filter            提供基于RPC的过滤功能，包括实时数据的同步(PendingTx)，和历史的日志查询(Log filter)</li>
+<li>gasprice            提供gas的价格建议， 根据过去几个区块的gasprice，来得到当前的gasprice的建议价格</li>
+</ul>
+<p>eth 协议部分源码分析</p>
+<ul>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-eth%E4%BB%A5%E5%A4%AA%E5%9D%8A%E5%8D%8F%E8%AE%AE%E5%88%86%E6%9E%90/" title="以太坊的网络协议大概流程">以太坊的网络协议大概流程</a>
+
+</li>
+</ul>
+<p>fetcher部分的源码分析</p>
+<ul>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-eth-fetcher%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="fetch部分源码分析">fetch部分源码分析</a>
+
+</li>
+</ul>
+<p>downloader 部分源码分析</p>
+<ul>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E4%BB%A5%E5%A4%AA%E5%9D%8Afast%20sync%E7%AE%97%E6%B3%95/" title="节点快速同步算法">节点快速同步算法</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-eth-downloader-queue.go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="用来提供下载任务的调度和结果组装 queue.go">用来提供下载任务的调度和结果组装 queue.go</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-eth-downloader-peer%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="用来代表对端，提供QoS等功能 peer.go">用来代表对端，提供QoS等功能 peer.go</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-eth-downloader-statesync/" title="快速同步算法 用来提供Pivot point的 state-root的同步 statesync.go">快速同步算法 用来提供Pivot point的 state-root的同步 statesync.go</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-eth-downloader%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="同步的大致流程的分析">同步的大致流程的分析</a>
+
+</li>
+</ul>
+<p>filter 部分源码分析</p>
+<ul>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-eth-bloombits%E5%92%8Cfilter%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="提供布隆过滤器的查询和RPC过滤功能">提供布隆过滤器的查询和RPC过滤功能</a>
+</li>
+</ul>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-eth-downloader-statesync/" title="以太坊源码分析-eth-downloader-statesync"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: 以太坊源码分析-eth-downloader-statesync</span></a><a class="button is-default" href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-event%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="以太坊源码分析-event源码分析"><span class="has-text-weight-semibold">Next: 以太坊源码分析-event源码分析</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>
