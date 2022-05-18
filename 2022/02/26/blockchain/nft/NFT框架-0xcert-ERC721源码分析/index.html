@@ -1,0 +1,1289 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>NFT框架 0xcert ERC721源码分析</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="ERC721官方简介是：A standard interface for non-fungible tokens, also known as deeds.也叫非同质代币，或者不可置换代币（NFTs）。提到ERC721，一个好理解的例子就是CryptoKitties迷恋猫 ,每一只猫都是独一无二的拥有不同基因，有收藏价值属性。ERC721对于虚拟资产收藏品领域会有很好的应用价值和市场需求。
+ERC721是以太坊和 Wanchain 区块链的ERC-721不可替代令牌标准的完整参考实现。它还与其他 EVM 兼容链兼容，如 Binance Smart Chain (BSC)、Avalanche (AVAX) 等。这是一个开源项目，完成了Hardhat测试。
+此项目的目的是为任何想要在以太坊和 Wanchain .."><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">NFT框架 0xcert ERC721源码分析</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-SupportsInterface"><span class="toc-text">1. SupportsInterface</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-ERC721"><span class="toc-text">2. ERC721</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-ERC721Metadata"><span class="toc-text">3. ERC721Metadata</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-ERC721Enumerable"><span class="toc-text">4. ERC721Enumerable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-NFToken"><span class="toc-text">5. NFToken</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-NFTokenMetadata"><span class="toc-text">6. NFTokenMetadata</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-NFTokenEnumerable"><span class="toc-text">7. NFTokenEnumerable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Ownable"><span class="toc-text">8. Ownable</span></a></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a><a href="/tags/NFT"><i class="tag post-item-tag">NFT</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">NFT框架 0xcert ERC721源码分析</h1><time class="has-text-grey" datetime="2022-02-26T02:25:11.000Z">2022-02-26</time><article class="mt-2 post-content"><p>ERC721官方简介是：A standard interface for non-fungible tokens, also known as deeds.也叫非同质代币，或者不可置换代币（NFTs）。提到ERC721，一个好理解的例子就是<a target="_blank" rel="noopener" href="https://link.segmentfault.com/?enc=C1N3804jiPfa4j/kbVqQeA==.qKJ3FJzSnC5Qcs2rB15IvrOOttPxdU0dtue8Pk75gJ0=">CryptoKitties迷恋猫</a> ,每一只猫都是独一无二的拥有不同基因，有收藏价值属性。ERC721对于虚拟资产收藏品领域会有很好的应用价值和市场需求。</p>
+<p>ERC721是以太坊和 Wanchain 区块链的<a target="_blank" rel="noopener" href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md">ERC-721不可替代令牌标准的完整参考实现。</a>它还与其他 EVM 兼容链兼容，如 Binance Smart Chain (BSC)、Avalanche (AVAX) 等。这是一个开源项目，完成了<a target="_blank" rel="noopener" href="https://hardhat.org/">Hardhat</a>测试。</p>
+<p>此项目的目的是为任何想要在以太坊和 Wanchain 区块链上使用和开发不可替代代币的人提供一个良好的起点。您可以使用经过多次审核的代码，而不是自己重新实现 ERC-721，此实现比 ERC-721 标准更具限制性，因为它不支持<code>payable</code>开箱即用的函数调用。但是，您可以自己添加它。</p>
+<p>合约列表：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/nibbstack/erc721/blob/2.6.1/src/contracts/tokens/nf-token.sol"><code>nf-token.sol</code></a>：这是基本的 ERC-721 token实现（支持 ERC-165）。</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/nibbstack/erc721/blob/2.6.1/src/contracts/tokens/nf-token-metadata.sol"><code>nf-token-metadata.sol</code></a>：这为代币合约实现了可选的 ERC-721 元数据功能。它实现了一个token名称、一个符号和一个指向公开暴露的 ERC-721 JSON 元数据文件的不同 URI。</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/nibbstack/erc721/blob/2.6.1/src/contracts/tokens/nf-token-enumerable.sol"><code>nf-token-enumerable.sol</code></a>：这实现了对枚举的可选 ERC-721 支持。如果您想知道代币的总供应量、按索引查询代币等，这很有用</li>
+</ul>
+<p>合约类、接口之间的继承关系：</p>
+<p><img src="/images/open-zeppelin-erc721/image-20220226171652608.png" alt="image-20220226171652608"></p>
+<h2 id="1-SupportsInterface"><a href="#1-SupportsInterface" class="headerlink" title="1. SupportsInterface"></a>1. <a target="_blank" rel="noopener" href="https://github.com/nibbstack/erc721/blob/2.6.1/src/contracts/utils/supports-interface.sol">SupportsInterface</a></h2><p>实现检测智能合约接口的标准。</p>
+<p>例如在合约的构造函数定义如下内容指定检测标准：</p>
+<pre><code class="javascript">supportedInterfaces[0x01ffc9a7] = true; // ERC165
+supportedInterfaces[0x780e9d63] = true; // ERC721Enumerable
+supportedInterfaces[0x5b5e139f] = true; // ERC721Metadata
+supportedInterfaces[0x80ac58cd] = true; // ERC721
+</code></pre>
+<p>源码：</p>
+<pre><code class="javascript">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "./erc165.sol";
+
+/**
+ * @dev Implementation of standard for detect smart contract interfaces.
+ */
+contract SupportsInterface is
+  ERC165
+{
+
+  /**
+   * @dev Mapping of supported intefraces. You must not set element 0xffffffff to true.
+   */
+  mapping(bytes4 =&gt; bool) internal supportedInterfaces;
+
+  /**
+   * @dev Contract constructor.
+   */
+  constructor()
+  {
+    supportedInterfaces[0x01ffc9a7] = true; // ERC165
+  }
+
+  /**
+   * @dev Function to check which interfaces are suported by this contract.
+   * @param _interfaceID Id of the interface.
+   * @return True if _interfaceID is supported, false otherwise.
+   */
+  function supportsInterface(
+    bytes4 _interfaceID
+  )
+    external
+    override
+    view
+    returns (bool)
+  {
+    return supportedInterfaces[_interfaceID];
+  }
+
+}
+</code></pre>
+<h2 id="2-ERC721"><a href="#2-ERC721" class="headerlink" title="2. ERC721"></a>2. <a target="_blank" rel="noopener" href="https://github.com/nibbstack/erc721/blob/2.6.1/src/contracts/tokens/erc721.sol">ERC721</a></h2><p>ERC721合约定义了基本的接口方法：</p>
+<ul>
+<li><p>safeTransferFrom：转移代币所有权</p>
+</li>
+<li><p>transferFrom：转移代币所有权</p>
+</li>
+<li><p>setApprovalForAll：授权operator具有所有代币的控制权</p>
+</li>
+<li><p>balanceOf：返回owner的代币数量</p>
+</li>
+<li><p>ownerOf：根据tokenId返回代币持有者address</p>
+</li>
+<li><p>getApproved：查询tokenId的授权人operator address</p>
+</li>
+<li><p>approve 授权tokenId给地址to</p>
+</li>
+<li><p>isApprovedForAll：查询一个地址是否为另一个地址的授权操作者。</p>
+</li>
+</ul>
+<p>源码：</p>
+<pre><code class="javascript">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+/**
+ * @dev ERC-721 non-fungible token standard.
+ * See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md.
+ */
+interface ERC721
+{
+
+  /**
+   * @dev Emits when ownership of any NFT changes by any mechanism. This event emits when NFTs are
+   * created (`from` == 0) and destroyed (`to` == 0). Exception: during contract creation, any
+   * number of NFTs may be created and assigned without emitting Transfer. At the time of any
+   * transfer, the approved address for that NFT (if any) is reset to none.
+   */
+  event Transfer(
+    address indexed _from,
+    address indexed _to,
+    uint256 indexed _tokenId
+  );
+
+  /**
+   * @dev This emits when the approved address for an NFT is changed or reaffirmed. The zero
+   * address indicates there is no approved address. When a Transfer event emits, this also
+   * indicates that the approved address for that NFT (if any) is reset to none.
+   */
+  event Approval(
+    address indexed _owner,
+    address indexed _approved,
+    uint256 indexed _tokenId
+  );
+
+  /**
+   * @dev This emits when an operator is enabled or disabled for an owner. The operator can manage
+   * all NFTs of the owner.
+   */
+  event ApprovalForAll(
+    address indexed _owner,
+    address indexed _operator,
+    bool _approved
+  );
+
+  /**
+   * @notice Throws unless `msg.sender` is the current owner, an authorized operator, or the
+   * approved address for this NFT. Throws if `_from` is not the current owner. Throws if `_to` is
+   * the zero address. Throws if `_tokenId` is not a valid NFT. When transfer is complete, this
+   * function checks if `_to` is a smart contract (code size &gt; 0). If so, it calls
+   * `onERC721Received` on `_to` and throws if the return value is not
+   * `bytes4(keccak256("onERC721Received(address,uint256,bytes)"))`.
+   * @dev Transfers the ownership of an NFT from one address to another address. This function can
+   * be changed to payable.
+   * @param _from The current owner of the NFT.
+   * @param _to The new owner.
+   * @param _tokenId The NFT to transfer.
+   * @param _data Additional data with no specified format, sent in call to `_to`.
+   */
+  function safeTransferFrom(
+    address _from,
+    address _to,
+    uint256 _tokenId,
+    bytes calldata _data
+  )
+    external;
+
+  /**
+   * @notice This works identically to the other function with an extra data parameter, except this
+   * function just sets data to ""
+   * @dev Transfers the ownership of an NFT from one address to another address. This function can
+   * be changed to payable.
+   * @param _from The current owner of the NFT.
+   * @param _to The new owner.
+   * @param _tokenId The NFT to transfer.
+   */
+  function safeTransferFrom(
+    address _from,
+    address _to,
+    uint256 _tokenId
+  )
+    external;
+
+  /**
+   * @notice The caller is responsible to confirm that `_to` is capable of receiving NFTs or else
+   * they may be permanently lost.
+   * @dev Throws unless `msg.sender` is the current owner, an authorized operator, or the approved
+   * address for this NFT. Throws if `_from` is not the current owner. Throws if `_to` is the zero
+   * address. Throws if `_tokenId` is not a valid NFT.  This function can be changed to payable.
+   * @param _from The current owner of the NFT.
+   * @param _to The new owner.
+   * @param _tokenId The NFT to transfer.
+   */
+  function transferFrom(
+    address _from,
+    address _to,
+    uint256 _tokenId
+  )
+    external;
+
+  /**
+   * @notice The zero address indicates there is no approved address. Throws unless `msg.sender` is
+   * the current NFT owner, or an authorized operator of the current owner.
+   * @param _approved The new approved NFT controller.
+   * @dev Set or reaffirm the approved address for an NFT. This function can be changed to payable.
+   * @param _tokenId The NFT to approve.
+   */
+  function approve(
+    address _approved,
+    uint256 _tokenId
+  )
+    external;
+
+  /**
+   * @notice The contract MUST allow multiple operators per owner.
+   * @dev Enables or disables approval for a third party ("operator") to manage all of
+   * `msg.sender`'s assets. It also emits the ApprovalForAll event.
+   * @param _operator Address to add to the set of authorized operators.
+   * @param _approved True if the operators is approved, false to revoke approval.
+   */
+  function setApprovalForAll(
+    address _operator,
+    bool _approved
+  )
+    external;
+
+  /**
+   * @dev Returns the number of NFTs owned by `_owner`. NFTs assigned to the zero address are
+   * considered invalid, and this function throws for queries about the zero address.
+   * @notice Count all NFTs assigned to an owner.
+   * @param _owner Address for whom to query the balance.
+   * @return Balance of _owner.
+   */
+  function balanceOf(
+    address _owner
+  )
+    external
+    view
+    returns (uint256);
+
+  /**
+   * @notice Find the owner of an NFT.
+   * @dev Returns the address of the owner of the NFT. NFTs assigned to the zero address are
+   * considered invalid, and queries about them do throw.
+   * @param _tokenId The identifier for an NFT.
+   * @return Address of _tokenId owner.
+   */
+  function ownerOf(
+    uint256 _tokenId
+  )
+    external
+    view
+    returns (address);
+
+  /**
+   * @notice Throws if `_tokenId` is not a valid NFT.
+   * @dev Get the approved address for a single NFT.
+   * @param _tokenId The NFT to find the approved address for.
+   * @return Address that _tokenId is approved for.
+   */
+  function getApproved(
+    uint256 _tokenId
+  )
+    external
+    view
+    returns (address);
+
+  /**
+   * @notice Query if an address is an authorized operator for another address.
+   * @dev Returns true if `_operator` is an approved operator for `_owner`, false otherwise.
+   * @param _owner The address that owns the NFTs.
+   * @param _operator The address that acts on behalf of the owner.
+   * @return True if approved for all, false otherwise.
+   */
+  function isApprovedForAll(
+    address _owner,
+    address _operator
+  )
+    external
+    view
+    returns (bool);
+
+}
+</code></pre>
+<h2 id="3-ERC721Metadata"><a href="#3-ERC721Metadata" class="headerlink" title="3. ERC721Metadata"></a>3. <a target="_blank" rel="noopener" href="https://github.com/nibbstack/erc721/blob/2.6.1/src/contracts/tokens/erc721-metadata.sol">ERC721Metadata</a></h2><p>ERC-721不可替代令牌标准的可选元数据扩展。</p>
+<p>主要方法：</p>
+<ul>
+<li>name：返回NFT的描述性名称</li>
+<li>symbol：返回NFT的缩写名称</li>
+<li>tokenURI：返回_tokenId对应的资源URI</li>
+</ul>
+<pre><code class="javascript">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Optional metadata extension for ERC-721 non-fungible token standard.
+ * See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md.
+ */
+interface ERC721Metadata
+{
+
+  /**
+   * @dev Returns a descriptive name for a collection of NFTs in this contract.
+   * @return _name Representing name.
+   */
+  function name()
+    external
+    view
+    returns (string memory _name);
+
+  /**
+   * @dev Returns a abbreviated name for a collection of NFTs in this contract.
+   * @return _symbol Representing symbol.
+   */
+  function symbol()
+    external
+    view
+    returns (string memory _symbol);
+
+  /**
+   * @dev Returns a distinct Uniform Resource Identifier (URI) for a given asset. It Throws if
+   * `_tokenId` is not a valid NFT. URIs are defined in RFC3986. The URI may point to a JSON file
+   * that conforms to the "ERC721 Metadata JSON Schema".
+   * @return URI of _tokenId.
+   */
+  function tokenURI(uint256 _tokenId)
+    external
+    view
+    returns (string memory);
+
+}
+</code></pre>
+<h2 id="4-ERC721Enumerable"><a href="#4-ERC721Enumerable" class="headerlink" title="4. ERC721Enumerable"></a>4. <a target="_blank" rel="noopener" href="https://github.com/nibbstack/erc721/blob/2.6.1/src/contracts/tokens/erc721-enumerable.sol">ERC721Enumerable</a></h2><p>ERC-721不可替代令牌标准的可选枚举扩展。</p>
+<p>主要方法：</p>
+<ul>
+<li>totalSupply：返回由此契约跟踪的有效nft的计数（代币总量），其中每个nft都有一个分配的、可查询的所有者，且所有者不等于零地址</li>
+<li>tokenByIndex：返回第index的NFT的tokenId。没有指定排序顺序。</li>
+<li>tokenOfOwnerByIndex：返回分配给指定人的第index的NFT的tokenId。没有指定排序顺序</li>
+</ul>
+<p>源码：</p>
+<pre><code class="javascript">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Optional enumeration extension for ERC-721 non-fungible token standard.
+ * See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md.
+ */
+interface ERC721Enumerable
+{
+
+  /**
+   * @dev Returns a count of valid NFTs tracked by this contract, where each one of them has an
+   * assigned and queryable owner not equal to the zero address.
+   * @return Total supply of NFTs.
+   */
+  function totalSupply()
+    external
+    view
+    returns (uint256);
+
+  /**
+   * @dev Returns the token identifier for the `_index`th NFT. Sort order is not specified.
+   * @param _index A counter less than `totalSupply()`.
+   * @return Token id.
+   */
+  function tokenByIndex(
+    uint256 _index
+  )
+    external
+    view
+    returns (uint256);
+
+  /**
+   * @dev Returns the token identifier for the `_index`th NFT assigned to `_owner`. Sort order is
+   * not specified. It throws if `_index` &gt;= `balanceOf(_owner)` or if `_owner` is the zero address,
+   * representing invalid NFTs.
+   * @param _owner An address where we are interested in NFTs owned by them.
+   * @param _index A counter less than `balanceOf(_owner)`.
+   * @return Token id.
+   */
+  function tokenOfOwnerByIndex(
+    address _owner,
+    uint256 _index
+  )
+    external
+    view
+    returns (uint256);
+
+}
+</code></pre>
+<h2 id="5-NFToken"><a href="#5-NFToken" class="headerlink" title="5. NFToken"></a>5. <a target="_blank" rel="noopener" href="https://github.com/nibbstack/erc721/blob/2.6.1/src/contracts/tokens/nf-token.sol">NFToken</a></h2><p>ERC721 标准基本实现</p>
+<p>主要方法：</p>
+<ul>
+<li>safeTransferFrom：将NFT的所有权从一个地址转移到另一个地址。此功能可更改为payable</li>
+<li>transferFrom：将指定的token所有权转移给另外一个地址，不鼓励使用这个方法，尽量使用<code>safeTransferFrom</code></li>
+<li>approve：批准另一个人address来交易指定的代币，0 address 表示没有授权的地址，给定的时间内，一个token只能有一个批准的地址，只有token的持有者或者授权的操作人才可以调用。此功能可更改为payable</li>
+<li>setApprovalForAll：设置或者取消对操作人的授权，一个操作人可以代表他们转让发送者的所有token</li>
+<li>balanceOf：获取持有者的代币总数</li>
+<li>ownerOf：根据token ID获取持有者</li>
+<li>getApproved：获取token被授权的地址，如果没有设置地址则为0</li>
+<li>isApprovedForAll：查询是否操作人被指定的持有者授权，要查询的授权人地址，要查询的授权操作人地址</li>
+</ul>
+<pre><code class="javascript">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "./erc721.sol";
+import "./erc721-token-receiver.sol";
+import "../utils/supports-interface.sol";
+import "../utils/address-utils.sol";
+
+/**
+ * @dev Implementation of ERC-721 non-fungible token standard.
+ */
+contract NFToken is
+  ERC721,
+  SupportsInterface
+{
+  using AddressUtils for address;
+
+  /**
+   * @dev List of revert message codes. Implementing dApp should handle showing the correct message.
+   * Based on 0xcert framework error codes.
+   */
+  string constant ZERO_ADDRESS = "003001";
+  string constant NOT_VALID_NFT = "003002";
+  string constant NOT_OWNER_OR_OPERATOR = "003003";
+  string constant NOT_OWNER_APPROVED_OR_OPERATOR = "003004";
+  string constant NOT_ABLE_TO_RECEIVE_NFT = "003005";
+  string constant NFT_ALREADY_EXISTS = "003006";
+  string constant NOT_OWNER = "003007";
+  string constant IS_OWNER = "003008";
+
+  /**
+   * @dev Magic value of a smart contract that can receive NFT.
+   * Equal to: bytes4(keccak256("onERC721Received(address,address,uint256,bytes)")).
+   */
+  bytes4 internal constant MAGIC_ON_ERC721_RECEIVED = 0x150b7a02;
+
+  /**
+   * @dev A mapping from NFT ID to the address that owns it.
+   */
+  mapping (uint256 =&gt; address) internal idToOwner;
+
+  /**
+   * @dev Mapping from NFT ID to approved address.
+   */
+  mapping (uint256 =&gt; address) internal idToApproval;
+
+   /**
+   * @dev Mapping from owner address to count of their tokens.
+   */
+  mapping (address =&gt; uint256) private ownerToNFTokenCount;
+
+  /**
+   * @dev Mapping from owner address to mapping of operator addresses.
+   */
+  mapping (address =&gt; mapping (address =&gt; bool)) internal ownerToOperators;
+
+  /**
+   * @dev Guarantees that the msg.sender is an owner or operator of the given NFT.
+   * @param _tokenId ID of the NFT to validate.
+   */
+  modifier canOperate(
+    uint256 _tokenId
+  )
+  {
+    address tokenOwner = idToOwner[_tokenId];
+    require(
+      tokenOwner == msg.sender || ownerToOperators[tokenOwner][msg.sender],
+      NOT_OWNER_OR_OPERATOR
+    );
+    _;
+  }
+
+  /**
+   * @dev Guarantees that the msg.sender is allowed to transfer NFT.
+   * @param _tokenId ID of the NFT to transfer.
+   */
+  modifier canTransfer(
+    uint256 _tokenId
+  )
+  {
+    address tokenOwner = idToOwner[_tokenId];
+    require(
+      tokenOwner == msg.sender
+      || idToApproval[_tokenId] == msg.sender
+      || ownerToOperators[tokenOwner][msg.sender],
+      NOT_OWNER_APPROVED_OR_OPERATOR
+    );
+    _;
+  }
+
+  /**
+   * @dev Guarantees that _tokenId is a valid Token.
+   * @param _tokenId ID of the NFT to validate.
+   */
+  modifier validNFToken(
+    uint256 _tokenId
+  )
+  {
+    require(idToOwner[_tokenId] != address(0), NOT_VALID_NFT);
+    _;
+  }
+
+  /**
+   * @dev Contract constructor.
+   */
+  constructor()
+  {
+    supportedInterfaces[0x80ac58cd] = true; // ERC721
+  }
+
+  /**
+   * @notice Throws unless `msg.sender` is the current owner, an authorized operator, or the
+   * approved address for this NFT. Throws if `_from` is not the current owner. Throws if `_to` is
+   * the zero address. Throws if `_tokenId` is not a valid NFT. When transfer is complete, this
+   * function checks if `_to` is a smart contract (code size &gt; 0). If so, it calls
+   * `onERC721Received` on `_to` and throws if the return value is not
+   * `bytes4(keccak256("onERC721Received(address,uint256,bytes)"))`.
+   * @dev Transfers the ownership of an NFT from one address to another address. This function can
+   * be changed to payable.
+   * @param _from The current owner of the NFT.
+   * @param _to The new owner.
+   * @param _tokenId The NFT to transfer.
+   * @param _data Additional data with no specified format, sent in call to `_to`.
+   */
+  function safeTransferFrom(
+    address _from,
+    address _to,
+    uint256 _tokenId,
+    bytes calldata _data
+  )
+    external
+    override
+  {
+    _safeTransferFrom(_from, _to, _tokenId, _data);
+  }
+
+  /**
+   * @notice This works identically to the other function with an extra data parameter, except this
+   * function just sets data to "".
+   * @dev Transfers the ownership of an NFT from one address to another address. This function can
+   * be changed to payable.
+   * @param _from The current owner of the NFT.
+   * @param _to The new owner.
+   * @param _tokenId The NFT to transfer.
+   */
+  function safeTransferFrom(
+    address _from,
+    address _to,
+    uint256 _tokenId
+  )
+    external
+    override
+  {
+    _safeTransferFrom(_from, _to, _tokenId, "");
+  }
+
+  /**
+   * @notice The caller is responsible to confirm that `_to` is capable of receiving NFTs or else
+   * they may be permanently lost.
+   * @dev Throws unless `msg.sender` is the current owner, an authorized operator, or the approved
+   * address for this NFT. Throws if `_from` is not the current owner. Throws if `_to` is the zero
+   * address. Throws if `_tokenId` is not a valid NFT. This function can be changed to payable.
+   * @param _from The current owner of the NFT.
+   * @param _to The new owner.
+   * @param _tokenId The NFT to transfer.
+   */
+  function transferFrom(
+    address _from,
+    address _to,
+    uint256 _tokenId
+  )
+    external
+    override
+    canTransfer(_tokenId)
+    validNFToken(_tokenId)
+  {
+    address tokenOwner = idToOwner[_tokenId];
+    require(tokenOwner == _from, NOT_OWNER);
+    require(_to != address(0), ZERO_ADDRESS);
+
+    _transfer(_to, _tokenId);
+  }
+
+  /**
+   * @notice The zero address indicates there is no approved address. Throws unless `msg.sender` is
+   * the current NFT owner, or an authorized operator of the current owner.
+   * @dev Set or reaffirm the approved address for an NFT. This function can be changed to payable.
+   * @param _approved Address to be approved for the given NFT ID.
+   * @param _tokenId ID of the token to be approved.
+   */
+  function approve(
+    address _approved,
+    uint256 _tokenId
+  )
+    external
+    override
+    canOperate(_tokenId)
+    validNFToken(_tokenId)
+  {
+    address tokenOwner = idToOwner[_tokenId];
+    require(_approved != tokenOwner, IS_OWNER);
+
+    idToApproval[_tokenId] = _approved;
+    emit Approval(tokenOwner, _approved, _tokenId);
+  }
+
+  /**
+   * @notice This works even if sender doesn't own any tokens at the time.
+   * @dev Enables or disables approval for a third party ("operator") to manage all of
+   * `msg.sender`'s assets. It also emits the ApprovalForAll event.
+   * @param _operator Address to add to the set of authorized operators.
+   * @param _approved True if the operators is approved, false to revoke approval.
+   */
+  function setApprovalForAll(
+    address _operator,
+    bool _approved
+  )
+    external
+    override
+  {
+    ownerToOperators[msg.sender][_operator] = _approved;
+    emit ApprovalForAll(msg.sender, _operator, _approved);
+  }
+
+  /**
+   * @dev Returns the number of NFTs owned by `_owner`. NFTs assigned to the zero address are
+   * considered invalid, and this function throws for queries about the zero address.
+   * @param _owner Address for whom to query the balance.
+   * @return Balance of _owner.
+   */
+  function balanceOf(
+    address _owner
+  )
+    external
+    override
+    view
+    returns (uint256)
+  {
+    require(_owner != address(0), ZERO_ADDRESS);
+    return _getOwnerNFTCount(_owner);
+  }
+
+  /**
+   * @dev Returns the address of the owner of the NFT. NFTs assigned to the zero address are
+   * considered invalid, and queries about them do throw.
+   * @param _tokenId The identifier for an NFT.
+   * @return _owner Address of _tokenId owner.
+   */
+  function ownerOf(
+    uint256 _tokenId
+  )
+    external
+    override
+    view
+    returns (address _owner)
+  {
+    _owner = idToOwner[_tokenId];
+    require(_owner != address(0), NOT_VALID_NFT);
+  }
+
+  /**
+   * @notice Throws if `_tokenId` is not a valid NFT.
+   * @dev Get the approved address for a single NFT.
+   * @param _tokenId ID of the NFT to query the approval of.
+   * @return Address that _tokenId is approved for.
+   */
+  function getApproved(
+    uint256 _tokenId
+  )
+    external
+    override
+    view
+    validNFToken(_tokenId)
+    returns (address)
+  {
+    return idToApproval[_tokenId];
+  }
+
+  /**
+   * @dev Checks if `_operator` is an approved operator for `_owner`.
+   * @param _owner The address that owns the NFTs.
+   * @param _operator The address that acts on behalf of the owner.
+   * @return True if approved for all, false otherwise.
+   */
+  function isApprovedForAll(
+    address _owner,
+    address _operator
+  )
+    external
+    override
+    view
+    returns (bool)
+  {
+    return ownerToOperators[_owner][_operator];
+  }
+
+  /**
+   * @notice Does NO checks.
+   * @dev Actually performs the transfer.
+   * @param _to Address of a new owner.
+   * @param _tokenId The NFT that is being transferred.
+   */
+  function _transfer(
+    address _to,
+    uint256 _tokenId
+  )
+    internal
+    virtual
+  {
+    address from = idToOwner[_tokenId];
+    _clearApproval(_tokenId);
+
+    _removeNFToken(from, _tokenId);
+    _addNFToken(_to, _tokenId);
+
+    emit Transfer(from, _to, _tokenId);
+  }
+
+  /**
+   * @notice This is an internal function which should be called from user-implemented external
+   * mint function. Its purpose is to show and properly initialize data structures when using this
+   * implementation.
+   * @dev Mints a new NFT.
+   * @param _to The address that will own the minted NFT.
+   * @param _tokenId of the NFT to be minted by the msg.sender.
+   */
+  function _mint(
+    address _to,
+    uint256 _tokenId
+  )
+    internal
+    virtual
+  {
+    require(_to != address(0), ZERO_ADDRESS);
+    require(idToOwner[_tokenId] == address(0), NFT_ALREADY_EXISTS);
+
+    _addNFToken(_to, _tokenId);
+
+    emit Transfer(address(0), _to, _tokenId);
+  }
+
+  /**
+   * @notice This is an internal function which should be called from user-implemented external burn
+   * function. Its purpose is to show and properly initialize data structures when using this
+   * implementation. Also, note that this burn implementation allows the minter to re-mint a burned
+   * NFT.
+   * @dev Burns a NFT.
+   * @param _tokenId ID of the NFT to be burned.
+   */
+  function _burn(
+    uint256 _tokenId
+  )
+    internal
+    virtual
+    validNFToken(_tokenId)
+  {
+    address tokenOwner = idToOwner[_tokenId];
+    _clearApproval(_tokenId);
+    _removeNFToken(tokenOwner, _tokenId);
+    emit Transfer(tokenOwner, address(0), _tokenId);
+  }
+
+  /**
+   * @notice Use and override this function with caution. Wrong usage can have serious consequences.
+   * @dev Removes a NFT from owner.
+   * @param _from Address from which we want to remove the NFT.
+   * @param _tokenId Which NFT we want to remove.
+   */
+  function _removeNFToken(
+    address _from,
+    uint256 _tokenId
+  )
+    internal
+    virtual
+  {
+    require(idToOwner[_tokenId] == _from, NOT_OWNER);
+    ownerToNFTokenCount[_from] -= 1;
+    delete idToOwner[_tokenId];
+  }
+
+  /**
+   * @notice Use and override this function with caution. Wrong usage can have serious consequences.
+   * @dev Assigns a new NFT to owner.
+   * @param _to Address to which we want to add the NFT.
+   * @param _tokenId Which NFT we want to add.
+   */
+  function _addNFToken(
+    address _to,
+    uint256 _tokenId
+  )
+    internal
+    virtual
+  {
+    require(idToOwner[_tokenId] == address(0), NFT_ALREADY_EXISTS);
+
+    idToOwner[_tokenId] = _to;
+    ownerToNFTokenCount[_to] += 1;
+  }
+
+  /**
+   *&nbsp;@dev Helper function that gets NFT count of owner. This is needed for overriding in enumerable
+   * extension to remove double storage (gas optimization) of owner NFT count.
+   * @param _owner Address for whom to query the count.
+   * @return Number of _owner NFTs.
+   */
+  function _getOwnerNFTCount(
+    address _owner
+  )
+    internal
+    virtual
+    view
+    returns (uint256)
+  {
+    return ownerToNFTokenCount[_owner];
+  }
+
+  /**
+   * @dev Actually perform the safeTransferFrom.
+   * @param _from The current owner of the NFT.
+   * @param _to The new owner.
+   * @param _tokenId The NFT to transfer.
+   * @param _data Additional data with no specified format, sent in call to `_to`.
+   */
+  function _safeTransferFrom(
+    address _from,
+    address _to,
+    uint256 _tokenId,
+    bytes memory _data
+  )
+    private
+    canTransfer(_tokenId)
+    validNFToken(_tokenId)
+  {
+    address tokenOwner = idToOwner[_tokenId];
+    require(tokenOwner == _from, NOT_OWNER);
+    require(_to != address(0), ZERO_ADDRESS);
+
+    _transfer(_to, _tokenId);
+
+    if (_to.isContract())
+    {
+      bytes4 retval = ERC721TokenReceiver(_to).onERC721Received(msg.sender, _from, _tokenId, _data);
+      require(retval == MAGIC_ON_ERC721_RECEIVED, NOT_ABLE_TO_RECEIVE_NFT);
+    }
+  }
+
+  /**
+   * @dev Clears the current approval of a given NFT ID.
+   * @param _tokenId ID of the NFT to be transferred.
+   */
+  function _clearApproval(
+    uint256 _tokenId
+  )
+    private
+  {
+    delete idToApproval[_tokenId];
+  }
+
+}
+</code></pre>
+<h2 id="6-NFTokenMetadata"><a href="#6-NFTokenMetadata" class="headerlink" title="6. NFTokenMetadata"></a>6. <a target="_blank" rel="noopener" href="https://github.com/nibbstack/erc721/blob/2.6.1/src/contracts/tokens/nf-token-metadata.sol">NFTokenMetadata</a></h2><p>ERC-721不可替代令牌标准的可选元数据实现，继承NFToken并实现了ERC721Metadata接口</p>
+<pre><code class="javascript">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "./nf-token.sol";
+import "./erc721-metadata.sol";
+
+/**
+ * @dev Optional metadata implementation for ERC-721 non-fungible token standard.
+ */
+contract NFTokenMetadata is
+  NFToken,
+  ERC721Metadata
+{
+
+  /**
+   * @dev A descriptive name for a collection of NFTs.
+   */
+  string internal nftName;
+
+  /**
+   * @dev An abbreviated name for NFTokens.
+   */
+  string internal nftSymbol;
+
+  /**
+   * @dev Mapping from NFT ID to metadata uri.
+   */
+  mapping (uint256 =&gt; string) internal idToUri;
+
+  /**
+   * @notice When implementing this contract don't forget to set nftName and nftSymbol.
+   * @dev Contract constructor.
+   */
+  constructor()
+  {
+    supportedInterfaces[0x5b5e139f] = true; // ERC721Metadata
+  }
+
+  /**
+   * @dev Returns a descriptive name for a collection of NFTokens.
+   * @return _name Representing name.
+   */
+  function name()
+    external
+    override
+    view
+    returns (string memory _name)
+  {
+    _name = nftName;
+  }
+
+  /**
+   * @dev Returns an abbreviated name for NFTokens.
+   * @return _symbol Representing symbol.
+   */
+  function symbol()
+    external
+    override
+    view
+    returns (string memory _symbol)
+  {
+    _symbol = nftSymbol;
+  }
+
+  /**
+   * @dev A distinct URI (RFC 3986) for a given NFT.
+   * @param _tokenId Id for which we want uri.
+   * @return URI of _tokenId.
+   */
+  function tokenURI(
+    uint256 _tokenId
+  )
+    external
+    override
+    view
+    validNFToken(_tokenId)
+    returns (string memory)
+  {
+    return _tokenURI(_tokenId);
+  }
+
+  /**
+   * @notice This is an internal function that can be overriden if you want to implement a different
+   * way to generate token URI.
+   * @param _tokenId Id for which we want uri.
+   * @return URI of _tokenId.
+   */
+  function _tokenURI(
+    uint256 _tokenId
+  )
+    internal
+    virtual
+    view
+    returns (string memory)
+  {
+    return idToUri[_tokenId];
+  }
+
+  /**
+   * @notice This is an internal function which should be called from user-implemented external
+   * burn function. Its purpose is to show and properly initialize data structures when using this
+   * implementation. Also, note that this burn implementation allows the minter to re-mint a burned
+   * NFT.
+   * @dev Burns a NFT.
+   * @param _tokenId ID of the NFT to be burned.
+   */
+  function _burn(
+    uint256 _tokenId
+  )
+    internal
+    override
+    virtual
+  {
+    super._burn(_tokenId);
+
+    delete idToUri[_tokenId];
+  }
+
+  /**
+   * @notice This is an internal function which should be called from user-implemented external
+   * function. Its purpose is to show and properly initialize data structures when using this
+   * implementation.
+   * @dev Set a distinct URI (RFC 3986) for a given NFT ID.
+   * @param _tokenId Id for which we want URI.
+   * @param _uri String representing RFC 3986 URI.
+   */
+  function _setTokenUri(
+    uint256 _tokenId,
+    string memory _uri
+  )
+    internal
+    validNFToken(_tokenId)
+  {
+    idToUri[_tokenId] = _uri;
+  }
+
+}
+</code></pre>
+<h2 id="7-NFTokenEnumerable"><a href="#7-NFTokenEnumerable" class="headerlink" title="7. NFTokenEnumerable"></a>7. <a target="_blank" rel="noopener" href="https://github.com/nibbstack/erc721/blob/2.6.1/src/contracts/tokens/nf-token-enumerable.sol">NFTokenEnumerable</a></h2><p>ERC-721不可替代令牌标准的可选枚举实现，继承NFToken并实现了ERC721Enumerable接口</p>
+<pre><code class="javascript">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "./nf-token.sol";
+import "./erc721-enumerable.sol";
+
+/**
+ * @dev Optional enumeration implementation for ERC-721 non-fungible token standard.
+ */
+contract NFTokenEnumerable is
+  NFToken,
+  ERC721Enumerable
+{
+
+  /**
+   * @dev List of revert message codes. Implementing dApp should handle showing the correct message.
+   * Based on 0xcert framework error codes.
+   */
+  string constant INVALID_INDEX = "005007";
+
+  /**
+   * @dev Array of all NFT IDs.
+   */
+  uint256[] internal tokens;
+
+  /**
+   * @dev Mapping from token ID to its index in global tokens array.
+   */
+  mapping(uint256 =&gt; uint256) internal idToIndex;
+
+  /**
+   * @dev Mapping from owner to list of owned NFT IDs.
+   */
+  mapping(address =&gt; uint256[]) internal ownerToIds;
+
+  /**
+   * @dev Mapping from NFT ID to its index in the owner tokens list.
+   */
+  mapping(uint256 =&gt; uint256) internal idToOwnerIndex;
+
+  /**
+   * @dev Contract constructor.
+   */
+  constructor()
+  {
+    supportedInterfaces[0x780e9d63] = true; // ERC721Enumerable
+  }
+
+  /**
+   * @dev Returns the count of all existing NFTokens.
+   * @return Total supply of NFTs.
+   */
+  function totalSupply()
+    external
+    override
+    view
+    returns (uint256)
+  {
+    return tokens.length;
+  }
+
+  /**
+   * @dev Returns NFT ID by its index.
+   * @param _index A counter less than `totalSupply()`.
+   * @return Token id.
+   */
+  function tokenByIndex(
+    uint256 _index
+  )
+    external
+    override
+    view
+    returns (uint256)
+  {
+    require(_index &lt; tokens.length, INVALID_INDEX);
+    return tokens[_index];
+  }
+
+  /**
+   * @dev returns the n-th NFT ID from a list of owner's tokens.
+   * @param _owner Token owner's address.
+   * @param _index Index number representing n-th token in owner's list of tokens.
+   * @return Token id.
+   */
+  function tokenOfOwnerByIndex(
+    address _owner,
+    uint256 _index
+  )
+    external
+    override
+    view
+    returns (uint256)
+  {
+    require(_index &lt; ownerToIds[_owner].length, INVALID_INDEX);
+    return ownerToIds[_owner][_index];
+  }
+
+  /**
+   * @notice This is an internal function which should be called from user-implemented external
+   * mint function. Its purpose is to show and properly initialize data structures when using this
+   * implementation.
+   * @dev Mints a new NFT.
+   * @param _to The address that will own the minted NFT.
+   * @param _tokenId of the NFT to be minted by the msg.sender.
+   */
+  function _mint(
+    address _to,
+    uint256 _tokenId
+  )
+    internal
+    override
+    virtual
+  {
+    super._mint(_to, _tokenId);
+    tokens.push(_tokenId);
+    idToIndex[_tokenId] = tokens.length - 1;
+  }
+
+  /**
+   * @notice This is an internal function which should be called from user-implemented external
+   * burn function. Its purpose is to show and properly initialize data structures when using this
+   * implementation. Also, note that this burn implementation allows the minter to re-mint a burned
+   * NFT.
+   * @dev Burns a NFT.
+   * @param _tokenId ID of the NFT to be burned.
+   */
+  function _burn(
+    uint256 _tokenId
+  )
+    internal
+    override
+    virtual
+  {
+    super._burn(_tokenId);
+
+    uint256 tokenIndex = idToIndex[_tokenId];
+    uint256 lastTokenIndex = tokens.length - 1;
+    uint256 lastToken = tokens[lastTokenIndex];
+
+    tokens[tokenIndex] = lastToken;
+
+    tokens.pop();
+    // This wastes gas if you are burning the last token but saves a little gas if you are not.
+    idToIndex[lastToken] = tokenIndex;
+    idToIndex[_tokenId] = 0;
+  }
+
+  /**
+   * @notice Use and override this function with caution. Wrong usage can have serious consequences.
+   * @dev Removes a NFT from an address.
+   * @param _from Address from wich we want to remove the NFT.
+   * @param _tokenId Which NFT we want to remove.
+   */
+  function _removeNFToken(
+    address _from,
+    uint256 _tokenId
+  )
+    internal
+    override
+    virtual
+  {
+    require(idToOwner[_tokenId] == _from, NOT_OWNER);
+    delete idToOwner[_tokenId];
+
+    uint256 tokenToRemoveIndex = idToOwnerIndex[_tokenId];
+    uint256 lastTokenIndex = ownerToIds[_from].length - 1;
+
+    if (lastTokenIndex != tokenToRemoveIndex)
+    {
+      uint256 lastToken = ownerToIds[_from][lastTokenIndex];
+      ownerToIds[_from][tokenToRemoveIndex] = lastToken;
+      idToOwnerIndex[lastToken] = tokenToRemoveIndex;
+    }
+
+    ownerToIds[_from].pop();
+  }
+
+  /**
+   * @notice Use and override this function with caution. Wrong usage can have serious consequences.
+   * @dev Assigns a new NFT to an address.
+   * @param _to Address to wich we want to add the NFT.
+   * @param _tokenId Which NFT we want to add.
+   */
+  function _addNFToken(
+    address _to,
+    uint256 _tokenId
+  )
+    internal
+    override
+    virtual
+  {
+    require(idToOwner[_tokenId] == address(0), NFT_ALREADY_EXISTS);
+    idToOwner[_tokenId] = _to;
+
+    ownerToIds[_to].push(_tokenId);
+    idToOwnerIndex[_tokenId] = ownerToIds[_to].length - 1;
+  }
+
+  /**
+   *&nbsp;@dev Helper function that gets NFT count of owner. This is needed for overriding in enumerable
+   * extension to remove double storage(gas optimization) of owner NFT count.
+   * @param _owner Address for whom to query the count.
+   * @return Number of _owner NFTs.
+   */
+  function _getOwnerNFTCount(
+    address _owner
+  )
+    internal
+    override
+    virtual
+    view
+    returns (uint256)
+  {
+    return ownerToIds[_owner].length;
+  }
+}
+</code></pre>
+<h2 id="8-Ownable"><a href="#8-Ownable" class="headerlink" title="8. Ownable"></a>8. <a target="_blank" rel="noopener" href="https://github.com/nibbstack/erc721/blob/master/src/contracts/ownership/ownable.sol">Ownable</a></h2><p>合同有一个所有者地址，并提供基本的授权控制，简化了用户权限的实现。此合同基于以下源代码: <a target="_blank" rel="noopener" href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/access/Ownable.sol">https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/access/Ownable.sol</a></p>
+<pre><code class="javascriptscript">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+/**
+ * @dev The contract has an owner address, and provides basic authorization control whitch
+ * simplifies the implementation of user permissions. This contract is based on the source code at:
+ * https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/ownership/Ownable.sol
+ */
+contract Ownable
+{
+
+  /**
+   * @dev Error constants.
+   */
+  string public constant NOT_CURRENT_OWNER = "018001";
+  string public constant CANNOT_TRANSFER_TO_ZERO_ADDRESS = "018002";
+
+  /**
+   * @dev Current owner address.
+   */
+  address public owner;
+
+  /**
+   * @dev An event which is triggered when the owner is changed.
+   * @param previousOwner The address of the previous owner.
+   * @param newOwner The address of the new owner.
+   */
+  event OwnershipTransferred(
+    address indexed previousOwner,
+    address indexed newOwner
+  );
+
+  /**
+   * @dev The constructor sets the original `owner` of the contract to the sender account.
+   */
+  constructor()
+  {
+    owner = msg.sender;
+  }
+
+  /**
+   * @dev Throws if called by any account other than the owner.
+   */
+  modifier onlyOwner()
+  {
+    require(msg.sender == owner, NOT_CURRENT_OWNER);
+    _;
+  }
+
+  /**
+   * @dev Allows the current owner to transfer control of the contract to a newOwner.
+   * @param _newOwner The address to transfer ownership to.
+   */
+  function transferOwnership(
+    address _newOwner
+  )
+    public
+    onlyOwner
+  {
+    require(_newOwner != address(0), CANNOT_TRANSFER_TO_ZERO_ADDRESS);
+    emit OwnershipTransferred(owner, _newOwner);
+    owner = _newOwner;
+  }
+
+}
+</code></pre>
+<p>OpenZeppelin ERC721源码分析到这里就结束了。</p>
+<p>参考：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/nibbstack/erc721/tree/2.6.1">ERC721源码v2.6.1</a></li>
+<li><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000016070774">ERC721源码分析</a></li>
+</ol>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2022/02/28/blockchain/other/30%E5%88%86%E9%92%9F%E5%88%9B%E5%BB%BA%E4%B8%80%E6%9D%A1%E5%8C%BA%E5%9D%97%E9%93%BE(%E4%B8%80)/" title="30分钟创建一条区块链(一)"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: 30分钟创建一条区块链(一)</span></a><a class="button is-default" href="/2022/02/24/blockchain/layer2/%E5%9F%BA%E4%BA%8E%E4%BB%A5%E5%A4%AA%E5%9D%8A%E7%9A%84%E6%88%98%E8%89%87%E6%B8%B8%E6%88%8F(Layer2)/" title="基于以太坊的战艇游戏(Layer2)源码解析"><span class="has-text-weight-semibold">Next: 基于以太坊的战艇游戏(Layer2)源码解析</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>Solidity学习笔记(攻击)</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="Solidity学习笔记(攻击)本文参考：https://solidity-by-example.org/
+推荐视频课程：https://www.bilibili.com/video/BV1St411a7Pk
+Re-Entrancy（重入）漏洞假设合约 A 调用合约 B
+Reentracy 漏洞允许 B 在 A 完成执行之前回调 A
+https://solidity-by-example.org/hacks/re-entrancy
+预防技术：
+
+确保在调用外部合约之前发生所有状态更改
+使用防止重新进入的函数修饰符这里是重新进入
+
+保护的示例：
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract ReEntrancyGuard .."><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Solidity学习笔记(攻击)</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Solidity%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E6%94%BB%E5%87%BB"><span class="toc-text">Solidity学习笔记(攻击)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Re-Entrancy%EF%BC%88%E9%87%8D%E5%85%A5%EF%BC%89"><span class="toc-text">Re-Entrancy（重入）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E5%80%BC%E6%BA%A2%E5%87%BA"><span class="toc-text">数值溢出</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E6%AF%81"><span class="toc-text">自毁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E7%A7%81%E6%9C%89%E6%95%B0%E6%8D%AE"><span class="toc-text">访问私有数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Delegatecall"><span class="toc-text">Delegatecall</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Source-of-Randomness"><span class="toc-text">Source of Randomness</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Denial-of-Service"><span class="toc-text">Denial of Service</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phishing-with-tx-origin"><span class="toc-text">Phishing with tx.origin</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%A8%E5%A4%96%E9%83%A8%E5%90%88%E7%BA%A6%E9%9A%90%E8%97%8F%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81"><span class="toc-text">用外部合约隐藏恶意代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Honeypot"><span class="toc-text">Honeypot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Front-Running"><span class="toc-text">Front Running</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Block-Timestamp-Manipulation"><span class="toc-text">Block Timestamp Manipulation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AD%BE%E5%90%8D%E9%87%8D%E6%92%AD"><span class="toc-text">签名重播</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E5%90%88%E7%BA%A6%E5%A4%A7%E5%B0%8F%E6%A3%80%E6%9F%A5"><span class="toc-text">绕过合约大小检查</span></a></li></ol></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">Solidity学习笔记(攻击)</h1><time class="has-text-grey" datetime="2022-05-17T11:29:23.000Z">2022-05-17</time><article class="mt-2 post-content"><h1 id="Solidity学习笔记-攻击"><a href="#Solidity学习笔记-攻击" class="headerlink" title="Solidity学习笔记(攻击)"></a>Solidity学习笔记(攻击)</h1><p>本文参考：<a target="_blank" rel="noopener" href="https://solidity-by-example.org/">https://solidity-by-example.org/</a></p>
+<p>推荐视频课程：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1St411a7Pk">https://www.bilibili.com/video/BV1St411a7Pk</a></p>
+<h2 id="Re-Entrancy（重入）"><a href="#Re-Entrancy（重入）" class="headerlink" title="Re-Entrancy（重入）"></a>Re-Entrancy（重入）</h2><p>漏洞假设合约 A 调用合约 B</p>
+<p>Reentracy 漏洞允许 B 在 A 完成执行之前回调 A</p>
+<p><a target="_blank" rel="noopener" href="https://solidity-by-example.org/hacks/re-entrancy">https://solidity-by-example.org/hacks/re-entrancy</a></p>
+<p>预防技术：</p>
+<ul>
+<li>确保在调用外部合约之前发生所有状态更改</li>
+<li>使用防止重新进入的函数修饰符这里是重新进入</li>
+</ul>
+<p>保护的示例：</p>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract ReEntrancyGuard {
+    bool internal locked;
+
+    modifier noReentrant() {
+        require(!locked, "No re-entrancy");
+        locked = true;
+        _;
+        locked = false;
+    }
+}
+</code></pre>
+<h2 id="数值溢出"><a href="#数值溢出" class="headerlink" title="数值溢出"></a>数值溢出</h2><p>Solidity &lt; 0.8</p>
+<p>Integers in Solidity 溢出/下溢没有任何错误</p>
+<p>Solidity &gt;= 0.8 </p>
+<p>Solidity 0.8 溢出/下溢的默认行为是抛出错误</p>
+<p>预防技术：</p>
+<ul>
+<li>使用 SafeMath 来防止算术上溢和下溢</li>
+<li>Solidity 0.8 默认为上溢/下溢引发错误</li>
+</ul>
+<h2 id="自毁"><a href="#自毁" class="headerlink" title="自毁"></a>自毁</h2><p>合约可以通过调用 selfdestruct 从区块链中删除</p>
+<p>selfdestruct 将存储在合约中的所有剩余 Ether 发送到指定地址</p>
+<p>恶意合约可以使用 selfdestruct 强制将 Ether 发送到任何合约</p>
+<p>预防：不要依赖address(this).balance</p>
+<p><a target="_blank" rel="noopener" href="https://solidity-by-example.org/hacks/self-destruct">https://solidity-by-example.org/hacks/self-destruct</a></p>
+<h2 id="访问私有数据"><a href="#访问私有数据" class="headerlink" title="访问私有数据"></a>访问私有数据</h2><p>攻击：智能合约上的所有数据都可以读取。让我们看看如何读取私有数据。在此过程中，您将了解 Solidity 如何存储状态变量。</p>
+<p>预防：不要在区块链上存储敏感信息</p>
+<h2 id="Delegatecall"><a href="#Delegatecall" class="headerlink" title="Delegatecall"></a>Delegatecall</h2><p>漏洞delegatecall 使用起来很棘手，错误的使用或不正确的理解会导致毁灭性的后果</p>
+<p>使用delegatecall 时必须牢记两件事</p>
+<ul>
+<li>delegatecall 保留上下文（存储、调用者等）</li>
+<li>合约调用 delegatecall 和合约被调用的存储布局必须相同</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://solidity-by-example.org/hacks/delegatecall">https://solidity-by-example.org/hacks/delegatecall</a></p>
+<h2 id="Source-of-Randomness"><a href="#Source-of-Randomness" class="headerlink" title="Source of Randomness"></a>Source of Randomness</h2><p>漏洞blockhash和block.timestamp不是随机性的可靠来源</p>
+<p>预防技术：不要使用 blockhash 和 block.timestamp 作为随机源</p>
+<h2 id="Denial-of-Service"><a href="#Denial-of-Service" class="headerlink" title="Denial of Service"></a>Denial of Service</h2><p>漏洞有很多方法可以攻击智能合约使其无法使用</p>
+<p>我们在这里介绍的一个漏洞是通过使发送以太币的功能失败来拒绝服务</p>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+/*
+The goal of KingOfEther is to become the king by sending more Ether than
+the previous king. Previous king will be refunded with the amount of Ether
+he sent.
+*/
+
+/*
+1. Deploy KingOfEther
+2. Alice becomes the king by sending 1 Ether to claimThrone().
+2. Bob becomes the king by sending 2 Ether to claimThrone().
+   Alice receives a refund of 1 Ether.
+3. Deploy Attack with address of KingOfEther.
+4. Call attack with 3 Ether.
+5. Current king is the Attack contract and no one can become the new king.
+
+What happened?
+Attack became the king. All new challenge to claim the throne will be rejected
+since Attack contract does not have a fallback function, denying to accept the
+Ether sent from KingOfEther before the new king is set.
+*/
+
+contract KingOfEther {
+    address public king;
+    uint public balance;
+
+    function claimThrone() external payable {
+        require(msg.value &gt; balance, "Need to pay more to become the king");
+
+        (bool sent, ) = king.call{value: balance}("");
+        require(sent, "Failed to send Ether");
+
+        balance = msg.value;
+        king = msg.sender;
+    }
+}
+
+contract Attack {
+    KingOfEther kingOfEther;
+
+    constructor(KingOfEther _kingOfEther) {
+        kingOfEther = KingOfEther(_kingOfEther);
+    }
+
+    // You can also perform a DOS by consuming all gas using assert.
+    // This attack will work even if the calling contract does not check
+    // whether the call was successful or not.
+    //
+    // function () external payable {
+    //     assert(false);
+    // }
+
+    function attack() public payable {
+        kingOfEther.claimThrone{value: msg.value}();
+    }
+}
+</code></pre>
+<p>预防技术：防止这种情况的一种方法是允许用户提取他们的以太币而不是发送它</p>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract KingOfEther {
+    address public king;
+    uint public balance;
+    mapping(address =&gt; uint) public balances;
+
+    function claimThrone() external payable {
+        require(msg.value &gt; balance, "Need to pay more to become the king");
+
+        balances[king] += balance;
+
+        balance = msg.value;
+        king = msg.sender;
+    }
+
+    function withdraw() public {
+        require(msg.sender != king, "Current king cannot withdraw");
+
+        uint amount = balances[msg.sender];
+        balances[msg.sender] = 0;
+
+        (bool sent, ) = msg.sender.call{value: amount}("");
+        require(sent, "Failed to send Ether");
+    }
+}
+</code></pre>
+<h2 id="Phishing-with-tx-origin"><a href="#Phishing-with-tx-origin" class="headerlink" title="Phishing with tx.origin"></a>Phishing with tx.origin</h2><p>msg.sender 和 tx.origin 有什么区别？</p>
+<p>如果合约 A 调用 B，B 调用 C，在 C 中 msg.sender 是 B，tx.origin 是 A</p>
+<p>漏洞恶意合约可以欺骗合约所有者调用只有所有者才能调用的函数</p>
+<p>预防技术：使用msg.sender 而不是 tx.origin</p>
+<h2 id="用外部合约隐藏恶意代码"><a href="#用外部合约隐藏恶意代码" class="headerlink" title="用外部合约隐藏恶意代码"></a>用外部合约隐藏恶意代码</h2><p>在 Solidity 中，任何地址都可以被转换为特定的合约，即使该地址上的合约不是被转换的那个</p>
+<p>这可以被利用来隐藏恶意代码。让我们看看如何</p>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+/*
+Let's say Alice can see the code of Foo and Bar but not Mal.
+It is obvious to Alice that Foo.callBar() executes the code inside Bar.log().
+However Eve deploys Foo with the address of Mal, so that calling Foo.callBar()
+will actually execute the code at Mal.
+*/
+
+/*
+1. Eve deploys Mal
+2. Eve deploys Foo with the address of Mal
+3. Alice calls Foo.callBar() after reading the code and judging that it is
+   safe to call.
+4. Although Alice expected Bar.log() to be execute, Mal.log() was executed.
+*/
+
+contract Foo {
+    Bar bar;
+
+    constructor(address _bar) {
+        bar = Bar(_bar);
+    }
+
+    function callBar() public {
+        bar.log();
+    }
+}
+
+contract Bar {
+    event Log(string message);
+
+    function log() public {
+        emit Log("Bar was called");
+    }
+}
+
+// This code is hidden in a separate file
+contract Mal {
+    event Log(string message);
+
+    // function () external {
+    //     emit Log("Mal was called");
+    // }
+
+    // Actually we can execute the same exploit even if this function does
+    // not exist by using the fallback
+    function log() public {
+        emit Log("Mal was called");
+    }
+}
+</code></pre>
+<p>预防技巧：</p>
+<ul>
+<li><p>在构造函数内部初始化一个新合约</p>
+</li>
+<li><p>公开外部合约的地址，以便可以查看外部合约的代码</p>
+</li>
+</ul>
+<pre><code class="solidity">Bar public bar;
+
+constructor() public {
+    bar = new Bar();
+}
+</code></pre>
+<h2 id="Honeypot"><a href="#Honeypot" class="headerlink" title="Honeypot"></a>Honeypot</h2><p>Honeypot是捕捉黑客的陷阱</p>
+<p>结合两个漏洞利用重入和隐藏恶意代码，我们可以构建一个捕捉恶意用户的合约</p>
+<p><a target="_blank" rel="noopener" href="https://solidity-by-example.org/hacks/honeypot">https://solidity-by-example.org/hacks/honeypot</a></p>
+<h2 id="Front-Running"><a href="#Front-Running" class="headerlink" title="Front Running"></a>Front Running</h2><p>交易需要一些时间才能被挖掘，攻击者可以观察交易池并发送交易，将其包含在原始交易之前的块中。这种机制可以被滥用来对交易进行重新排序以使攻击者受益。</p>
+<p>预防性技术：</p>
+<ul>
+<li>使用commit-reveal scheme</li>
+<li>使用submarine send</li>
+</ul>
+<h2 id="Block-Timestamp-Manipulation"><a href="#Block-Timestamp-Manipulation" class="headerlink" title="Block Timestamp Manipulation"></a>Block Timestamp Manipulation</h2><p>block.timestamp 可以被矿工操纵，具有以下约束：</p>
+<ul>
+<li>它不能被标记为早于其父级的时间</li>
+<li>它不能距离现在太远</li>
+</ul>
+<p>预防技术：</p>
+<ul>
+<li>不要使用 block.timestamp 作为entropy和随机数的来源</li>
+</ul>
+<h2 id="签名重播"><a href="#签名重播" class="headerlink" title="签名重播"></a>签名重播</h2><p>在链外签署消息并在执行函数之前签署需要签名的合约是一种有用的技术</p>
+<p>例如，该技术用于：</p>
+<ul>
+<li>减少链上的交易数量</li>
+<li>无气体交易，称为元交易</li>
+</ul>
+<p>漏洞：可以使用相同的签名多次执行一个功能，如果签名者的意图是批准一次交易，这可能是有害的</p>
+<h2 id="绕过合约大小检查"><a href="#绕过合约大小检查" class="headerlink" title="绕过合约大小检查"></a>绕过合约大小检查</h2><p>如果一个地址是一个合约，那么该地址存储的代码大小将大于 0 对吗？</p>
+<p>让我们看看如何创建一个由 extcodesize 返回的代码大小等于 0 的合约。</p>
+<p><a target="_blank" rel="noopener" href="https://solidity-by-example.org/hacks/contract-size">https://solidity-by-example.org/hacks/contract-size</a></p>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2022/05/18/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC20%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="NFT框架 OpenZeppelin ERC20源码分析"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: NFT框架 OpenZeppelin ERC20源码分析</span></a><a class="button is-default" href="/2022/05/10/blockchain/ethereum/Solidity%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%BA%94%E7%94%A8%E9%83%A8%E5%88%86)/" title="Solidity学习笔记(应用部分)"><span class="has-text-weight-semibold">Next: Solidity学习笔记(应用部分)</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>
