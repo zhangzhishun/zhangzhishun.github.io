@@ -7,7 +7,7 @@ var s = document.getElementsByTagName("script")[0];
 s.parentNode.insertBefore(hm, s);
 })();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="一、介绍1. 代码版本release-v4.6
 2. 什么是ERC721？ERC-721 为 NFT 引入了一个标准，换言之， 这种类型的代币是独一无二的
-二、源码分析ERC20涉及到的合约列表
+二、源码分析ERC721涉及到的合约列表
 Context
 IERC165、ERC165
 IERC721Metadata
@@ -21,23 +21,23 @@ ERC721
 pragma solidity ^0.8.0;
 
 /**
- * @dev ERC165 标.."><!-- hexo injector head_end start -->
+ * @dev ERC165 .."><!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
 <!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0">
 <style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
 <link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
-</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">NFT框架 OpenZeppelin ERC721源码分析</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BB%8B%E7%BB%8D"><span class="toc-text">一、介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BB%A3%E7%A0%81%E7%89%88%E6%9C%AC"><span class="toc-text">1. 代码版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%BB%80%E4%B9%88%E6%98%AFERC721%EF%BC%9F"><span class="toc-text">2. 什么是ERC721？</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">二、源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ERC20%E6%B6%89%E5%8F%8A%E5%88%B0%E7%9A%84%E5%90%88%E7%BA%A6%E5%88%97%E8%A1%A8"><span class="toc-text">ERC20涉及到的合约列表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Context"><span class="toc-text">1. Context</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-IERC165%E3%80%81ERC165"><span class="toc-text">2. IERC165、ERC165</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-IERC721Metadata"><span class="toc-text">3. IERC721Metadata</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-IERC721"><span class="toc-text">4. IERC721</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-ERC721"><span class="toc-text">5. ERC721</span></a></li></ol></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/NFT"><i class="tag post-item-tag">NFT</i></a><a href="/tags/OpenZeppelin"><i class="tag post-item-tag">OpenZeppelin</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">NFT框架 OpenZeppelin ERC721源码分析</h1><time class="has-text-grey" datetime="2022-05-19T02:25:11.000Z">2022-05-19</time><article class="mt-2 post-content"><h1 id="一、介绍"><a href="#一、介绍" class="headerlink" title="一、介绍"></a>一、介绍</h1><h2 id="1-代码版本"><a href="#1-代码版本" class="headerlink" title="1. 代码版本"></a>1. 代码版本</h2><p><a target="_blank" rel="noopener" href="https://github.com/OpenZeppelin/openzeppelin-contracts/tree/release-v4.6">release-v4.6</a></p>
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">NFT框架 OpenZeppelin ERC721源码分析</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BB%8B%E7%BB%8D"><span class="toc-text">一、介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BB%A3%E7%A0%81%E7%89%88%E6%9C%AC"><span class="toc-text">1. 代码版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%BB%80%E4%B9%88%E6%98%AFERC721%EF%BC%9F"><span class="toc-text">2. 什么是ERC721？</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">二、源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ERC721%E6%B6%89%E5%8F%8A%E5%88%B0%E7%9A%84%E5%90%88%E7%BA%A6%E5%88%97%E8%A1%A8"><span class="toc-text">ERC721涉及到的合约列表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Context"><span class="toc-text">1. Context</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-IERC165%E3%80%81ERC165"><span class="toc-text">2. IERC165、ERC165</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-IERC721Metadata"><span class="toc-text">3. IERC721Metadata</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-IERC721"><span class="toc-text">4. IERC721</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-ERC721"><span class="toc-text">5. ERC721</span></a></li></ol></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/NFT"><i class="tag post-item-tag">NFT</i></a><a href="/tags/OpenZeppelin"><i class="tag post-item-tag">OpenZeppelin</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">NFT框架 OpenZeppelin ERC721源码分析</h1><time class="has-text-grey" datetime="2022-05-15T02:25:11.000Z">2022-05-15</time><article class="mt-2 post-content"><h1 id="一、介绍"><a href="#一、介绍" class="headerlink" title="一、介绍"></a>一、介绍</h1><h2 id="1-代码版本"><a href="#1-代码版本" class="headerlink" title="1. 代码版本"></a>1. 代码版本</h2><p><a target="_blank" rel="noopener" href="https://github.com/OpenZeppelin/openzeppelin-contracts/tree/release-v4.6">release-v4.6</a></p>
 <h2 id="2-什么是ERC721？"><a href="#2-什么是ERC721？" class="headerlink" title="2. 什么是ERC721？"></a>2. 什么是ERC721？</h2><p>ERC-721 为 NFT 引入了一个标准，换言之， 这种类型的代币是独一无二的</p>
-<h1 id="二、源码分析"><a href="#二、源码分析" class="headerlink" title="二、源码分析"></a>二、源码分析</h1><h2 id="ERC20涉及到的合约列表"><a href="#ERC20涉及到的合约列表" class="headerlink" title="ERC20涉及到的合约列表"></a>ERC20涉及到的合约列表</h2><ul>
+<h1 id="二、源码分析"><a href="#二、源码分析" class="headerlink" title="二、源码分析"></a>二、源码分析</h1><h2 id="ERC721涉及到的合约列表"><a href="#ERC721涉及到的合约列表" class="headerlink" title="ERC721涉及到的合约列表"></a>ERC721涉及到的合约列表</h2><ul>
 <li>Context</li>
 <li>IERC165、ERC165</li>
 <li>IERC721Metadata</li>
 <li>IERC721</li>
 <li>ERC721</li>
 </ul>
-<h2 id="1-Context"><a href="#1-Context" class="headerlink" title="1. Context"></a>1. Context</h2><p>参考： <a href="/2022/05/18/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC20%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="NFT框架 OpenZeppelin ERC20源码分析">NFT框架 OpenZeppelin ERC20源码分析</a></p>
+<h2 id="1-Context"><a href="#1-Context" class="headerlink" title="1. Context"></a>1. Context</h2><p>参考： <a href="/2022/05/10/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC20%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="NFT框架 OpenZeppelin ERC20源码分析">NFT框架 OpenZeppelin ERC20源码分析</a></p>
 <h2 id="2-IERC165、ERC165"><a href="#2-IERC165、ERC165" class="headerlink" title="2. IERC165、ERC165"></a>2. IERC165、ERC165</h2><pre><code class="solidity">// SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
@@ -125,50 +125,50 @@ pragma solidity ^0.8.0;
 import "../../utils/introspection/IERC165.sol";
 
 /**
- * @dev Required interface of an ERC721 compliant contract.
+ * @dev 符合 ERC721 的合约所需的接口
  */
 interface IERC721 is IERC165 {
     /**
-     * @dev Emitted when `tokenId` token is transferred from `from` to `to`.
+     * @dev 当 `tokenId` 从 `from` 转移到 `to` 时发出
      */
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
 
     /**
-     * @dev Emitted when `owner` enables `approved` to manage the `tokenId` token.
+     * @dev 当 `owner` 启用 `approved` 来管理 `tokenId` 令牌时发出
      */
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
 
     /**
-     * @dev Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
+     * @dev 当 `owner` 启用或禁用 `operator` 以管理其所有资产时发出
      */
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
     /**
-     * @dev Returns the number of tokens in ``owner``'s account.
+     * @dev 返回“所有者”帐户中的代币数量
      */
     function balanceOf(address owner) external view returns (uint256 balance);
 
     /**
-     * @dev Returns the owner of the `tokenId` token.
+     * @dev 返回 `tokenId` 的所有者
      *
-     * Requirements:
+     * 要求:
      *
-     * - `tokenId` must exist.
+     * - `tokenId` 必须存在.
      */
     function ownerOf(uint256 tokenId) external view returns (address owner);
 
     /**
-     * @dev Safely transfers `tokenId` token from `from` to `to`.
+     * @dev 安全地将 `tokenId` 从 `from` 转移到 `to`
      *
-     * Requirements:
+     * 要求:
      *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must exist and be owned by `from`.
-     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+     * - `from` 不能是零地址
+     * - `to` 不能是零地址
+     * - `tokenId` 必须存在且属于owner
+     * - 如果调用者不是“from”，则必须通过 {approve} 或 {setApprovalForAll} 批准交易此token
+     * - 如果 `to` 指的是智能合约，它必须实现 {IERC721Receiver-onERC721Received}，这是在安全传输时调用的。
      *
-     * Emits a {Transfer} event.
+     * 触发 {Transfer} 事件
      */
     function safeTransferFrom(
         address from,
@@ -178,18 +178,17 @@ interface IERC721 is IERC165 {
     ) external;
 
     /**
-     * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
-     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
+     * @dev 安全地将 `tokenId` 从 `from` 转移到 `to`，首先检查合约接收者是否了解 ERC721 协议，以防止代币被永久锁定
      *
-     * Requirements:
+     * 要求:
      *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must exist and be owned by `from`.
-     * - If the caller is not `from`, it must be have been allowed to move this token by either {approve} or {setApprovalForAll}.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+     * - `from` 不能是零地址
+     * - `to` 不能是零地址
+     * - `tokenId` 必须存在且属于owner
+     * - 如果调用者不是 `from`，则必须已被 {approve} 或 {setApprovalForAll} 允许交易此token
+     * - 如果 `to` 指的是智能合约，它必须实现 {IERC721Receiver-onERC721Received}，这是在安全传输时调用的。
      *
-     * Emits a {Transfer} event.
+     * 触发 {Transfer} 事件
      */
     function safeTransferFrom(
         address from,
@@ -198,18 +197,18 @@ interface IERC721 is IERC165 {
     ) external;
 
     /**
-     * @dev Transfers `tokenId` token from `from` to `to`.
+     * @dev 将 `tokenId` 从 `from` 转移到 `to`
      *
-     * WARNING: Usage of this method is discouraged, use {safeTransferFrom} whenever possible.
+     * 警告：不鼓励使用此方法，尽可能使用 {safeTransferFrom}
      *
      * Requirements:
      *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must be owned by `from`.
-     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+     * - `from` 不能是零地址
+     * - `to` 不能是零地址
+     * - `tokenId` 必须存在且属于owner
+     * - 如果调用者不是“from”，则必须通过 {approve} 或 {setApprovalForAll} 批准交易此token
      *
-     * Emits a {Transfer} event.
+     * 触发 {Transfer} 事件
      */
     function transferFrom(
         address from,
@@ -218,78 +217,50 @@ interface IERC721 is IERC165 {
     ) external;
 
     /**
-     * @dev Gives permission to `to` to transfer `tokenId` token to another account.
-     * The approval is cleared when the token is transferred.
+     * @dev 授予 `to` 将 `tokenId` 令牌转移到另一个帐户的权限。
+     * 转账token后清除审批
      *
-     * Only a single account can be approved at a time, so approving the zero address clears previous approvals.
+     * 一次只能批准一个账户，所以批准零地址会清除之前的批准
      *
-     * Requirements:
+     * 要求:
      *
-     * - The caller must own the token or be an approved operator.
-     * - `tokenId` must exist.
+     * - 调用者必须拥有令牌或者是经过批准的操作人
+     * - `tokenId` 必须存在
      *
-     * Emits an {Approval} event.
+     * 触发 {Approval} 事件
      */
     function approve(address to, uint256 tokenId) external;
 
     /**
-     * @dev Approve or remove `operator` as an operator for the caller.
-     * Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.
+     * @dev 批准或删除 `operator` 作为调用者的操作人
+     * 操作人可以为调用者拥有的任何token调用 {transferFrom} 或 {safeTransferFrom}。
      *
-     * Requirements:
+     * 要求:
      *
-     * - The `operator` cannot be the caller.
+     * - `operator` 不能是调用者
      *
-     * Emits an {ApprovalForAll} event.
+     * 触发 {ApprovalForAll} 事件
      */
     function setApprovalForAll(address operator, bool _approved) external;
 
     /**
-     * @dev Returns the account approved for `tokenId` token.
+     * @dev 返回为 `tokenId` 批准的帐户
      *
-     * Requirements:
+     * 要求:
      *
-     * - `tokenId` must exist.
+     * - `tokenId` 必须存在
      */
     function getApproved(uint256 tokenId) external view returns (address operator);
 
     /**
-     * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
+     * @dev 如果允许 `operator` 管理 `owner` 的所有资产，则返回true
      *
      * See {setApprovalForAll}
      */
     function isApprovedForAll(address owner, address operator) external view returns (bool);
 }
 </code></pre>
-<h2 id="5-ERC721"><a href="#5-ERC721" class="headerlink" title="5. ERC721"></a>5. ERC721</h2><p>ERC-721不可替代令牌标准的可选枚举扩展。</p>
-<p>主要方法：</p>
-<p>ERC721合约定义了基本的接口方法：</p>
-<ul>
-<li><p>safeTransferFrom：转移代币所有权</p>
-</li>
-<li><p>transferFrom：转移代币所有权</p>
-</li>
-<li><p>setApprovalForAll：授权operator具有所有代币的控制权</p>
-</li>
-<li><p>balanceOf：返回owner的代币数量</p>
-</li>
-<li><p>ownerOf：根据tokenId返回代币持有者address</p>
-</li>
-<li><p>getApproved：查询tokenId的授权人operator address</p>
-</li>
-<li><p>approve 授权tokenId给地址to</p>
-</li>
-<li><p>isApprovedForAll：查询一个地址是否为另一个地址的授权操作者。</p>
-</li>
-<li><p>totalSupply：返回由此契约跟踪的有效nft的计数（代币总量），其中每个nft都有一个分配的、可查询的所有者，且所有者不等于零地址</p>
-</li>
-<li><p>tokenByIndex：返回第index的NFT的tokenId。没有指定排序顺序。</p>
-</li>
-<li><p>tokenOfOwnerByIndex：返回分配给指定人的第index的NFT的tokenId。没有指定排序顺序</p>
-</li>
-</ul>
-<p>源码：</p>
-<pre><code class="solidity">// SPDX-License-Identifier: MIT
+<h2 id="5-ERC721"><a href="#5-ERC721" class="headerlink" title="5. ERC721"></a>5. ERC721</h2><pre><code class="solidity">// SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/ERC721.sol)
 
 pragma solidity ^0.8.0;
@@ -303,9 +274,8 @@ import "../../utils/Strings.sol";
 import "../../utils/introspection/ERC165.sol";
 
 /**
- * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
- * the Metadata extension, but not including the Enumerable extension, which is available separately as
- * {ERC721Enumerable}.
+ * @dev https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard 的实现
+ * 包括Metadata 扩展，但不包括 Enumerable 扩展，可单独提供{ERC721Enumerable}
  */
 contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     using Address for address;
@@ -389,9 +359,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Base URI for computing {tokenURI}. If set, the resulting URI for each
-     * token will be the concatenation of the `baseURI` and the `tokenId`. Empty
-     * by default, can be overridden in child contracts.
+     * @dev 用于计算 {tokenURI} 的基本 URI。如果设置，则为每个token生成的 URI 将是 `baseURI` 和 `tokenId` 的拼接
+     * 默认情况下是空的，可以在子合约中被覆盖
      */
     function _baseURI() internal view virtual returns (string memory) {
         return "";
@@ -474,22 +443,20 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
-     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
+     * @dev 安全地将 `tokenId` 令牌从 `from` 转移到 `to`，首先检查合同接收者
+     * 了解 ERC721 协议以防止令牌被永久锁定。
      *
-     * `data` is additional data, it has no specified format and it is sent in call to `to`.
+     * `data` 是附加数据，没有指定格式，在调用过程中给 `to` 发送。
      *
-     * This internal function is equivalent to {safeTransferFrom}, and can be used to e.g.
-     * implement alternative mechanisms to perform token transfer, such as signature-based.
+     * 此内部函数等价于 {safeTransferFrom}，可用于例如实现替代机制来执行令牌传输，例如基于签名的
      *
-     * Requirements:
      *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must exist and be owned by `from`.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+     * 要求:
      *
-     * Emits a {Transfer} event.
+     * - `from` 不能是零地址
+     * - `to` 不能是零地址
+     * - `tokenId` 必须存在且属于owner
+     * - 如果 `to` 指的是智能合约，它必须实现 {IERC721Receiver-onERC721Received}，这是在安全传输时调用的。
      */
     function _safeTransfer(
         address from,
@@ -502,23 +469,22 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Returns whether `tokenId` exists.
+     * @dev 返回 `tokenId` 是否存在
      *
-     * Tokens can be managed by their owner or approved accounts via {approve} or {setApprovalForAll}.
+     * token可以由其所有者或通过 {approve} 或 {setApprovalForAll} 批准的帐户管理
      *
-     * Tokens start existing when they are minted (`_mint`),
-     * and stop existing when they are burned (`_burn`).
+     * token在铸造时开始存在（`_mint`），并在它们被烧毁时停止存在（`_burn`）
      */
     function _exists(uint256 tokenId) internal view virtual returns (bool) {
         return _owners[tokenId] != address(0);
     }
 
     /**
-     * @dev Returns whether `spender` is allowed to manage `tokenId`.
+     * @dev 返回是否允许 `spender` 管理 `tokenId`
      *
-     * Requirements:
+     * 要求:
      *
-     * - `tokenId` must exist.
+     * - `tokenId` 必须存在
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
         require(_exists(tokenId), "ERC721: operator query for nonexistent token");
@@ -527,22 +493,21 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Safely mints `tokenId` and transfers it to `to`.
+     * @dev 安全地铸造 `tokenId` 并将其转移到 `to`
      *
-     * Requirements:
+     * 要求:
      *
-     * - `tokenId` must not exist.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+     * - `tokenId` 必须不存在
+     * - 如果 `to` 指的是智能合约，它必须实现 {IERC721Receiver-onERC721Received}，这是在安全传输时调用的。
      *
-     * Emits a {Transfer} event.
+     * 触发 {Transfer} 事件.
      */
     function _safeMint(address to, uint256 tokenId) internal virtual {
         _safeMint(to, tokenId, "");
     }
 
     /**
-     * @dev Same as {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
-     * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
+     * @dev 与 {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`] 相同，带有一个额外的 `data` 参数，即在 {IERC721Receiver-onERC721Received} 中转发给合约的收货人
      */
     function _safeMint(
         address to,
@@ -557,16 +522,16 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Mints `tokenId` and transfers it to `to`.
+     * @dev 铸造 `tokenId` 并将其转移到 `to`
      *
-     * WARNING: Usage of this method is discouraged, use {_safeMint} whenever possible
+     * 警告：不鼓励使用此方法，尽可能使用 {_safeMint}
      *
-     * Requirements:
+     * 要求:
      *
-     * - `tokenId` must not exist.
-     * - `to` cannot be the zero address.
+     * - `tokenId` 必须不存在
+     * - `to` 不能是零地址
      *
-     * Emits a {Transfer} event.
+     * 触发 {Transfer} 事件
      */
     function _mint(address to, uint256 tokenId) internal virtual {
         require(to != address(0), "ERC721: mint to the zero address");
@@ -583,14 +548,14 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Destroys `tokenId`.
-     * The approval is cleared when the token is burned.
+     * @dev 销毁`tokenId`
+     * 销毁令牌时清除批准
+     * 
+     * 要求:
      *
-     * Requirements:
+     * - `tokenId` 必须存在
      *
-     * - `tokenId` must exist.
-     *
-     * Emits a {Transfer} event.
+     * 触发 {Transfer} 事件.
      */
     function _burn(uint256 tokenId) internal virtual {
         address owner = ERC721.ownerOf(tokenId);
@@ -609,15 +574,15 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Transfers `tokenId` from `from` to `to`.
-     *  As opposed to {transferFrom}, this imposes no restrictions on msg.sender.
+     * @dev 将 `tokenId` 从 `from` 转移到 `to`
+     * 与 {transferFrom} 不同，这对 msg.sender 没有任何限制
      *
-     * Requirements:
+     * 要求:
      *
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must be owned by `from`.
+     * - `to` 不能是零地址
+     * - `tokenId` 必须属于 `from`
      *
-     * Emits a {Transfer} event.
+     * 触发 {Transfer} 事件.
      */
     function _transfer(
         address from,
@@ -642,9 +607,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Approve `to` to operate on `tokenId`
+     * @dev 批准 `to` 对 `tokenId` 进行操作
      *
-     * Emits an {Approval} event.
+     * 触发 {Approval} 事件
      */
     function _approve(address to, uint256 tokenId) internal virtual {
         _tokenApprovals[tokenId] = to;
@@ -652,9 +617,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Approve `operator` to operate on all of `owner` tokens
+     * @dev 批准 `operator` 对所有 `owner` token进行操作
      *
-     * Emits an {ApprovalForAll} event.
+     * 触发 {ApprovalForAll} 事件.
      */
     function _setApprovalForAll(
         address owner,
@@ -667,8 +632,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Internal function to invoke {IERC721Receiver-onERC721Received} on a target address.
-     * The call is not executed if the target address is not a contract.
+     * @dev 在目标地址上调用 {IERC721Receiver-onERC721Received} 的内部函数。
+     * 如果目标地址不是合约，则不执行调用。
      *
      * @param from address representing the previous owner of the given token ID
      * @param to target address that will receive the tokens
@@ -700,8 +665,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Hook that is called before any token transfer. This includes minting
-     * and burning.
+     * @dev 在任何令牌传输之前调用的钩子。这包括铸币和销毁
      *
      * Calling conditions:
      *
@@ -720,8 +684,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     ) internal virtual {}
 
     /**
-     * @dev Hook that is called after any transfer of tokens. This includes
-     * minting and burning.
+     * @dev 在任何代币转移后调用的挂钩。这包括铸造和销毁
      *
      * Calling conditions:
      *
@@ -737,4 +700,4 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     ) internal virtual {}
 }
 </code></pre>
-</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2022/05/25/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelin%E5%90%88%E7%BA%A6%E6%BA%90%E7%A0%81%E4%BB%8B%E7%BB%8D/" title="NFT框架 OpenZeppelin合约源码介绍"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: NFT框架 OpenZeppelin合约源码介绍</span></a><a class="button is-default" href="/2022/05/18/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC20%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="NFT框架 OpenZeppelin ERC20源码分析"><span class="has-text-weight-semibold">Next: NFT框架 OpenZeppelin ERC20源码分析</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2022/05/17/blockchain/ethereum/Solidity%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E6%94%BB%E5%87%BB)/" title="Solidity学习笔记(攻击)"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: Solidity学习笔记(攻击)</span></a><a class="button is-default" href="/2022/05/10/blockchain/ethereum/Solidity%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%BA%94%E7%94%A8%E9%83%A8%E5%88%86)/" title="Solidity学习笔记(应用部分)"><span class="has-text-weight-semibold">Next: Solidity学习笔记(应用部分)</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>
