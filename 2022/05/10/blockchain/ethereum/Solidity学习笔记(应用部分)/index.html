@@ -1,0 +1,1125 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>Solidity学习笔记(应用部分)</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="Solidity学习笔记(应用部分)本文参考：https://solidity-by-example.org/
+推荐视频课程：https://www.bilibili.com/video/BV1St411a7Pk
+以太坊钱包一个基本钱包的例子
+
+任何人都可以发送 ETH
+只有所有者可以提款
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract EtherWallet {
+    address payable public owner;
+
+    constructor() {
+        owner = payable(msg.sender);
+    }
+
+    receive() external payable .."><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Solidity学习笔记(应用部分)</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Solidity%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%BA%94%E7%94%A8%E9%83%A8%E5%88%86"><span class="toc-text">Solidity学习笔记(应用部分)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A5%E5%A4%AA%E5%9D%8A%E9%92%B1%E5%8C%85"><span class="toc-text">以太坊钱包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%AD%BE%E5%90%8D%E9%92%B1%E5%8C%85"><span class="toc-text">多签名钱包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%BB%98%E5%85%8B%E5%B0%94%E6%A0%91"><span class="toc-text">默克尔树</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%81%8D%E5%8E%86Map"><span class="toc-text">遍历Map</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ERC20"><span class="toc-text">ERC20</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ERC721"><span class="toc-text">ERC721</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Precompute-Contract-Address-with-Create2"><span class="toc-text">Precompute Contract Address with Create2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Minimal-Proxy-Contract"><span class="toc-text">Minimal Proxy Contract</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Upgradeable-Proxy"><span class="toc-text">Upgradeable Proxy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Deploy-Any-Contract"><span class="toc-text">Deploy Any Contract</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Write-to-Any-Slot"><span class="toc-text">Write to Any Slot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%95%E5%90%91%E6%94%AF%E4%BB%98%E9%80%9A%E9%81%93"><span class="toc-text">单向支付通道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8C%E5%90%91%E6%94%AF%E4%BB%98%E9%80%9A%E9%81%93"><span class="toc-text">双向支付通道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8B%B1%E5%BC%8F%E6%8B%8D%E5%8D%96"><span class="toc-text">英式拍卖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8D%B7%E5%85%B0%E5%BC%8F%E6%8B%8D%E5%8D%96"><span class="toc-text">荷兰式拍卖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%97%E7%AD%B9"><span class="toc-text">众筹</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Multi-Call"><span class="toc-text">Multi Call</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Multi-Delegatecall"><span class="toc-text">Multi Delegatecall</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E9%94%81"><span class="toc-text">时间锁</span></a></li></ol></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">Solidity学习笔记(应用部分)</h1><time class="has-text-grey" datetime="2022-05-10T11:29:23.000Z">2022-05-10</time><article class="mt-2 post-content"><h1 id="Solidity学习笔记-应用部分"><a href="#Solidity学习笔记-应用部分" class="headerlink" title="Solidity学习笔记(应用部分)"></a>Solidity学习笔记(应用部分)</h1><p>本文参考：<a target="_blank" rel="noopener" href="https://solidity-by-example.org/">https://solidity-by-example.org/</a></p>
+<p>推荐视频课程：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1St411a7Pk">https://www.bilibili.com/video/BV1St411a7Pk</a></p>
+<h2 id="以太坊钱包"><a href="#以太坊钱包" class="headerlink" title="以太坊钱包"></a>以太坊钱包</h2><p>一个基本钱包的例子</p>
+<ul>
+<li>任何人都可以发送 ETH</li>
+<li>只有所有者可以提款</li>
+</ul>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract EtherWallet {
+    address payable public owner;
+
+    constructor() {
+        owner = payable(msg.sender);
+    }
+
+    receive() external payable {}
+
+    function withdraw(uint _amount) external {
+        require(msg.sender == owner, "caller is not owner");
+        payable(msg.sender).transfer(_amount);
+    }
+
+    function getBalance() external view returns (uint) {
+        return address(this).balance;
+    }
+}
+</code></pre>
+<h2 id="多签名钱包"><a href="#多签名钱包" class="headerlink" title="多签名钱包"></a><font color="red">多签名钱包</font></h2><p>让我们创建一个多重签名钱包，以下是规范</p>
+<p>钱包所有者可以</p>
+<ul>
+<li>提交交易</li>
+<li>批准和撤销对待处理交易的批准</li>
+<li>在足够多的所有者批准后，任何人都可以执行交易</li>
+</ul>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract MultiSigWallet {
+    event Deposit(address indexed sender, uint amount, uint balance);
+    event SubmitTransaction(
+        address indexed owner,
+        uint indexed txIndex,
+        address indexed to,
+        uint value,
+        bytes data
+    );
+    event ConfirmTransaction(address indexed owner, uint indexed txIndex);
+    event RevokeConfirmation(address indexed owner, uint indexed txIndex);
+    event ExecuteTransaction(address indexed owner, uint indexed txIndex);
+
+    address[] public owners;
+    mapping(address =&gt; bool) public isOwner;
+    uint public numConfirmationsRequired;
+
+    struct Transaction {
+        address to;
+        uint value;
+        bytes data;
+        bool executed;
+        uint numConfirmations;
+    }
+
+    // mapping from tx index =&gt; owner =&gt; bool
+    mapping(uint =&gt; mapping(address =&gt; bool)) public isConfirmed;
+
+    Transaction[] public transactions;
+
+    modifier onlyOwner() {
+        require(isOwner[msg.sender], "not owner");
+        _;
+    }
+
+    modifier txExists(uint _txIndex) {
+        require(_txIndex &lt; transactions.length, "tx does not exist");
+        _;
+    }
+
+    modifier notExecuted(uint _txIndex) {
+        require(!transactions[_txIndex].executed, "tx already executed");
+        _;
+    }
+
+    modifier notConfirmed(uint _txIndex) {
+        require(!isConfirmed[_txIndex][msg.sender], "tx already confirmed");
+        _;
+    }
+
+    constructor(address[] memory _owners, uint _numConfirmationsRequired) {
+        require(_owners.length &gt; 0, "owners required");
+        require(
+            _numConfirmationsRequired &gt; 0 &amp;&amp;
+                _numConfirmationsRequired &lt;= _owners.length,
+            "invalid number of required confirmations"
+        );
+
+        for (uint i = 0; i &lt; _owners.length; i++) {
+            address owner = _owners[i];
+
+            require(owner != address(0), "invalid owner");
+            require(!isOwner[owner], "owner not unique");
+
+            isOwner[owner] = true;
+            owners.push(owner);
+        }
+
+        numConfirmationsRequired = _numConfirmationsRequired;
+    }
+
+    receive() external payable {
+        emit Deposit(msg.sender, msg.value, address(this).balance);
+    }
+
+    function submitTransaction(
+        address _to,
+        uint _value,
+        bytes memory _data
+    ) public onlyOwner {
+        uint txIndex = transactions.length;
+
+        transactions.push(
+            Transaction({
+                to: _to,
+                value: _value,
+                data: _data,
+                executed: false,
+                numConfirmations: 0
+            })
+        );
+
+        emit SubmitTransaction(msg.sender, txIndex, _to, _value, _data);
+    }
+
+    function confirmTransaction(uint _txIndex)
+        public
+        onlyOwner
+        txExists(_txIndex)
+        notExecuted(_txIndex)
+        notConfirmed(_txIndex)
+    {
+        Transaction storage transaction = transactions[_txIndex];
+        transaction.numConfirmations += 1;
+        isConfirmed[_txIndex][msg.sender] = true;
+
+        emit ConfirmTransaction(msg.sender, _txIndex);
+    }
+
+    function executeTransaction(uint _txIndex)
+        public
+        onlyOwner
+        txExists(_txIndex)
+        notExecuted(_txIndex)
+    {
+        Transaction storage transaction = transactions[_txIndex];
+
+        require(
+            transaction.numConfirmations &gt;= numConfirmationsRequired,
+            "cannot execute tx"
+        );
+
+        transaction.executed = true;
+
+        (bool success, ) = transaction.to.call{value: transaction.value}(
+            transaction.data
+        );
+        require(success, "tx failed");
+
+        emit ExecuteTransaction(msg.sender, _txIndex);
+    }
+
+    function revokeConfirmation(uint _txIndex)
+        public
+        onlyOwner
+        txExists(_txIndex)
+        notExecuted(_txIndex)
+    {
+        Transaction storage transaction = transactions[_txIndex];
+
+        require(isConfirmed[_txIndex][msg.sender], "tx not confirmed");
+
+        transaction.numConfirmations -= 1;
+        isConfirmed[_txIndex][msg.sender] = false;
+
+        emit RevokeConfirmation(msg.sender, _txIndex);
+    }
+
+    function getOwners() public view returns (address[] memory) {
+        return owners;
+    }
+
+    function getTransactionCount() public view returns (uint) {
+        return transactions.length;
+    }
+
+    function getTransaction(uint _txIndex)
+        public
+        view
+        returns (
+            address to,
+            uint value,
+            bytes memory data,
+            bool executed,
+            uint numConfirmations
+        )
+    {
+        Transaction storage transaction = transactions[_txIndex];
+
+        return (
+            transaction.to,
+            transaction.value,
+            transaction.data,
+            transaction.executed,
+            transaction.numConfirmations
+        );
+    }
+}
+</code></pre>
+<p>这是一个测试从多重签名钱包发送交易的合约</p>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract TestContract {
+    uint public i;
+
+    function callMe(uint j) public {
+        i += j;
+    }
+
+    function getData() public pure returns (bytes memory) {
+        return abi.encodeWithSignature("callMe(uint256)", 123);
+    }
+}
+</code></pre>
+<h2 id="默克尔树"><a href="#默克尔树" class="headerlink" title="默克尔树"></a>默克尔树</h2><p>Merkle 树允许您以密文方式证明一个元素包含在一个集合中，而不会泄露整个集合</p>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract MerkleProof {
+    function verify(
+        bytes32[] memory proof,
+        bytes32 root,
+        bytes32 leaf,
+        uint index
+    ) public pure returns (bool) {
+        bytes32 hash = leaf;
+        for (uint i = 0; i &lt; proof.length; i++) {
+            bytes32 proofElement = proof[i];
+            if (index % 2 == 0) {
+                hash = keccak256(abi.encodePacked(hash, proofElement));
+            } else {
+                hash = keccak256(abi.encodePacked(proofElement, hash));
+            }
+            index = index / 2;
+        }
+        return hash == root;
+    }
+}
+
+contract TestMerkleProof is MerkleProof {
+    bytes32[] public hashes;
+    constructor() {
+        string[4] memory transactions = [
+            "alice -&gt; bob",
+            "bob -&gt; dave",
+            "carol -&gt; alice",
+            "dave -&gt; bob"
+        ];
+        for (uint i = 0; i &lt; transactions.length; i++) {
+            hashes.push(keccak256(abi.encodePacked(transactions[i])));
+        }
+        uint n = transactions.length;
+        uint offset = 0;
+        while (n &gt; 0) {
+            for (uint i = 0; i &lt; n - 1; i += 2) {
+                hashes.push(
+                    keccak256(
+                        abi.encodePacked(hashes[offset + i], hashes[offset + i + 1])
+                    )
+                );
+            }
+            offset += n;
+            n = n / 2;
+        }
+    }
+
+    function getRoot() public view returns (bytes32) {
+        return hashes[hashes.length - 1];
+    }
+
+    /* verify
+    3rd leaf
+    0x1bbd78ae6188015c4a6772eb1526292b5985fc3272ead4c65002240fb9ae5d13
+
+    root
+    0x074b43252ffb4a469154df5fb7fe4ecce30953ba8b7095fe1e006185f017ad10
+
+    index
+    2
+
+    proof
+    0x948f90037b4ea787c14540d9feb1034d4a5bc251b9b5f8e57d81e4b470027af8
+    0x63ac1b92046d474f84be3aa0ee04ffe5600862228c81803cce07ac40484aee43
+    */
+}
+</code></pre>
+<h2 id="遍历Map"><a href="#遍历Map" class="headerlink" title="遍历Map"></a>遍历Map</h2><p>您不能遍历映射</p>
+<p>下面是一个如何创建可迭代映射的示例</p>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+library IterableMapping {
+    // Iterable mapping from address to uint;
+    struct Map {
+        address[] keys;
+        mapping(address =&gt; uint) values;
+        mapping(address =&gt; uint) indexOf;
+        mapping(address =&gt; bool) inserted;
+    }
+
+    function get(Map storage map, address key) public view returns (uint) {
+        return map.values[key];
+    }
+
+    function getKeyAtIndex(Map storage map, uint index) public view returns (address) {
+        return map.keys[index];
+    }
+
+    function size(Map storage map) public view returns (uint) {
+        return map.keys.length;
+    }
+
+    function set(
+        Map storage map,
+        address key,
+        uint val
+    ) public {
+        if (map.inserted[key]) {
+            map.values[key] = val;
+        } else {
+            map.inserted[key] = true;
+            map.values[key] = val;
+            map.indexOf[key] = map.keys.length;
+            map.keys.push(key);
+        }
+    }
+
+    function remove(Map storage map, address key) public {
+        if (!map.inserted[key]) {
+            return;
+        }
+
+        delete map.inserted[key];
+        delete map.values[key];
+
+        uint index = map.indexOf[key];
+        uint lastIndex = map.keys.length - 1;
+        address lastKey = map.keys[lastIndex];
+
+        map.indexOf[lastKey] = index;
+        delete map.indexOf[key];
+
+        map.keys[index] = lastKey;
+        map.keys.pop();
+    }
+}
+
+contract TestIterableMap {
+    using IterableMapping for IterableMapping.Map;
+
+    IterableMapping.Map private map;
+
+    function testIterableMap() public {
+        map.set(address(0), 0);
+        map.set(address(1), 100);
+        map.set(address(2), 200); // insert
+        map.set(address(2), 200); // update
+        map.set(address(3), 300);
+
+        for (uint i = 0; i &lt; map.size(); i++) {
+            address key = map.getKeyAtIndex(i);
+
+            assert(map.get(key) == i * 100);
+        }
+
+        map.remove(address(1));
+
+        // keys = [address(0), address(3), address(2)]
+        assert(map.size() == 3);
+        assert(map.getKeyAtIndex(0) == address(0));
+        assert(map.getKeyAtIndex(1) == address(3));
+        assert(map.getKeyAtIndex(2) == address(2));
+    }
+}
+</code></pre>
+<h2 id="ERC20"><a href="#ERC20" class="headerlink" title="ERC20"></a>ERC20</h2><p>任何遵循 ERC20 标准的合约都是 ERC20 代币</p>
+<p>ERC20 代币提供以下功能：</p>
+<ul>
+<li>转移代币</li>
+<li>允许其他人代表代币持有者转移代币这里是 ERC20 的接口</li>
+</ul>
+<ol>
+<li><p>创建一个ERC20 token</p>
+<p>使用 Open Zeppelin 创建自己的 ERC20 代币很容易</p>
+<p>这里是一个例子：</p>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.0.0/contracts/token/ERC20/ERC20.sol";
+
+contract MyToken is ERC20 {
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
+        // Mint 100 tokens to msg.sender
+        // Similar to how
+        // 1 dollar = 100 cents
+        // 1 token = 1 * (10 ** decimals)
+        _mint(msg.sender, 100 * 10**uint(decimals()));
+    }
+}
+</code></pre>
+</li>
+</ol>
+<h2 id="ERC721"><a href="#ERC721" class="headerlink" title="ERC721"></a>ERC721</h2><p><a target="_blank" rel="noopener" href="https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC721">https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC721</a></p>
+<h2 id="Precompute-Contract-Address-with-Create2"><a href="#Precompute-Contract-Address-with-Create2" class="headerlink" title="Precompute Contract Address with Create2"></a><font style="color:red">Precompute Contract Address with Create2</font></h2><p>合约地址可以预先计算，在部署合约之前，使用 create2</p>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract Factory {
+    // Returns the address of the newly deployed contract
+    function deploy(
+        address _owner,
+        uint _foo,
+        bytes32 _salt
+    ) public payable returns (address) {
+        // This syntax is a newer way to invoke create2 without assembly, you just need to pass salt
+        // https://docs.soliditylang.org/en/latest/control-structures.html#salted-contract-creations-create2
+        return address(new TestContract{salt: _salt}(_owner, _foo));
+    }
+}
+
+// This is the older way of doing it using assembly
+contract FactoryAssembly {
+    event Deployed(address addr, uint salt);
+
+    // 1. Get bytecode of contract to be deployed
+    // NOTE: _owner and _foo are arguments of the TestContract's constructor
+    function getBytecode(address _owner, uint _foo) public pure returns (bytes memory) {
+        bytes memory bytecode = type(TestContract).creationCode;
+
+        return abi.encodePacked(bytecode, abi.encode(_owner, _foo));
+    }
+
+    // 2. Compute the address of the contract to be deployed
+    // NOTE: _salt is a random number used to create an address
+    function getAddress(bytes memory bytecode, uint _salt)
+        public
+        view
+        returns (address)
+    {
+        bytes32 hash = keccak256(
+            abi.encodePacked(bytes1(0xff), address(this), _salt, keccak256(bytecode))
+        );
+
+        // NOTE: cast last 20 bytes of hash to address
+        return address(uint160(uint(hash)));
+    }
+
+    // 3. Deploy the contract
+    // NOTE:
+    // Check the event log Deployed which contains the address of the deployed TestContract.
+    // The address in the log should equal the address computed from above.
+    function deploy(bytes memory bytecode, uint _salt) public payable {
+        address addr;
+
+        /*
+        NOTE: How to call create2
+
+        create2(v, p, n, s)
+        create new contract with code at memory p to p + n
+        and send v wei
+        and return the new address
+        where new address = first 20 bytes of keccak256(0xff + address(this) + s + keccak256(mem[p…(p+n)))
+              s = big-endian 256-bit value
+        */
+        assembly {
+            addr := create2(
+                callvalue(), // wei sent with current call
+                // Actual code starts after skipping the first 32 bytes
+                add(bytecode, 0x20),
+                mload(bytecode), // Load the size of code contained in the first 32 bytes
+                _salt // Salt from function arguments
+            )
+
+            if iszero(extcodesize(addr)) {
+                revert(0, 0)
+            }
+        }
+
+        emit Deployed(addr, _salt);
+    }
+}
+
+contract TestContract {
+    address public owner;
+    uint public foo;
+
+    constructor(address _owner, uint _foo) payable {
+        owner = _owner;
+        foo = _foo;
+    }
+
+    function getBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+}
+</code></pre>
+<h2 id="Minimal-Proxy-Contract"><a href="#Minimal-Proxy-Contract" class="headerlink" title="Minimal Proxy Contract"></a>Minimal Proxy Contract</h2><p>如果您有一个将被多次部署的合约，请使用Minimal Proxy Contract来廉价地部署它们</p>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+// original code
+// https://github.com/optionality/clone-factory/blob/master/contracts/CloneFactory.sol
+
+contract MinimalProxy {
+    function clone(address target) external returns (address result) {
+        // convert address to 20 bytes
+        bytes20 targetBytes = bytes20(target);
+
+        // actual code //
+        // 3d602d80600a3d3981f3363d3d373d3d3d363d73bebebebebebebebebebebebebebebebebebebebe5af43d82803e903d91602b57fd5bf3
+
+        // creation code //
+        // copy runtime code into memory and return it
+        // 3d602d80600a3d3981f3
+
+        // runtime code //
+        // code to delegatecall to address
+        // 363d3d373d3d3d363d73 address 5af43d82803e903d91602b57fd5bf3
+
+        assembly {
+            /*
+            reads the 32 bytes of memory starting at pointer stored in 0x40
+
+            In solidity, the 0x40 slot in memory is special: it contains the "free memory pointer"
+            which points to the end of the currently allocated memory.
+            */
+            let clone := mload(0x40)
+            // store 32 bytes to memory starting at "clone"
+            mstore(
+                clone,
+                0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000
+            )
+
+            /*
+              |              20 bytes                |
+            0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000
+                                                      ^
+                                                      pointer
+            */
+            // store 32 bytes to memory starting at "clone" + 20 bytes
+            // 0x14 = 20
+            mstore(add(clone, 0x14), targetBytes)
+
+            /*
+              |               20 bytes               |                 20 bytes              |
+            0x3d602d80600a3d3981f3363d3d373d3d3d363d73bebebebebebebebebebebebebebebebebebebebe
+                                                                                              ^
+                                                                                              pointer
+            */
+            // store 32 bytes to memory starting at "clone" + 40 bytes
+            // 0x28 = 40
+            mstore(
+                add(clone, 0x28),
+                0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000
+            )
+
+            /*
+              |               20 bytes               |                 20 bytes              |           15 bytes          |
+            0x3d602d80600a3d3981f3363d3d373d3d3d363d73bebebebebebebebebebebebebebebebebebebebe5af43d82803e903d91602b57fd5bf3
+            */
+            // create new contract
+            // send 0 Ether
+            // code starts at pointer stored in "clone"
+            // code size 0x37 (55 bytes)
+            result := create(0, clone, 0x37)
+        }
+    }
+}
+</code></pre>
+<h2 id="Upgradeable-Proxy"><a href="#Upgradeable-Proxy" class="headerlink" title="Upgradeable Proxy"></a>Upgradeable Proxy</h2><p>可升级代理合约的示例。永远不要在生产中使用它</p>
+<p>这个例子展示了如何使用委托调用并在调用 fallback 时返回数据</p>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract Proxy {
+    address public implementation;
+
+    function setImplementation(address _imp) external {
+        implementation = _imp;
+    }
+
+    function _delegate(address _imp) internal virtual {
+        assembly {
+            // calldatacopy(t, f, s)
+            // copy s bytes from calldata at position f to mem at position t
+            calldatacopy(0, 0, calldatasize())
+
+            // delegatecall(g, a, in, insize, out, outsize)
+            // - call contract at address a
+            // - with input mem[in…(in+insize))
+            // - providing g gas
+            // - and output area mem[out…(out+outsize))
+            // - returning 0 on error and 1 on success
+            let result := delegatecall(gas(), _imp, 0, calldatasize(), 0, 0)
+
+            // returndatacopy(t, f, s)
+            // copy s bytes from returndata at position f to mem at position t
+            returndatacopy(0, 0, returndatasize())
+
+            switch result
+            case 0 {
+                // revert(p, s)
+                // end execution, revert state changes, return data mem[p…(p+s))
+                revert(0, returndatasize())
+            }
+            default {
+                // return(p, s)
+                // end execution, return data mem[p…(p+s))
+                return(0, returndatasize())
+            }
+        }
+    }
+
+    fallback() external payable {
+        _delegate(implementation);
+    }
+}
+
+contract V1 {
+    address public implementation;
+    uint public x;
+
+    function inc() external {
+        x += 1;
+    }
+}
+
+contract V2 {
+    address public implementation;
+    uint public x;
+
+    function inc() external {
+        x += 1;
+    }
+
+    function dec() external {
+        x -= 1;
+    }
+}
+</code></pre>
+<h2 id="Deploy-Any-Contract"><a href="#Deploy-Any-Contract" class="headerlink" title="Deploy Any Contract"></a>Deploy Any Contract</h2><p><a target="_blank" rel="noopener" href="https://solidity-by-example.org/app/deploy-any-contract">https://solidity-by-example.org/app/deploy-any-contract</a></p>
+<h2 id="Write-to-Any-Slot"><a href="#Write-to-Any-Slot" class="headerlink" title="Write to Any Slot"></a>Write to Any Slot</h2><p>Solidity 存储就像一个长度为 2^256 的数组。数组中的每个槽可以存储 32 个字节</p>
+<p>状态变量定义了哪些槽将用于存储数据</p>
+<p>但是使用汇编，您可以写入任何槽<br><a target="_blank" rel="noopener" href="https://solidity-by-example.org/app/write-to-any-slot">https://solidity-by-example.org/app/write-to-any-slot</a></p>
+<h2 id="单向支付通道"><a href="#单向支付通道" class="headerlink" title="单向支付通道"></a>单向支付通道</h2><p>支付渠道允许参与者反复将以太币从链下转移。</p>
+<p>以下是该合约的使用方式：</p>
+<ul>
+<li>Alice 部署合约，用一些以太币为其提供资金</li>
+<li>Alice 通过签署消息（链下）授权支付并将签名发送给 Bob</li>
+<li>Bob 通过向智能合约提交签名消息来索取他的付款</li>
+<li>如果 Bob 没有索取他的付款，Alice 在合同到期后取回她的 Ether </li>
+</ul>
+<p>这被称为单向支付通道，因为付款只能在一个从 Alice 到 Bob 的单向</p>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+import "github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.5/contracts/utils/cryptography/ECDSA.sol";
+import "github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.5/contracts/security/ReentrancyGuard.sol";
+
+contract UniDirectionalPaymentChannel is ReentrancyGuard {
+    using ECDSA for bytes32;
+
+    address payable public sender;
+    address payable public receiver;
+
+    uint private constant DURATION = 7 * 24 * 60 * 60;
+    uint public expiresAt;
+
+    constructor(address payable _receiver) payable {
+        require(_receiver != address(0), "receiver = zero address");
+        sender = payable(msg.sender);
+        receiver = _receiver;
+        expiresAt = block.timestamp + DURATION;
+    }
+
+    function _getHash(uint _amount) private view returns (bytes32) {
+        // NOTE: sign with address of this contract to protect agains
+        // replay attack on other contracts
+        return keccak256(abi.encodePacked(address(this), _amount));
+    }
+
+    function getHash(uint _amount) external view returns (bytes32) {
+        return _getHash(_amount);
+    }
+
+    function _getEthSignedHash(uint _amount) private view returns (bytes32) {
+        return _getHash(_amount).toEthSignedMessageHash();
+    }
+
+    function getEthSignedHash(uint _amount) external view returns (bytes32) {
+        return _getEthSignedHash(_amount);
+    }
+
+    function _verify(uint _amount, bytes memory _sig) private view returns (bool) {
+        return _getEthSignedHash(_amount).recover(_sig) == sender;
+    }
+
+    function verify(uint _amount, bytes memory _sig) external view returns (bool) {
+        return _verify(_amount, _sig);
+    }
+
+    function close(uint _amount, bytes memory _sig) external nonReentrant {
+        require(msg.sender == receiver, "!receiver");
+        require(_verify(_amount, _sig), "invalid sig");
+
+        (bool sent, ) = receiver.call{value: _amount}("");
+        require(sent, "Failed to send Ether");
+        selfdestruct(sender);
+    }
+
+    function cancel() external {
+        require(msg.sender == sender, "!sender");
+        require(block.timestamp &gt;= expiresAt, "!expired");
+        selfdestruct(sender);
+    }
+}
+</code></pre>
+<h2 id="双向支付通道"><a href="#双向支付通道" class="headerlink" title="双向支付通道"></a>双向支付通道</h2><p>双向支付通道允许参与者 Alice 和 Bob 反复将以太币转移到链下</p>
+<p>支付可以双向进行，Alice 支付 Bob，Bob 支付 Alice</p>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+pragma experimental ABIEncoderV2;
+
+/*
+Opening a channel
+1. Alice and Bob fund a multi-sig wallet
+2. Precompute payment channel address
+3. Alice and Bob exchanges signatures of initial balances
+4. Alice and Bob creates a transaction that can deploy a payment channel from
+   the multi-sig wallet
+
+Update channel balances
+1. Repeat steps 1 - 3 from opening a channel
+2. From multi-sig wallet create a transaction that will
+   - delete the transaction that would have deployed the old payment channel
+   - and then create a transaction that can deploy a payment channel with the
+     new balances
+
+Closing a channel when Alice and Bob agree on the final balance
+1. From multi-sig wallet create a transaction that will
+   - send payments to Alice and Bob
+   - and then delete the transaction that would have created the payment channel
+
+Closing a channel when Alice and Bob do not agree on the final balances
+1. Deploy payment channel from multi-sig
+2. call challengeExit() to start the process of closing a channel
+3. Alice and Bob can withdraw funds once the channel is expired
+*/
+
+import "github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.5/contracts/utils/math/SafeMath.sol";
+import "github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.5/contracts/utils/cryptography/ECDSA.sol";
+
+contract BiDirectionalPaymentChannel {
+    using SafeMath for uint;
+    using ECDSA for bytes32;
+
+    event ChallengeExit(address indexed sender, uint nonce);
+    event Withdraw(address indexed to, uint amount);
+
+    address payable[2] public users;
+    mapping(address =&gt; bool) public isUser;
+
+    mapping(address =&gt; uint) public balances;
+
+    uint public challengePeriod;
+    uint public expiresAt;
+    uint public nonce;
+
+    modifier checkBalances(uint[2] memory _balances) {
+        require(
+            address(this).balance &gt;= _balances[0].add(_balances[1]),
+            "balance of contract must be &gt;= to the total balance of users"
+        );
+        _;
+    }
+
+    // NOTE: deposit from multi-sig wallet
+    constructor(
+        address payable[2] memory _users,
+        uint[2] memory _balances,
+        uint _expiresAt,
+        uint _challengePeriod
+    ) payable checkBalances(_balances) {
+        require(_expiresAt &gt; block.timestamp, "Expiration must be &gt; now");
+        require(_challengePeriod &gt; 0, "Challenge period must be &gt; 0");
+
+        for (uint i = 0; i &lt; _users.length; i++) {
+            address payable user = _users[i];
+
+            require(!isUser[user], "user must be unique");
+            users[i] = user;
+            isUser[user] = true;
+
+            balances[user] = _balances[i];
+        }
+
+        expiresAt = _expiresAt;
+        challengePeriod = _challengePeriod;
+    }
+
+    function verify(
+        bytes[2] memory _signatures,
+        address _contract,
+        address[2] memory _signers,
+        uint[2] memory _balances,
+        uint _nonce
+    ) public pure returns (bool) {
+        for (uint i = 0; i &lt; _signatures.length; i++) {
+            /*
+            NOTE: sign with address of this contract to protect
+                  agains replay attack on other contracts
+            */
+            bool valid = _signers[i] ==
+                keccak256(abi.encodePacked(_contract, _balances, _nonce))
+                    .toEthSignedMessageHash()
+                    .recover(_signatures[i]);
+
+            if (!valid) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    modifier checkSignatures(
+        bytes[2] memory _signatures,
+        uint[2] memory _balances,
+        uint _nonce
+    ) {
+        // Note: copy storage array to memory
+        address[2] memory signers;
+        for (uint i = 0; i &lt; users.length; i++) {
+            signers[i] = users[i];
+        }
+
+        require(
+            verify(_signatures, address(this), signers, _balances, _nonce),
+            "Invalid signature"
+        );
+
+        _;
+    }
+
+    modifier onlyUser() {
+        require(isUser[msg.sender], "Not user");
+        _;
+    }
+
+    function challengeExit(
+        uint[2] memory _balances,
+        uint _nonce,
+        bytes[2] memory _signatures
+    )
+        public
+        onlyUser
+        checkSignatures(_signatures, _balances, _nonce)
+        checkBalances(_balances)
+    {
+        require(block.timestamp &lt; expiresAt, "Expired challenge period");
+        require(_nonce &gt; nonce, "Nonce must be greater than the current nonce");
+
+        for (uint i = 0; i &lt; _balances.length; i++) {
+            balances[users[i]] = _balances[i];
+        }
+
+        nonce = _nonce;
+        expiresAt = block.timestamp.add(challengePeriod);
+
+        emit ChallengeExit(msg.sender, nonce);
+    }
+
+    function withdraw() public onlyUser {
+        require(block.timestamp &gt;= expiresAt, "Challenge period has not expired yet");
+
+        uint amount = balances[msg.sender];
+        balances[msg.sender] = 0;
+
+        (bool sent, ) = msg.sender.call{value: amount}("");
+        require(sent, "Failed to send Ether");
+
+        emit Withdraw(msg.sender, amount);
+    }
+}
+</code></pre>
+<h2 id="英式拍卖"><a href="#英式拍卖" class="headerlink" title="英式拍卖"></a>英式拍卖</h2><p>NFT的英式拍卖</p>
+<p>拍卖：</p>
+<ol>
+<li>NFT的卖方部署此合同</li>
+<li>拍卖持续 7 days</li>
+<li>参与者可以通过存入高于当前最高出价者的 ETH 来出价</li>
+<li>如果不是当前的最高出价，所有投标人都可以撤回他们的出价</li>
+</ol>
+<p>拍卖后：</p>
+<ol>
+<li>出价最高者成为 NFT的新所有者</li>
+<li>卖家收到最高出价的 ETH</li>
+</ol>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+interface IERC721 {
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint tokenId
+    ) external;
+
+    function transferFrom(
+        address,
+        address,
+        uint
+    ) external;
+}
+
+contract EnglishAuction {
+    event Start();
+    event Bid(address indexed sender, uint amount);
+    event Withdraw(address indexed bidder, uint amount);
+    event End(address winner, uint amount);
+
+    IERC721 public nft;
+    uint public nftId;
+
+    address payable public seller;
+    uint public endAt;
+    bool public started;
+    bool public ended;
+
+    address public highestBidder;
+    uint public highestBid;
+    mapping(address =&gt; uint) public bids;
+
+    constructor(
+        address _nft,
+        uint _nftId,
+        uint _startingBid
+    ) {
+        nft = IERC721(_nft);
+        nftId = _nftId;
+
+        seller = payable(msg.sender);
+        highestBid = _startingBid;
+    }
+
+    function start() external {
+        require(!started, "started");
+        require(msg.sender == seller, "not seller");
+
+        nft.transferFrom(msg.sender, address(this), nftId);
+        started = true;
+        endAt = block.timestamp + 7 days;
+
+        emit Start();
+    }
+
+    function bid() external payable {
+        require(started, "not started");
+        require(block.timestamp &lt; endAt, "ended");
+        require(msg.value &gt; highestBid, "value &lt; highest");
+
+        if (highestBidder != address(0)) {
+            bids[highestBidder] += highestBid;
+        }
+
+        highestBidder = msg.sender;
+        highestBid = msg.value;
+
+        emit Bid(msg.sender, msg.value);
+    }
+
+    function withdraw() external {
+        uint bal = bids[msg.sender];
+        bids[msg.sender] = 0;
+        payable(msg.sender).transfer(bal);
+
+        emit Withdraw(msg.sender, bal);
+    }
+
+    function end() external {
+        require(started, "not started");
+        require(block.timestamp &gt;= endAt, "not ended");
+        require(!ended, "ended");
+
+        ended = true;
+        if (highestBidder != address(0)) {
+            nft.safeTransferFrom(address(this), highestBidder, nftId);
+            seller.transfer(highestBid);
+        } else {
+            nft.safeTransferFrom(address(this), seller, nftId);
+        }
+
+        emit End(highestBidder, highestBid);
+    }
+}
+</code></pre>
+<h2 id="荷兰式拍卖"><a href="#荷兰式拍卖" class="headerlink" title="荷兰式拍卖"></a>荷兰式拍卖</h2><p>NFT的荷兰式拍卖</p>
+<p>拍卖：</p>
+<ol>
+<li>NFT 卖方部署此合约，为 NFT设定起始价格</li>
+<li>拍卖持续 7 days</li>
+<li>NFT 的价格随着时间的推移而下降</li>
+<li>参与者可以通过存入高于智能合约计算的当前价格的 ETH 来购买</li>
+<li>当买家购买 NFT 时拍卖结束</li>
+</ol>
+<pre><code class="solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+interface IERC721 {
+    function transferFrom(
+        address _from,
+        address _to,
+        uint _nftId
+    ) external;
+}
+
+contract DutchAuction {
+    uint private constant DURATION = 7 days;
+
+    IERC721 public immutable nft;
+    uint public immutable nftId;
+
+    address payable public immutable seller;
+    uint public immutable startingPrice;
+    uint public immutable startAt;
+    uint public immutable expiresAt;
+    uint public immutable discountRate;
+
+    constructor(
+        uint _startingPrice,
+        uint _discountRate,
+        address _nft,
+        uint _nftId
+    ) {
+        seller = payable(msg.sender);
+        startingPrice = _startingPrice;
+        startAt = block.timestamp;
+        expiresAt = block.timestamp + DURATION;
+        discountRate = _discountRate;
+
+        require(_startingPrice &gt;= _discountRate * DURATION, "starting price &lt; min");
+
+        nft = IERC721(_nft);
+        nftId = _nftId;
+    }
+
+    function getPrice() public view returns (uint) {
+        uint timeElapsed = block.timestamp - startAt;
+        uint discount = discountRate * timeElapsed;
+        return startingPrice - discount;
+    }
+
+    function buy() external payable {
+        require(block.timestamp &lt; expiresAt, "auction expired");
+
+        uint price = getPrice();
+        require(msg.value &gt;= price, "ETH &lt; price");
+
+        nft.transferFrom(seller, msg.sender, nftId);
+        uint refund = msg.value - price;
+        if (refund &gt; 0) {
+            payable(msg.sender).transfer(refund);
+        }
+        selfdestruct(seller);
+    }
+}
+</code></pre>
+<h2 id="众筹"><a href="#众筹" class="headerlink" title="众筹"></a>众筹</h2><p><a target="_blank" rel="noopener" href="https://solidity-by-example.org/app/crowd-fund">https://solidity-by-example.org/app/crowd-fund</a></p>
+<h2 id="Multi-Call"><a href="#Multi-Call" class="headerlink" title="Multi Call"></a>Multi Call</h2><p><a target="_blank" rel="noopener" href="https://solidity-by-example.org/app/multi-call">https://solidity-by-example.org/app/multi-call</a></p>
+<h2 id="Multi-Delegatecall"><a href="#Multi-Delegatecall" class="headerlink" title="Multi Delegatecall"></a>Multi Delegatecall</h2><p><a target="_blank" rel="noopener" href="https://solidity-by-example.org/app/multi-delegatecall">https://solidity-by-example.org/app/multi-delegatecall</a></p>
+<h2 id="时间锁"><a href="#时间锁" class="headerlink" title="时间锁"></a>时间锁</h2><p>TimeLock 是一种合约，用于发布未来要执行的交易。在最短的等待时间之后，可以执行事务</p>
+<p>时间锁通常用于 DAO</p>
+<p><a target="_blank" rel="noopener" href="https://solidity-by-example.org/app/time-lock">https://solidity-by-example.org/app/time-lock</a></p>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2022/05/15/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC721%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="NFT框架 OpenZeppelin ERC721源码分析"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: NFT框架 OpenZeppelin ERC721源码分析</span></a><a class="button is-default" href="/2022/05/10/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC20%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="NFT框架 OpenZeppelin ERC20源码分析"><span class="has-text-weight-semibold">Next: NFT框架 OpenZeppelin ERC20源码分析</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>

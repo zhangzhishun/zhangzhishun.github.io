@@ -1,0 +1,179 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>Sugar's blog</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/widget-post-list.css"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><article class="post-container is-flex is-justify-content-center section container is-max-widescreen pt-4 px-2"><div class="columns is-variable is-1-tablet is-3-desktop-only is-2-widescreen is-full-width"><section class="column"><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/NFT"><i class="tag post-item-tag">NFT</i></a><a href="/tags/OpenZeppelin"><i class="tag post-item-tag">OpenZeppelin</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/05/01/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelin%E5%90%88%E7%BA%A6%E6%BA%90%E7%A0%81%E4%BB%8B%E7%BB%8D/">NFT框架 OpenZeppelin合约源码结构介绍</a></h2><time class="has-text-grey" datetime="2022-05-01T02:25:11.000Z">2022-05-01</time><p class="is-flex-grow-2 mt-2">一、介绍1. 代码版本release-v4.6
+2. contracts文件夹access该目录提供了限制谁可以访问合约功能或何时可以访问的方法
+
+{AccessControl} 提供了一个通用的基于角色的访问控制机制。可以创建多个分层角色并将每个角色分配给多个帐户
+{Ownable} 是一种更简单的机制，具有可以分配给单个帐户的单个所有者“角色”。这种更简单的机制对于快速测试很有用，但有生产问题的项目可能会超过它
+
+crosschain该目录提供构建块来提高智能合约的跨链
+
+{CrossChainEnabled} 是一个抽象，包含访问器和修饰符来控制接收跨链消息时的执行流程
+
+finance该目录包括金融系统的原语：
+
+{PaymentSplitter} 允许在一组帐户之间拆分 Ether 和 ERC20..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/05/01/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelin%E5%90%88%E7%BA%A6%E6%BA%90%E7%A0%81%E4%BB%8B%E7%BB%8D/">Read more</a><span> </span></section></article><article class="post-item-card"><header class="is-relative is-flex"><div class="post-cover-backdrop is-hidden"><img src="/images/distributed_storage/image-20220428142211126.png" alt="loading.."></div><a class="post-cover-link has-text-centered skeleton" href="/2022/04/28/distributed_storage/IPFS%20and%20Friends:%20A%20Qualitative%20Comparison%20of%20Next%20Generation%20Peer-to-Peer%20Data%20Networks/"><img class="post-cover-img js-img-fadeIn" src="/images/distributed_storage/image-20220428142211126.png" alt="loading.." data-backdrop="true"></a></header><section class="content post-card-content p-4 pb-5"><header><a href="/tags/Distributed%20Storage"><i class="tag post-item-tag">Distributed Storage</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/04/28/distributed_storage/IPFS%20and%20Friends:%20A%20Qualitative%20Comparison%20of%20Next%20Generation%20Peer-to-Peer%20Data%20Networks/">IPFS and Friends: A Qualitative Comparison of Next Generation Peer-to-Peer Data Networks</a></h2><time class="has-text-grey" datetime="2022-04-28T12:43:09.000Z">2022-04-28</time><p class="is-flex-grow-2 mt-2">摘要在本文中，我们将对下一代数据网络进行技术概述。我们使用选定的数据网络来介绍一般概念和强调新的发展。具体来说，我们提供了IPFS的更深层次的概述，以及Swarm、Hypercore Protocol、SAFE、Storj和Arweave的总体概述。我们确定常见的构建模块，并提供定性比较。从概述中，我们得出了未来关于数据网络的挑战和研究目标。
+I. 概述集中式控制和治理会导致数据孤岛，这可能会影响可访问性、可用性和机密性。例如，数据访问可能会受到审查。与此同时，数据孤岛为数据泄露和数据出售提供了一个有价值的目标，这可能会危及安全和隐私。一般来说，用户会失去自己的控制权，并将其委托给云提供商。
+打破数据竖井和减少信任假设的一个方向是点对点数据网络。这个术语概括了建立在点对点(P2P)网络之上的一系列数据存储方..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/04/28/distributed_storage/IPFS%20and%20Friends:%20A%20Qualitative%20Comparison%20of%20Next%20Generation%20Peer-to-Peer%20Data%20Networks/">Read more</a><span> </span></section></article><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3"><i class="tag post-item-tag">部署文档</i></a><a href="/tags/Fabric"><i class="tag post-item-tag">Fabric</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/04/17/blockchain/fabric/%E5%9F%BA%E4%BA%8ERaft%E5%85%B1%E8%AF%86%E6%90%AD%E5%BB%BA%E5%8D%95%E6%9C%BAFabric2.3%E7%BD%91%E7%BB%9C/">基于Ubuntu20.04搭建单机Fabric2.3.0Raft共识测试网络</a></h2><time class="has-text-grey" datetime="2022-04-17T13:00:00.000Z">2022-04-17</time><p class="is-flex-grow-2 mt-2">The article has been encrypted, please enter your password to view.</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/04/17/blockchain/fabric/%E5%9F%BA%E4%BA%8ERaft%E5%85%B1%E8%AF%86%E6%90%AD%E5%BB%BA%E5%8D%95%E6%9C%BAFabric2.3%E7%BD%91%E7%BB%9C/">Read more</a><span> </span></section></article><article class="post-item-card"><header class="is-relative is-flex"><div class="post-cover-backdrop is-hidden"><img src="/images/arweave/image-20220412232151857.png" alt="loading.."></div><a class="post-cover-link has-text-centered skeleton" href="/2022/04/12/blockchain/arweave/Arweave_%E4%B8%80%E7%A7%8D%E7%B1%BB%E5%8C%BA%E5%9D%97%E9%93%BE%E7%9A%84%E5%8C%BA%E5%9D%97%E7%BC%96%E7%BB%87%E7%BB%93%E6%9E%84(Lightpaper)/"><img class="post-cover-img js-img-fadeIn" src="/images/arweave/image-20220412232151857.png" alt="loading.." data-backdrop="true"></a></header><section class="content post-card-content p-4 pb-5"><header><a href="/tags/Arweave"><i class="tag post-item-tag">Arweave</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/04/12/blockchain/arweave/Arweave_%E4%B8%80%E7%A7%8D%E7%B1%BB%E5%8C%BA%E5%9D%97%E9%93%BE%E7%9A%84%E5%8C%BA%E5%9D%97%E7%BC%96%E7%BB%87%E7%BB%93%E6%9E%84(Lightpaper)/">Arweave – 一种类区块链的区块编织结构（Lightpaper）</a></h2><time class="has-text-grey" datetime="2022-04-12T03:20:30.000Z">2022-04-12</time><p class="is-flex-grow-2 mt-2">转载：http://ipfsdrop.com/docs/whitepaper/arweave-lightpaper/
+摘要经典的区块链在数据存储方面存在几个众所周知的主要问题。这些问题需要将新的第三方协议集成到现有区块链的上层，因为费用太高，无法进行链上存储。因此，对于经典的区块链来说，访问内容始终会产生成本，而且内容永远不会永久存储­。随着对数据存储的需求呈指数增长，对可扩展的分布式低成本数据存储协议的需求是必要的。
+在这项工作中，我们介绍Arweave——一种类区块链的区块编织结构。区块编织是一个平台­，致力于首次以经济高效的方式提供可扩展的链上存储。随着系统中存储的数据量的增加，达成共识所需的哈希值减少，从而降低了存储数据的成本。该协议现有的REST API使得在区块编织上层构建去中心化的应用程序­十..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/04/12/blockchain/arweave/Arweave_%E4%B8%80%E7%A7%8D%E7%B1%BB%E5%8C%BA%E5%9D%97%E9%93%BE%E7%9A%84%E5%8C%BA%E5%9D%97%E7%BC%96%E7%BB%87%E7%BB%93%E6%9E%84(Lightpaper)/">Read more</a><span> </span></section></article><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6"><i class="tag post-item-tag">密码学</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/03/28/cryptography/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%BA%93%E6%80%BB%E7%BB%93/">常用密码学库</a></h2><time class="has-text-grey" datetime="2022-03-28T15:29:15.000Z">2022-03-28</time><p class="is-flex-grow-2 mt-2">The article has been encrypted, please enter your password to view.</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/03/28/cryptography/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%BA%93%E6%80%BB%E7%BB%93/">Read more</a><span> </span></section></article><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3"><i class="tag post-item-tag">部署文档</i></a><a href="/tags/Other"><i class="tag post-item-tag">Other</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/03/05/blockchain/other/30%E5%88%86%E9%92%9F%E5%88%9B%E5%BB%BA%E4%B8%80%E6%9D%A1%E5%8C%BA%E5%9D%97%E9%93%BE(%E4%BA%8C)/">30分钟创建一条区块链(二)</a></h2><time class="has-text-grey" datetime="2022-03-05T12:57:53.000Z">2022-03-05</time><p class="is-flex-grow-2 mt-2">将区块链API化在这个区块链中，我们想要实现三个API，分别是
+
+/api/mine：节点使用这个方法来挖掘新的区块
+/api/transactions/new: 账户使用这个方法来建立新的交易
+/api/chain: 返回当前的区块链
+
+为了复用我们在上篇写好的代码，我们首先安装express.js，并创建一个新文件 app.js。express是一个基于node的http框架，它可以允许我们接受通过http协议传输的节点信息。我们还需要body-parser帮助我们解码节点发送过来的信息。
+实现分布式共识以上我们已经实现了一个单机版的区块链了，但区块链之所以有用，是因为它能被部署到多个节点上去，并且所有节点都能够相互更新，实现分布式的共识。这样的机制保证了我们能够抵御double spending at..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/03/05/blockchain/other/30%E5%88%86%E9%92%9F%E5%88%9B%E5%BB%BA%E4%B8%80%E6%9D%A1%E5%8C%BA%E5%9D%97%E9%93%BE(%E4%BA%8C)/">Read more</a><span> </span></section></article><section class="paginator is-flex is-justify-content-flex-end is-flex-wrap-wrap mt-5"><a class="extend prev" rel="prev" href="/"><i class="iconfont icon-prev has-text-grey"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/3/"><i class="iconfont icon-next has-text-grey"></i></a></section></section><aside class="column is-hidden-mobile is-4-tablet is-3-widescreen"><style>.search-widget .search-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--second-text-color);
+}
+.search-widget .search-content {
+    position: absolute;
+    left: 0;
+    top: calc(100% - 3px);
+    z-index: 2;
+
+    width: 100%;
+    height: 0;
+    max-height: 550px;
+
+    overflow: auto;
+    box-sizing: border-box;
+
+    background: var(--top-bar-bg-color);
+    backdrop-filter: blur(var(--backdropFilter));
+    -webkit-backdrop-filter: blur(var(--backdropFilter));
+
+    border-bottom-left-radius: var(--borderRadius);
+    border-bottom-right-radius: var(--borderRadius);
+    box-shadow: 0 12px 15px rgba(0, 0, 0, 0.08);
+}
+
+.search-widget .search-content a:hover h5 {
+    color: #3273dc!important;
+}
+</style><main class="aside-card-container search-widget is-relative"><label for="searchInput"><div class="is-flex px-4" id="searchButton"><i class="iconfont icon--search1 mr-1"></i><input class="search-input is-flex-grow-1" id="searchInput" placeholder="Search everything.."></div></label><section class="search-content content" id="searchContent"></section></main><script>var searchDatabase = []
+var searchInputEl = document.getElementById('searchInput')
+var searchButtonEl = document.getElementById('searchButton')
+var searchResultEl = document.getElementById('searchContent')
+
+searchInputEl.oninput = function (evt) {
+    var searchValue = evt.srcElement.value
+    var haveSearchValue = Boolean(searchValue.trim())
+    if (!haveSearchValue) {
+        searchResultEl.style.height = 0
+        searchResultEl.innerHTML = null
+        return
+    }
+
+    var searchResults = searching(searchValue)
+
+    if (searchResults.length > 0) {
+        renderSearchResults(searchResults)
+    }
+}
+
+function renderSearchResults(results) {
+    searchResultEl.innerHTML = null
+    var fragment = document.createDocumentFragment()
+
+    results.forEach(function (item) {
+        var link = document.createElement('a')
+        var title = document.createElement('h5')
+        var content = document.createElement('p')
+
+        title.className = 'mb-1'
+        title.innerText = item.title
+        content.innerText = item.content
+
+        link.href = item.link
+        link.appendChild(title)
+        link.appendChild(content)
+        link.className = 'p-4 is-block'
+
+        fragment.appendChild(link)
+    })
+
+    searchResultEl.appendChild(fragment)
+    searchResultEl.style.height = 'auto'
+}
+
+function searching(inputText) {
+    var inputTexts = inputText.split(' ')
+    var searchResults = []
+    inputTexts.forEach(function (searchKey) {
+        var haveSearchValue = Boolean(searchKey.trim())
+        if (!haveSearchValue) return
+
+        var key = searchKey.toLowerCase()
+
+        for (var entry of searchDatabase) {
+            var title = entry.getElementsByTagName('title')[0].textContent
+            var link = entry.getElementsByTagName('link')[0].getAttribute('href')
+            var contentWithTags = entry.getElementsByTagName('content')[0].textContent
+            var rawContent = contentWithTags.trim().replace(/<[^>]+>/g, '').toLowerCase()
+
+            var LENGTH = 80
+            var finalContent = ''
+            var contentLength = rawContent.length
+            var searchResultIdx = rawContent.indexOf(key)
+
+            var startIdx = searchResultIdx - 20,
+                endIdx = startIdx + LENGTH
+
+            if (startIdx < 0) {
+                startIdx = 0
+                endIdx = 100
+            }
+
+            endIdx > contentLength && (endIdx = contentLength)
+
+            finalContent = rawContent.substring(startIdx, endIdx)
+
+            if (title.indexOf(key) > -1 || searchResultIdx > -1) {
+                searchResults.push({
+                    link: link,
+                    title: title,
+                    content: finalContent
+                })
+            }
+        }
+    })
+    return searchResults
+}
+
+searchButtonEl.onclick = function () {
+    if (searchDatabase.length > 0) return;
+
+    fetch(window.location.href + '/search.xml').then(res => res.text()).then(res => {
+        var domparser = new DOMParser
+        var doc = domparser.parseFromString(res, 'application/xml')
+        searchDatabase = doc.getElementsByTagName('search')[0].children
+    })
+}</script><main class="aside-card-container profile-widget"><!-- todo: 使用取色工具动态阴影--><section class="is-flex is-flex-direction-column is-justify-content-center is-align-items-center"><section class="is-flex is-justify-content-center avatar is-clipped skeleton"><!-- debug images "https://api.ixiaowai.cn/gqapi/gqapi.php"--><img class="js-img-fadeIn" src="/images/system/head_portrait.jpg" alt="user avatar"></section><h3 class="user-name">Sugar</h3><blockquote class="has-text-centered is-relative"><span style="margin-bottom: 5px;">A long journey can be covered only by taking one step at a time</span></blockquote><address class="has-text-centered has-text-grey"><i class="iconfont icon-location" style="margin-right: 5px;"></i><span class="has-text-grey">In the Beijing</span></address></section><section class="sns-container is-flex is-justify-content-center is-align-items-center"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section></main><main class="aside-card-container recent-widget"><h3>Recent</h3><ul><li class="is-flex"><!-- change to element replace image placeholder--><img class="js-img-fadeIn" src="https://ui-avatars.com/api/?background=f5f5f5&amp;name=NF" alt="cover"><!--else--><!--    div.post-img-placeholder--><section class="is-flex-grow-2"><p class="has-text-weight-semibold" style="line-height: 20px; font-size: 14px"><a href="/2022/05/01/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelin%E5%90%88%E7%BA%A6%E6%BA%90%E7%A0%81%E4%BB%8B%E7%BB%8D/">NFT框架 OpenZeppelin合约源码结构介绍</a></p><time class="has-text-weight-semibold has-text-grey" datetime="2022-05-01T02:25:11.000Z">2022-05-01</time></section></li><li class="is-flex"><!-- change to element replace image placeholder--><img class="js-img-fadeIn" src="/images/distributed_storage/image-20220428142211126.png" alt="cover"><!--else--><!--    div.post-img-placeholder--><section class="is-flex-grow-2"><p class="has-text-weight-semibold" style="line-height: 20px; font-size: 14px"><a href="/2022/04/28/distributed_storage/IPFS%20and%20Friends:%20A%20Qualitative%20Comparison%20of%20Next%20Generation%20Peer-to-Peer%20Data%20Networks/">IPFS and Friends: A Qualitative Comparison of Next Generation Peer-to-Peer Data Networks</a></p><time class="has-text-weight-semibold has-text-grey" datetime="2022-04-28T12:43:09.000Z">2022-04-28</time></section></li><li class="is-flex"><!-- change to element replace image placeholder--><img class="js-img-fadeIn" src="https://ui-avatars.com/api/?background=f5f5f5&amp;name=基于" alt="cover"><!--else--><!--    div.post-img-placeholder--><section class="is-flex-grow-2"><p class="has-text-weight-semibold" style="line-height: 20px; font-size: 14px"><a href="/2022/04/17/blockchain/fabric/%E5%9F%BA%E4%BA%8ERaft%E5%85%B1%E8%AF%86%E6%90%AD%E5%BB%BA%E5%8D%95%E6%9C%BAFabric2.3%E7%BD%91%E7%BB%9C/">基于Ubuntu20.04搭建单机Fabric2.3.0Raft共识测试网络</a></p><time class="has-text-weight-semibold has-text-grey" datetime="2022-04-17T13:00:00.000Z">2022-04-17</time></section></li><li class="is-flex"><!-- change to element replace image placeholder--><img class="js-img-fadeIn" src="/images/arweave/image-20220412232151857.png" alt="cover"><!--else--><!--    div.post-img-placeholder--><section class="is-flex-grow-2"><p class="has-text-weight-semibold" style="line-height: 20px; font-size: 14px"><a href="/2022/04/12/blockchain/arweave/Arweave_%E4%B8%80%E7%A7%8D%E7%B1%BB%E5%8C%BA%E5%9D%97%E9%93%BE%E7%9A%84%E5%8C%BA%E5%9D%97%E7%BC%96%E7%BB%87%E7%BB%93%E6%9E%84(Lightpaper)/">Arweave – 一种类区块链的区块编织结构（Lightpaper）</a></p><time class="has-text-weight-semibold has-text-grey" datetime="2022-04-12T03:20:30.000Z">2022-04-12</time></section></li><li class="is-flex"><!-- change to element replace image placeholder--><img class="js-img-fadeIn" src="https://ui-avatars.com/api/?background=f5f5f5&amp;name=常用" alt="cover"><!--else--><!--    div.post-img-placeholder--><section class="is-flex-grow-2"><p class="has-text-weight-semibold" style="line-height: 20px; font-size: 14px"><a href="/2022/03/28/cryptography/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%BA%93%E6%80%BB%E7%BB%93/">常用密码学库</a></p><time class="has-text-weight-semibold has-text-grey" datetime="2022-03-28T15:29:15.000Z">2022-03-28</time></section></li><li class="is-flex"><!-- change to element replace image placeholder--><img class="js-img-fadeIn" src="https://ui-avatars.com/api/?background=f5f5f5&amp;name=30" alt="cover"><!--else--><!--    div.post-img-placeholder--><section class="is-flex-grow-2"><p class="has-text-weight-semibold" style="line-height: 20px; font-size: 14px"><a href="/2022/03/05/blockchain/other/30%E5%88%86%E9%92%9F%E5%88%9B%E5%BB%BA%E4%B8%80%E6%9D%A1%E5%8C%BA%E5%9D%97%E9%93%BE(%E4%BA%8C)/">30分钟创建一条区块链(二)</a></p><time class="has-text-weight-semibold has-text-grey" datetime="2022-03-05T12:57:53.000Z">2022-03-05</time></section></li></ul></main><main class="aside-card-container archives-widget"><h3>Archives</h3><section><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">41</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/1900/01/">January 1900</a><span class="archive-list-count">5</span></li></ul></section></main><main class="aside-card-container tag-widget"><h3>Tags</h3><section><a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6"><span class="tag post-item-tag" style="margin-bottom: 5px;">密码学</span></a><a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95"><span class="tag post-item-tag" style="margin-bottom: 5px;">数据结构与算法</span></a><a href="/tags/%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3"><span class="tag post-item-tag" style="margin-bottom: 5px;">部署文档</span></a><a href="/tags/Other"><span class="tag post-item-tag" style="margin-bottom: 5px;">Other</span></a><a href="/tags/Distributed%20Storage"><span class="tag post-item-tag" style="margin-bottom: 5px;">Distributed Storage</span></a><a href="/tags/Avalanche"><span class="tag post-item-tag" style="margin-bottom: 5px;">Avalanche</span></a><a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95"><span class="tag post-item-tag" style="margin-bottom: 5px;">共识算法</span></a><a href="/tags/Ethereum"><span class="tag post-item-tag" style="margin-bottom: 5px;">Ethereum</span></a><a href="/tags/Fabric"><span class="tag post-item-tag" style="margin-bottom: 5px;">Fabric</span></a><a href="/tags/Layer2"><span class="tag post-item-tag" style="margin-bottom: 5px;">Layer2</span></a><a href="/tags/NFT"><span class="tag post-item-tag" style="margin-bottom: 5px;">NFT</span></a><a href="/tags/OpenZeppelin"><span class="tag post-item-tag" style="margin-bottom: 5px;">OpenZeppelin</span></a><a href="/tags/Arweave"><span class="tag post-item-tag" style="margin-bottom: 5px;">Arweave</span></a><a href="/tags/Go"><span class="tag post-item-tag" style="margin-bottom: 5px;">Go</span></a><a href="/tags/0xcert"><span class="tag post-item-tag" style="margin-bottom: 5px;">0xcert</span></a></section></main></aside></div></article><script>$claudia.fadeInImage(null, $claudia.blurBackdropImg)
+
+window.addEventListener('resize', $claudia.throttle(function () {
+    var images = document.querySelectorAll('.js-img-fadeIn')
+
+    images.forEach($claudia.blurBackdropImg)
+}, 150))</script></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script>$claudia.fadeInImage(null, $claudia.blurBackdropImg)
+
+window.addEventListener('resize', $claudia.throttle(function () {
+    var images = document.querySelectorAll('.js-img-fadeIn')
+
+    images.forEach($claudia.blurBackdropImg)
+}, 150))</script></body></html>

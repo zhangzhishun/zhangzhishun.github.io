@@ -1,0 +1,210 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>以太坊源码分析-core-vm-stack-memory源码分析</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="vm使用了stack.go里面的对象Stack来作为虚拟机的堆栈。memory代表了虚拟机里面使用的内存对象。
+stack比较简单，就是用1024个big.Int的定长数组来作为堆栈的存储。
+构造
+// stack is an object for basic stack operations. Items popped to the stack are
+// expected to be changed and modified. stack does not take care of adding newly
+// initialised objects.
+type Stack struct {
+    data []*big.Int
+}
+
+func newstack() *Stack {
+    re.."><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">以太坊源码分析-core-vm-stack-memory源码分析</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#stack"><span class="toc-text">stack</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#intpool"><span class="toc-text">intpool</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#memory"><span class="toc-text">memory</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E9%A2%9D%E5%A4%96%E7%9A%84%E5%B8%AE%E5%8A%A9%E5%87%BD%E6%95%B0-%E5%9C%A8stack-table-go%E9%87%8C%E9%9D%A2"><span class="toc-text">一些额外的帮助函数 在stack_table.go里面</span></a></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">以太坊源码分析-core-vm-stack-memory源码分析</h1><time class="has-text-grey" datetime="2021-05-17T02:29:15.000Z">2021-05-17</time><article class="mt-2 post-content"><p>vm使用了stack.go里面的对象Stack来作为虚拟机的堆栈。memory代表了虚拟机里面使用的内存对象。</p>
+<h2 id="stack"><a href="#stack" class="headerlink" title="stack"></a>stack</h2><p>比较简单，就是用1024个big.Int的定长数组来作为堆栈的存储。</p>
+<p>构造</p>
+<pre><code>// stack is an object for basic stack operations. Items popped to the stack are
+// expected to be changed and modified. stack does not take care of adding newly
+// initialised objects.
+type Stack struct {
+    data []*big.Int
+}
+
+func newstack() *Stack {
+    return &amp;Stack{data: make([]*big.Int, 0, 1024)}
+}
+</code></pre>
+<p>push操作 </p>
+<pre><code>func (st *Stack) push(d *big.Int) { //追加到最末尾
+    // NOTE push limit (1024) is checked in baseCheck
+    //stackItem := new(big.Int).Set(d)
+    //st.data = append(st.data, stackItem)
+    st.data = append(st.data, d)
+}
+func (st *Stack) pushN(ds ...*big.Int) {
+    st.data = append(st.data, ds...)
+}
+</code></pre>
+<p>pop操作</p>
+<pre><code>func (st *Stack) pop() (ret *big.Int) { //从最末尾取出。
+    ret = st.data[len(st.data)-1]
+    st.data = st.data[:len(st.data)-1]
+    return
+}
+</code></pre>
+<p>交换元素的值操作，还有这种操作？</p>
+<pre><code>func (st *Stack) swap(n int) { 
+    // 交换堆栈顶的元素和离栈顶n距离的元素的值。
+    st.data[st.len()-n], st.data[st.len()-1] = st.data[st.len()-1], st.data[st.len()-n]
+}
+</code></pre>
+<p>dup操作 像复制指定位置的值到堆顶</p>
+<pre><code>func (st *Stack) dup(pool *intPool, n int) {
+    st.push(pool.get().Set(st.data[st.len()-n]))
+}
+</code></pre>
+<p>peek 操作. 偷看栈顶元素</p>
+<pre><code>func (st *Stack) peek() *big.Int {
+    return st.data[st.len()-1]
+}
+</code></pre>
+<p>Back 偷看指定位置的元素</p>
+<pre><code>// Back returns the n'th item in stack
+func (st *Stack) Back(n int) *big.Int {
+    return st.data[st.len()-n-1]
+}
+</code></pre>
+<p>require 保证堆栈元素的数量要大于等于n.</p>
+<pre><code>func (st *Stack) require(n int) error {
+    if st.len() &lt; n {
+        return fmt.Errorf("stack underflow (%d &lt;=&gt; %d)", len(st.data), n)
+    }
+    return nil
+}
+</code></pre>
+<h2 id="intpool"><a href="#intpool" class="headerlink" title="intpool"></a>intpool</h2><p>非常简单. 就是256大小的 big.int的池,用来加速bit.Int的分配</p>
+<pre><code>var checkVal = big.NewInt(-42)
+
+const poolLimit = 256
+
+// intPool is a pool of big integers that
+// can be reused for all big.Int operations.
+type intPool struct {
+    pool *Stack
+}
+
+func newIntPool() *intPool {
+    return &amp;intPool{pool: newstack()}
+}
+
+func (p *intPool) get() *big.Int {
+    if p.pool.len() &gt; 0 {
+        return p.pool.pop()
+    }
+    return new(big.Int)
+}
+func (p *intPool) put(is ...*big.Int) {
+    if len(p.pool.data) &gt; poolLimit {
+        return
+    }
+
+    for _, i := range is {
+        // verifyPool is a build flag. Pool verification makes sure the integrity
+        // of the integer pool by comparing values to a default value.
+        if verifyPool {
+            i.Set(checkVal)
+        }
+
+        p.pool.push(i)
+    }
+}
+</code></pre>
+<h2 id="memory"><a href="#memory" class="headerlink" title="memory"></a>memory</h2><p>构造, memory的存储就是byte[]. 还有一个lastGasCost的记录.</p>
+<pre><code>type Memory struct {
+    store       []byte
+    lastGasCost uint64
+}
+
+func NewMemory() *Memory {
+    return &amp;Memory{}
+}
+</code></pre>
+<p>使用首先需要使用Resize分配空间</p>
+<pre><code>// Resize resizes the memory to size
+func (m *Memory) Resize(size uint64) {
+    if uint64(m.Len()) &lt; size {
+        m.store = append(m.store, make([]byte, size-uint64(m.Len()))...)
+    }
+}
+</code></pre>
+<p>然后使用Set来设置值</p>
+<pre><code>// Set sets offset + size to value
+func (m *Memory) Set(offset, size uint64, value []byte) {
+    // length of store may never be less than offset + size.
+    // The store should be resized PRIOR to setting the memory
+    if size &gt; uint64(len(m.store)) {
+        panic("INVALID memory: store empty")
+    }
+
+    // It's possible the offset is greater than 0 and size equals 0. This is because
+    // the calcMemSize (common.go) could potentially return 0 when size is zero (NO-OP)
+    if size &gt; 0 {
+        copy(m.store[offset:offset+size], value)
+    }
+}
+</code></pre>
+<p>Get来取值, 一个是获取拷贝, 一个是获取指针.</p>
+<pre><code>// Get returns offset + size as a new slice
+func (self *Memory) Get(offset, size int64) (cpy []byte) {
+    if size == 0 {
+        return nil
+    }
+
+    if len(self.store) &gt; int(offset) {
+        cpy = make([]byte, size)
+        copy(cpy, self.store[offset:offset+size])
+
+        return
+    }
+
+    return
+}
+
+// GetPtr returns the offset + size
+func (self *Memory) GetPtr(offset, size int64) []byte {
+    if size == 0 {
+        return nil
+    }
+
+    if len(self.store) &gt; int(offset) {
+        return self.store[offset : offset+size]
+    }
+
+    return nil
+}
+</code></pre>
+<h2 id="一些额外的帮助函数-在stack-table-go里面"><a href="#一些额外的帮助函数-在stack-table-go里面" class="headerlink" title="一些额外的帮助函数 在stack_table.go里面"></a>一些额外的帮助函数 在stack_table.go里面</h2><pre><code>func makeStackFunc(pop, push int) stackValidationFunc {
+    return func(stack *Stack) error {
+        if err := stack.require(pop); err != nil {
+            return err
+        }
+
+        if stack.len()+push-pop &gt; int(params.StackLimit) {
+            return fmt.Errorf("stack limit reached %d (%d)", stack.len(), params.StackLimit)
+        }
+        return nil
+    }
+}
+
+func makeDupStackFunc(n int) stackValidationFunc {
+    return makeStackFunc(n, n+1)
+}
+
+func makeSwapStackFunc(n int) stackValidationFunc {
+    return makeStackFunc(n, n)
+}
+</code></pre>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-core-vm-jumptable-instruction/" title="以太坊源码分析-core-vm-jumptable-instruction"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: 以太坊源码分析-core-vm-jumptable-instruction</span></a><a class="button is-default" href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-eth-downloader-peer%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="以太坊源码分析-eth-downloader-peer源码分析"><span class="has-text-weight-semibold">Next: 以太坊源码分析-eth-downloader-peer源码分析</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>

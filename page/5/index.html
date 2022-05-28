@@ -1,0 +1,224 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>Sugar's blog</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/widget-post-list.css"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><article class="post-container is-flex is-justify-content-center section container is-max-widescreen pt-4 px-2"><div class="columns is-variable is-1-tablet is-3-desktop-only is-2-widescreen is-full-width"><section class="column"><article class="post-item-card"><header class="is-relative is-flex"><div class="post-cover-backdrop is-hidden"><img src="https://img-blog.csdnimg.cn/2e6b5bf1c26e4f8396154f82fcbe29fe.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5LiA5p2v57OW5LiN5Yqg5ZKW5ZWh,size_20,color_FFFFFF,t_70,g_se,x_16" alt="loading.."></div><a class="post-cover-link has-text-centered skeleton" href="/2021/10/26/blockchain/fabric/%E7%AC%AC13%E7%AB%A0-%E5%8C%BA%E5%9D%97%E9%93%BE%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/"><img class="post-cover-img js-img-fadeIn" src="https://img-blog.csdnimg.cn/2e6b5bf1c26e4f8396154f82fcbe29fe.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5LiA5p2v57OW5LiN5Yqg5ZKW5ZWh,size_20,color_FFFFFF,t_70,g_se,x_16" alt="loading.." data-backdrop="true"></a></header><section class="content post-card-content p-4 pb-5"><header><a href="/tags/Fabric"><i class="tag post-item-tag">Fabric</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2021/10/26/blockchain/fabric/%E7%AC%AC13%E7%AB%A0-%E5%8C%BA%E5%9D%97%E9%93%BE%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/">Fabric区块链应用开发</a></h2><time class="has-text-grey" datetime="2021-10-26T12:43:09.000Z">2021-10-26</time><p class="is-flex-grow-2 mt-2">Fabric区块链应用开发13.1 简介智能合约是无状态的、事件驱动的代码
+1. 智能合约开发智能合约代码本质上是为了对上层业务逻辑进行支持
+需要开发者具备的能力：
+
+了解所选用区块链平台的智能合约结构、语言特性、状态存储方式等知识
+对智能合约的生命周期管理进行考虑，包括代码编写、版本管理、提交验证以及升级版本
+
+2. 应用程序开发应用程序通过调用智能合约提供的方法接口来实现业务逻辑。可以运行在区块链的网络节点上，也可以运行在中心化的服务器上。
+需要开发者具备的能力：
+
+掌握至少一种应用程序开发语言
+熟练使用智能合约SDK
+
+13.2 链码的原理、接口与结构链码职责：
+
+对Fabric应用程序发送的交易做出响应，执行代码逻辑，与账本进行交互
+创建一些状态（state）并写入账本
+
+链码与节点的交互使用gRP..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2021/10/26/blockchain/fabric/%E7%AC%AC13%E7%AB%A0-%E5%8C%BA%E5%9D%97%E9%93%BE%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/">Read more</a><span> </span></section></article><article class="post-item-card"><header class="is-relative is-flex"><div class="post-cover-backdrop is-hidden"><img src="https://img-blog.csdnimg.cn/d38a58e238c74b05bffda95b4f82ca17.png" alt="loading.."></div><a class="post-cover-link has-text-centered skeleton" href="/2021/10/18/blockchain/fabric/%E7%AC%AC11%E7%AB%A0-Fabric-CA%E5%BA%94%E7%94%A8%E4%B8%8E%E9%85%8D%E7%BD%AE/"><img class="post-cover-img js-img-fadeIn" src="https://img-blog.csdnimg.cn/d38a58e238c74b05bffda95b4f82ca17.png" alt="loading.." data-backdrop="true"></a></header><section class="content post-card-content p-4 pb-5"><header><a href="/tags/Fabric"><i class="tag post-item-tag">Fabric</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2021/10/18/blockchain/fabric/%E7%AC%AC11%E7%AB%A0-Fabric-CA%E5%BA%94%E7%94%A8%E4%B8%8E%E9%85%8D%E7%BD%AE/">Fabric CA应用与配置</a></h2><time class="has-text-grey" datetime="2021-10-18T12:14:43.000Z">2021-10-18</time><p class="is-flex-grow-2 mt-2">Fabric CA应用与配置11.1 简介
+Fabric CA项目主要功能：
+
+
+负责Fabric网络内所有实体的身份管理，包括身份的注册、注销等
+负责证书管理，包括ECerts（身份证书）、TCerts（交易证书）等的发放和注销
+服务端支持基于客户端命令行和RESTful API的交互方式
+
+
+基本组件采用典型的CS架构，目前包含两个基本组件：
+
+
+服务端：fabric-ca-server实现核心的PKI服务功能，支持多种数据库后台（包括MySQL、PostgreSQL等），并支持集成LDAP作为用户注册管理功能
+客户端（Client）：fabric-ca-client封装了服务端的RESTful API，提供访问服务端的命令，供用户与服务端进行交互
+
+11.2 安装服务端和客户端11.2.1 本地编译
+..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2021/10/18/blockchain/fabric/%E7%AC%AC11%E7%AB%A0-Fabric-CA%E5%BA%94%E7%94%A8%E4%B8%8E%E9%85%8D%E7%BD%AE/">Read more</a><span> </span></section></article><article class="post-item-card"><header class="is-relative is-flex"><div class="post-cover-backdrop is-hidden"><img src="https://img-blog.csdnimg.cn/b05b1fe7b97344f8b0d5ee3edab23675.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5LiA5p2v57OW5LiN5Yqg5ZKW5ZWh,size_10,color_FFFFFF,t_70,g_se,x_16" alt="loading.."></div><a class="post-cover-link has-text-centered skeleton" href="/2021/09/24/blockchain/fabric/%E7%AC%AC12%E7%AB%A0-Fabric1-0%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1/"><img class="post-cover-img js-img-fadeIn" src="https://img-blog.csdnimg.cn/b05b1fe7b97344f8b0d5ee3edab23675.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5LiA5p2v57OW5LiN5Yqg5ZKW5ZWh,size_10,color_FFFFFF,t_70,g_se,x_16" alt="loading.." data-backdrop="true"></a></header><section class="content post-card-content p-4 pb-5"><header><a href="/tags/Fabric"><i class="tag post-item-tag">Fabric</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2021/09/24/blockchain/fabric/%E7%AC%AC12%E7%AB%A0-Fabric1-0%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1/">Fabric1.0架构与设计</a></h2><time class="has-text-grey" datetime="2021-09-24T05:46:55.000Z">2021-09-24</time><p class="is-flex-grow-2 mt-2">Fabric1.0架构与设计12.1 整理架构概览12.1.1 核心特性
+消除网络处理瓶颈，提高可扩展性：解耦了原子排序环节与其他复杂处理环节
+根据负载进行灵活部署：解藕交易处理节点的逻辑角色为背书节点（Endorser）、确认节点（Commotter）
+提供更多功能：加强了身份证书管理服务，作为单独的Fabric CA项目
+提交隔离安全性：支持多通道特性，不同通道之间的数据彼此隔离
+支持可插拔的架构，包括共识、权限管理、加解密、账本机制等模块，支持多种类型
+支持可编程和第三方实现：引入系统链码来实现区块链系统的处理
+
+12.1.2 整体架构
+12.1.3 典型工作流程交易处理过程：
+
+各个组件功能：
+
+客户端（APP）
+
+客户端使用SDK与Fabric网络交互。
+步骤：
+
+客户端从CA获取合法的身份证书来..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2021/09/24/blockchain/fabric/%E7%AC%AC12%E7%AB%A0-Fabric1-0%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1/">Read more</a><span> </span></section></article><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2021/07/08/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E6%B6%89%E5%8F%8A%E5%88%B0%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">以太坊源码分析-涉及到的数据结构与算法</a></h2><time class="has-text-grey" datetime="2021-07-08T03:19:17.000Z">2021-07-08</time><p class="is-flex-grow-2 mt-2">版本说明源码分析使用的版本为：v1.10.3
+一、数据结构1. MPT以太坊源码中的trie包实现了Merkle Patricia Tries（MPT），这种数据结构实际上是一种Trie树变种。MPT是以太坊中一种非常重要的数据结构，用来存储用户账户的状态及其变更、交易信息、交易的收据信息。MPT实际上是三种数据结构的组合，分别是Merkle树、Patricia Trie和Trie树。
+🔎详情：
+
+MPT(Merkle树、Patricia Tries、Trie树)
+
+2. LevelDBgo-ethereum所有的数据存储在levelDB这个Google开源的KeyValue文件数据库中，整个区块链的所有数据都存储在一个levelDB的数据库中，levelDB支持按照文件大小切分文件的功能，所以我们看到的..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2021/07/08/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E6%B6%89%E5%8F%8A%E5%88%B0%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">Read more</a><span> </span></section></article><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2021/07/05/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-RPC/">以太坊源码分析-以太坊源码分析-RPC</a></h2><time class="has-text-grey" datetime="2021-07-05T11:57:20.000Z">2021-07-05</time><p class="is-flex-grow-2 mt-2">版本说明源码分析使用的版本为：v1.10.3
+RPC包的官方文档Package rpc provides access to the exported methods of an object across a networkor other I/O connection. After creating a server instance objects can be registered,making it visible from the outside. Exported methods that follow specificconventions can be called remotely. It also has support for the publish/subscribepattern..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2021/07/05/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-RPC/">Read more</a><span> </span></section></article><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2021/06/05/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-ethdb%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">以太坊源码分析-ethdb源码分析</a></h2><time class="has-text-grey" datetime="2021-06-05T11:51:54.000Z">2021-06-05</time><p class="is-flex-grow-2 mt-2">版本说明源码分析使用的版本为：v1.10.3
+ethdb源码分析go-ethereum所有的数据存储在levelDB这个Google开源的KeyValue文件数据库中，整个区块链的所有数据都存储在一个levelDB的数据库中，levelDB支持按照文件大小切分文件的功能，所以我们看到的区块链的数据都是一个一个小文件，其实这些小文件都是同一个levelDB实例。这里简单的看下levelDB的go封装代码。
+levelDB官方网站介绍的特点
+特点：
+
+key和value都是任意长度的字节数组；
+entry（即一条K-V记录）默认是按照key的字典顺序存储的，当然开发者也可以重载这个排序函数；
+提供的基本操作接口：Put()、Delete()、Get()、Batch()；
+支持批量操作以原子操作进行；
+可以创建数..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2021/06/05/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-ethdb%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Read more</a><span> </span></section></article><section class="paginator is-flex is-justify-content-flex-end is-flex-wrap-wrap mt-5"><a class="extend prev" rel="prev" href="/page/4/"><i class="iconfont icon-prev has-text-grey"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/6/"><i class="iconfont icon-next has-text-grey"></i></a></section></section><aside class="column is-hidden-mobile is-4-tablet is-3-widescreen"><style>.search-widget .search-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--second-text-color);
+}
+.search-widget .search-content {
+    position: absolute;
+    left: 0;
+    top: calc(100% - 3px);
+    z-index: 2;
+
+    width: 100%;
+    height: 0;
+    max-height: 550px;
+
+    overflow: auto;
+    box-sizing: border-box;
+
+    background: var(--top-bar-bg-color);
+    backdrop-filter: blur(var(--backdropFilter));
+    -webkit-backdrop-filter: blur(var(--backdropFilter));
+
+    border-bottom-left-radius: var(--borderRadius);
+    border-bottom-right-radius: var(--borderRadius);
+    box-shadow: 0 12px 15px rgba(0, 0, 0, 0.08);
+}
+
+.search-widget .search-content a:hover h5 {
+    color: #3273dc!important;
+}
+</style><main class="aside-card-container search-widget is-relative"><label for="searchInput"><div class="is-flex px-4" id="searchButton"><i class="iconfont icon--search1 mr-1"></i><input class="search-input is-flex-grow-1" id="searchInput" placeholder="Search everything.."></div></label><section class="search-content content" id="searchContent"></section></main><script>var searchDatabase = []
+var searchInputEl = document.getElementById('searchInput')
+var searchButtonEl = document.getElementById('searchButton')
+var searchResultEl = document.getElementById('searchContent')
+
+searchInputEl.oninput = function (evt) {
+    var searchValue = evt.srcElement.value
+    var haveSearchValue = Boolean(searchValue.trim())
+    if (!haveSearchValue) {
+        searchResultEl.style.height = 0
+        searchResultEl.innerHTML = null
+        return
+    }
+
+    var searchResults = searching(searchValue)
+
+    if (searchResults.length > 0) {
+        renderSearchResults(searchResults)
+    }
+}
+
+function renderSearchResults(results) {
+    searchResultEl.innerHTML = null
+    var fragment = document.createDocumentFragment()
+
+    results.forEach(function (item) {
+        var link = document.createElement('a')
+        var title = document.createElement('h5')
+        var content = document.createElement('p')
+
+        title.className = 'mb-1'
+        title.innerText = item.title
+        content.innerText = item.content
+
+        link.href = item.link
+        link.appendChild(title)
+        link.appendChild(content)
+        link.className = 'p-4 is-block'
+
+        fragment.appendChild(link)
+    })
+
+    searchResultEl.appendChild(fragment)
+    searchResultEl.style.height = 'auto'
+}
+
+function searching(inputText) {
+    var inputTexts = inputText.split(' ')
+    var searchResults = []
+    inputTexts.forEach(function (searchKey) {
+        var haveSearchValue = Boolean(searchKey.trim())
+        if (!haveSearchValue) return
+
+        var key = searchKey.toLowerCase()
+
+        for (var entry of searchDatabase) {
+            var title = entry.getElementsByTagName('title')[0].textContent
+            var link = entry.getElementsByTagName('link')[0].getAttribute('href')
+            var contentWithTags = entry.getElementsByTagName('content')[0].textContent
+            var rawContent = contentWithTags.trim().replace(/<[^>]+>/g, '').toLowerCase()
+
+            var LENGTH = 80
+            var finalContent = ''
+            var contentLength = rawContent.length
+            var searchResultIdx = rawContent.indexOf(key)
+
+            var startIdx = searchResultIdx - 20,
+                endIdx = startIdx + LENGTH
+
+            if (startIdx < 0) {
+                startIdx = 0
+                endIdx = 100
+            }
+
+            endIdx > contentLength && (endIdx = contentLength)
+
+            finalContent = rawContent.substring(startIdx, endIdx)
+
+            if (title.indexOf(key) > -1 || searchResultIdx > -1) {
+                searchResults.push({
+                    link: link,
+                    title: title,
+                    content: finalContent
+                })
+            }
+        }
+    })
+    return searchResults
+}
+
+searchButtonEl.onclick = function () {
+    if (searchDatabase.length > 0) return;
+
+    fetch(window.location.href + '/search.xml').then(res => res.text()).then(res => {
+        var domparser = new DOMParser
+        var doc = domparser.parseFromString(res, 'application/xml')
+        searchDatabase = doc.getElementsByTagName('search')[0].children
+    })
+}</script><main class="aside-card-container profile-widget"><!-- todo: 使用取色工具动态阴影--><section class="is-flex is-flex-direction-column is-justify-content-center is-align-items-center"><section class="is-flex is-justify-content-center avatar is-clipped skeleton"><!-- debug images "https://api.ixiaowai.cn/gqapi/gqapi.php"--><img class="js-img-fadeIn" src="/images/system/head_portrait.jpg" alt="user avatar"></section><h3 class="user-name">Sugar</h3><blockquote class="has-text-centered is-relative"><span style="margin-bottom: 5px;">A long journey can be covered only by taking one step at a time</span></blockquote><address class="has-text-centered has-text-grey"><i class="iconfont icon-location" style="margin-right: 5px;"></i><span class="has-text-grey">In the Beijing</span></address></section><section class="sns-container is-flex is-justify-content-center is-align-items-center"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section></main><main class="aside-card-container recent-widget"><h3>Recent</h3><ul><li class="is-flex"><!-- change to element replace image placeholder--><img class="js-img-fadeIn" src="https://img-blog.csdnimg.cn/2e6b5bf1c26e4f8396154f82fcbe29fe.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5LiA5p2v57OW5LiN5Yqg5ZKW5ZWh,size_20,color_FFFFFF,t_70,g_se,x_16" alt="cover"><!--else--><!--    div.post-img-placeholder--><section class="is-flex-grow-2"><p class="has-text-weight-semibold" style="line-height: 20px; font-size: 14px"><a href="/2021/10/26/blockchain/fabric/%E7%AC%AC13%E7%AB%A0-%E5%8C%BA%E5%9D%97%E9%93%BE%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/">Fabric区块链应用开发</a></p><time class="has-text-weight-semibold has-text-grey" datetime="2021-10-26T12:43:09.000Z">2021-10-26</time></section></li><li class="is-flex"><!-- change to element replace image placeholder--><img class="js-img-fadeIn" src="https://img-blog.csdnimg.cn/d38a58e238c74b05bffda95b4f82ca17.png" alt="cover"><!--else--><!--    div.post-img-placeholder--><section class="is-flex-grow-2"><p class="has-text-weight-semibold" style="line-height: 20px; font-size: 14px"><a href="/2021/10/18/blockchain/fabric/%E7%AC%AC11%E7%AB%A0-Fabric-CA%E5%BA%94%E7%94%A8%E4%B8%8E%E9%85%8D%E7%BD%AE/">Fabric CA应用与配置</a></p><time class="has-text-weight-semibold has-text-grey" datetime="2021-10-18T12:14:43.000Z">2021-10-18</time></section></li><li class="is-flex"><!-- change to element replace image placeholder--><img class="js-img-fadeIn" src="https://img-blog.csdnimg.cn/b05b1fe7b97344f8b0d5ee3edab23675.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5LiA5p2v57OW5LiN5Yqg5ZKW5ZWh,size_10,color_FFFFFF,t_70,g_se,x_16" alt="cover"><!--else--><!--    div.post-img-placeholder--><section class="is-flex-grow-2"><p class="has-text-weight-semibold" style="line-height: 20px; font-size: 14px"><a href="/2021/09/24/blockchain/fabric/%E7%AC%AC12%E7%AB%A0-Fabric1-0%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1/">Fabric1.0架构与设计</a></p><time class="has-text-weight-semibold has-text-grey" datetime="2021-09-24T05:46:55.000Z">2021-09-24</time></section></li><li class="is-flex"><!-- change to element replace image placeholder--><img class="js-img-fadeIn" src="https://ui-avatars.com/api/?background=f5f5f5&amp;name=以太" alt="cover"><!--else--><!--    div.post-img-placeholder--><section class="is-flex-grow-2"><p class="has-text-weight-semibold" style="line-height: 20px; font-size: 14px"><a href="/2021/07/08/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E6%B6%89%E5%8F%8A%E5%88%B0%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">以太坊源码分析-涉及到的数据结构与算法</a></p><time class="has-text-weight-semibold has-text-grey" datetime="2021-07-08T03:19:17.000Z">2021-07-08</time></section></li><li class="is-flex"><!-- change to element replace image placeholder--><img class="js-img-fadeIn" src="https://ui-avatars.com/api/?background=f5f5f5&amp;name=以太" alt="cover"><!--else--><!--    div.post-img-placeholder--><section class="is-flex-grow-2"><p class="has-text-weight-semibold" style="line-height: 20px; font-size: 14px"><a href="/2021/07/05/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-RPC/">以太坊源码分析-以太坊源码分析-RPC</a></p><time class="has-text-weight-semibold has-text-grey" datetime="2021-07-05T11:57:20.000Z">2021-07-05</time></section></li><li class="is-flex"><!-- change to element replace image placeholder--><img class="js-img-fadeIn" src="https://ui-avatars.com/api/?background=f5f5f5&amp;name=以太" alt="cover"><!--else--><!--    div.post-img-placeholder--><section class="is-flex-grow-2"><p class="has-text-weight-semibold" style="line-height: 20px; font-size: 14px"><a href="/2021/06/05/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-ethdb%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">以太坊源码分析-ethdb源码分析</a></p><time class="has-text-weight-semibold has-text-grey" datetime="2021-06-05T11:51:54.000Z">2021-06-05</time></section></li></ul></main><main class="aside-card-container archives-widget"><h3>Archives</h3><section><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">41</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/1900/01/">January 1900</a><span class="archive-list-count">5</span></li></ul></section></main><main class="aside-card-container tag-widget"><h3>Tags</h3><section><a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6"><span class="tag post-item-tag" style="margin-bottom: 5px;">密码学</span></a><a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95"><span class="tag post-item-tag" style="margin-bottom: 5px;">数据结构与算法</span></a><a href="/tags/%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3"><span class="tag post-item-tag" style="margin-bottom: 5px;">部署文档</span></a><a href="/tags/Other"><span class="tag post-item-tag" style="margin-bottom: 5px;">Other</span></a><a href="/tags/Distributed%20Storage"><span class="tag post-item-tag" style="margin-bottom: 5px;">Distributed Storage</span></a><a href="/tags/Avalanche"><span class="tag post-item-tag" style="margin-bottom: 5px;">Avalanche</span></a><a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95"><span class="tag post-item-tag" style="margin-bottom: 5px;">共识算法</span></a><a href="/tags/Ethereum"><span class="tag post-item-tag" style="margin-bottom: 5px;">Ethereum</span></a><a href="/tags/Fabric"><span class="tag post-item-tag" style="margin-bottom: 5px;">Fabric</span></a><a href="/tags/Layer2"><span class="tag post-item-tag" style="margin-bottom: 5px;">Layer2</span></a><a href="/tags/NFT"><span class="tag post-item-tag" style="margin-bottom: 5px;">NFT</span></a><a href="/tags/OpenZeppelin"><span class="tag post-item-tag" style="margin-bottom: 5px;">OpenZeppelin</span></a><a href="/tags/Arweave"><span class="tag post-item-tag" style="margin-bottom: 5px;">Arweave</span></a><a href="/tags/Go"><span class="tag post-item-tag" style="margin-bottom: 5px;">Go</span></a><a href="/tags/0xcert"><span class="tag post-item-tag" style="margin-bottom: 5px;">0xcert</span></a></section></main></aside></div></article><script>$claudia.fadeInImage(null, $claudia.blurBackdropImg)
+
+window.addEventListener('resize', $claudia.throttle(function () {
+    var images = document.querySelectorAll('.js-img-fadeIn')
+
+    images.forEach($claudia.blurBackdropImg)
+}, 150))</script></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script>$claudia.fadeInImage(null, $claudia.blurBackdropImg)
+
+window.addEventListener('resize', $claudia.throttle(function () {
+    var images = document.querySelectorAll('.js-img-fadeIn')
+
+    images.forEach($claudia.blurBackdropImg)
+}, 150))</script></body></html>

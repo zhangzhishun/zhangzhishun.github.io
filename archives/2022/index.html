@@ -1,0 +1,85 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>Sugar's blog</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/widget-post-list.css"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><span>Archives · 2022</span></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><article class="post-container is-flex is-justify-content-center section container is-max-widescreen pt-4 px-2"><div class="columns is-variable is-1-tablet is-3-desktop-only is-2-widescreen is-full-width"><section class="column"><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/NFT"><i class="tag post-item-tag">NFT</i></a><a href="/tags/OpenZeppelin"><i class="tag post-item-tag">OpenZeppelin</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/05/20/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC1155%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">NFT框架 OpenZeppelin ERC1155源码分析</a></h2><time class="has-text-grey" datetime="2022-05-20T02:25:11.000Z">2022-05-20</time><p class="is-flex-grow-2 mt-2">一、介绍1. 代码版本release-v4.6
+2. 什么是ERC1155？ERC-1155：允许使用者在同一个智能合约中无限量地重复使用同质化或者非同质化的代币。是可以一次性铸造多种多量同质化及非同质化资产的以太坊标准
+二、源码分析ERC1155涉及到的合约列表
+Context
+IERC165、ERC165
+IERC1155, IERC1155MetadataURI
+ERC1155
+
+1. Context参考： NFT框架 OpenZeppelin ERC721源码分析
+2. IERC165、ERC165参考： NFT框架 OpenZeppelin ERC721源码分析
+3. IERC1155MetadataURI、IERC1155// SPDX-License-Identifier: MIT
+// Op..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/05/20/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC1155%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Read more</a><span> </span></section></article><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/05/17/blockchain/ethereum/Solidity%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E6%94%BB%E5%87%BB)/">Solidity学习笔记(攻击)</a></h2><time class="has-text-grey" datetime="2022-05-17T11:29:23.000Z">2022-05-17</time><p class="is-flex-grow-2 mt-2">Solidity学习笔记(攻击)本文参考：https://solidity-by-example.org/
+推荐视频课程：https://www.bilibili.com/video/BV1St411a7Pk
+Re-Entrancy（重入）漏洞假设合约 A 调用合约 B
+Reentracy 漏洞允许 B 在 A 完成执行之前回调 A
+https://solidity-by-example.org/hacks/re-entrancy
+预防技术：
+
+确保在调用外部合约之前发生所有状态更改
+使用防止重新进入的函数修饰符这里是重新进入
+
+保护的示例：
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract ReEntrancyGuard ..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/05/17/blockchain/ethereum/Solidity%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E6%94%BB%E5%87%BB)/">Read more</a><span> </span></section></article><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/NFT"><i class="tag post-item-tag">NFT</i></a><a href="/tags/OpenZeppelin"><i class="tag post-item-tag">OpenZeppelin</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/05/15/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC721%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">NFT框架 OpenZeppelin ERC721源码分析</a></h2><time class="has-text-grey" datetime="2022-05-15T02:25:11.000Z">2022-05-15</time><p class="is-flex-grow-2 mt-2">一、介绍1. 代码版本release-v4.6
+2. 什么是ERC721？ERC-721 为 NFT 引入了一个标准，换言之， 这种类型的代币是独一无二的
+二、源码分析ERC721涉及到的合约列表
+Context
+IERC165、ERC165
+IERC721Metadata
+IERC721
+ERC721
+
+1. Context参考： NFT框架 OpenZeppelin ERC20源码分析
+2. IERC165、ERC165// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev ERC165 ..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/05/15/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC721%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Read more</a><span> </span></section></article><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/05/10/blockchain/ethereum/Solidity%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%BA%94%E7%94%A8%E9%83%A8%E5%88%86)/">Solidity学习笔记(应用部分)</a></h2><time class="has-text-grey" datetime="2022-05-10T11:29:23.000Z">2022-05-10</time><p class="is-flex-grow-2 mt-2">Solidity学习笔记(应用部分)本文参考：https://solidity-by-example.org/
+推荐视频课程：https://www.bilibili.com/video/BV1St411a7Pk
+以太坊钱包一个基本钱包的例子
+
+任何人都可以发送 ETH
+只有所有者可以提款
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract EtherWallet {
+    address payable public owner;
+
+    constructor() {
+        owner = payable(msg.sender);
+    }
+
+    receive() external payable ..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/05/10/blockchain/ethereum/Solidity%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%BA%94%E7%94%A8%E9%83%A8%E5%88%86)/">Read more</a><span> </span></section></article><section class="paginator is-flex is-justify-content-flex-end is-flex-wrap-wrap mt-5"><span class="page-number current">1</span><a class="page-number" href="/archives/2022/page/2/">2</a><a class="page-number" href="/archives/2022/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/archives/2022/page/6/">6</a><a class="extend next" rel="next" href="/archives/2022/page/2/"><i class="iconfont icon-next has-text-grey"></i></a></section></section><aside class="column is-hidden-mobile is-4-tablet is-3-widescreen"><div style="position: sticky; top: 50px;"><main class="aside-card-container archives-widget is-in-archive-page"><h3>Archives</h3><section><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">41</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/1900/01/">January 1900</a><span class="archive-list-count">5</span></li></ul></section></main></div></aside></div></article><script>$claudia.fadeInImage(null, $claudia.blurBackdropImg)
+
+window.addEventListener('resize', $claudia.throttle(function () {
+    var images = document.querySelectorAll('.js-img-fadeIn')
+
+    images.forEach($claudia.blurBackdropImg)
+}, 150))</script></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script>$claudia.fadeInImage(null, $claudia.blurBackdropImg)
+
+window.addEventListener('resize', $claudia.throttle(function () {
+    var images = document.querySelectorAll('.js-img-fadeIn')
+
+    images.forEach($claudia.blurBackdropImg)
+}, 150))</script></body></html>

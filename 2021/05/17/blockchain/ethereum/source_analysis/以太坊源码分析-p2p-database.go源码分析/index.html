@@ -1,0 +1,291 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>以太坊源码分析-p2p-database.go源码分析</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="p2p包实现了通用的p2p网络协议。包括节点的查找，节点状态的维护，节点连接的建立等p2p的功能。p2p 包实现的是通用的p2p协议。 某一种具体的协议(比如eth协议。 whisper协议。 swarm协议)被封装成特定的接口注入p2p包。所以p2p内部不包含具体协议的实现。 只完成了p2p网络应该做的事情。
+discover / discv5 节点发现目前使用的包是discover。 discv5是最近才开发的功能，还是属于实验性质，基本上是discover包的一些优化。 这里我们暂时只分析discover的代码。 对其完成的功能做一个基本的介绍。
+database.go顾名思义，这个文件内部主要实现了节点的持久化，因为p2p网络节点的节点发现和维护都是比较花时间的，为了反复启动的时候，能够把之前的工作.."><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">以太坊源码分析-p2p-database.go源码分析</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#discover-discv5-%E8%8A%82%E7%82%B9%E5%8F%91%E7%8E%B0"><span class="toc-text">discover &#x2F; discv5 节点发现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#database-go"><span class="toc-text">database.go</span></a></li></ol></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">以太坊源码分析-p2p-database.go源码分析</h1><time class="has-text-grey" datetime="2021-05-17T02:29:15.000Z">2021-05-17</time><article class="mt-2 post-content"><p>p2p包实现了通用的p2p网络协议。包括节点的查找，节点状态的维护，节点连接的建立等p2p的功能。p2p 包实现的是通用的p2p协议。 某一种具体的协议(比如eth协议。 whisper协议。 swarm协议)被封装成特定的接口注入p2p包。所以p2p内部不包含具体协议的实现。 只完成了p2p网络应该做的事情。</p>
+<h2 id="discover-discv5-节点发现"><a href="#discover-discv5-节点发现" class="headerlink" title="discover / discv5 节点发现"></a>discover / discv5 节点发现</h2><p>目前使用的包是discover。 discv5是最近才开发的功能，还是属于实验性质，基本上是discover包的一些优化。 这里我们暂时只分析discover的代码。 对其完成的功能做一个基本的介绍。</p>
+<h3 id="database-go"><a href="#database-go" class="headerlink" title="database.go"></a>database.go</h3><p>顾名思义，这个文件内部主要实现了节点的持久化，因为p2p网络节点的节点发现和维护都是比较花时间的，为了反复启动的时候，能够把之前的工作继承下来，避免每次都重新发现。 所以持久化的工作是必须的。</p>
+<p>之前我们分析了ethdb的代码和trie的代码，trie的持久化工作使用了leveldb。 这里同样也使用了leveldb。 不过p2p的leveldb实例和主要的区块链的leveldb实例不是同一个。</p>
+<p>newNodeDB,根据参数path来看打开基于内存的数据库，还是基于文件的数据库。</p>
+<pre><code>// newNodeDB creates a new node database for storing and retrieving infos about
+// known peers in the network. If no path is given, an in-memory, temporary
+// database is constructed.
+func newNodeDB(path string, version int, self NodeID) (*nodeDB, error) {
+    if path == "" {
+        return newMemoryNodeDB(self)
+    }
+    return newPersistentNodeDB(path, version, self)
+}
+// newMemoryNodeDB creates a new in-memory node database without a persistent
+// backend.
+func newMemoryNodeDB(self NodeID) (*nodeDB, error) {
+    db, err := leveldb.Open(storage.NewMemStorage(), nil)
+    if err != nil {
+        return nil, err
+    }
+    return &amp;nodeDB{
+        lvl:  db,
+        self: self,
+        quit: make(chan struct{}),
+    }, nil
+}
+
+// newPersistentNodeDB creates/opens a leveldb backed persistent node database,
+// also flushing its contents in case of a version mismatch.
+func newPersistentNodeDB(path string, version int, self NodeID) (*nodeDB, error) {
+    opts := &amp;opt.Options{OpenFilesCacheCapacity: 5}
+    db, err := leveldb.OpenFile(path, opts)
+    if _, iscorrupted := err.(*errors.ErrCorrupted); iscorrupted {
+        db, err = leveldb.RecoverFile(path, nil)
+    }
+    if err != nil {
+        return nil, err
+    }
+    // The nodes contained in the cache correspond to a certain protocol version.
+    // Flush all nodes if the version doesn't match.
+    currentVer := make([]byte, binary.MaxVarintLen64)
+    currentVer = currentVer[:binary.PutVarint(currentVer, int64(version))]
+    blob, err := db.Get(nodeDBVersionKey, nil)
+    switch err {
+    case leveldb.ErrNotFound:
+        // Version not found (i.e. empty cache), insert it
+        if err := db.Put(nodeDBVersionKey, currentVer, nil); err != nil {
+            db.Close()
+            return nil, err
+        }
+    case nil:
+        // Version present, flush if different
+        //版本不同，先删除所有的数据库文件，重新创建一个。
+        if !bytes.Equal(blob, currentVer) {
+            db.Close()
+            if err = os.RemoveAll(path); err != nil {
+                return nil, err
+            }
+            return newPersistentNodeDB(path, version, self)
+        }
+    }
+    return &amp;nodeDB{
+        lvl:  db,
+        self: self,
+        quit: make(chan struct{}),
+    }, nil
+}
+</code></pre>
+<p>Node的存储，查询和删除    </p>
+<pre><code>// node retrieves a node with a given id from the database.
+func (db *nodeDB) node(id NodeID) *Node {
+    blob, err := db.lvl.Get(makeKey(id, nodeDBDiscoverRoot), nil)
+    if err != nil {
+        return nil
+    }
+    node := new(Node)
+    if err := rlp.DecodeBytes(blob, node); err != nil {
+        log.Error("Failed to decode node RLP", "err", err)
+        return nil
+    }
+    node.sha = crypto.Keccak256Hash(node.ID[:])
+    return node
+}
+
+// updateNode inserts - potentially overwriting - a node into the peer database.
+func (db *nodeDB) updateNode(node *Node) error {
+    blob, err := rlp.EncodeToBytes(node)
+    if err != nil {
+        return err
+    }
+    return db.lvl.Put(makeKey(node.ID, nodeDBDiscoverRoot), blob, nil)
+}
+
+// deleteNode deletes all information/keys associated with a node.
+func (db *nodeDB) deleteNode(id NodeID) error {
+    deleter := db.lvl.NewIterator(util.BytesPrefix(makeKey(id, "")), nil)
+    for deleter.Next() {
+        if err := db.lvl.Delete(deleter.Key(), nil); err != nil {
+            return err
+        }
+    }
+    return nil
+}
+</code></pre>
+<p>Node的结构</p>
+<pre><code>type Node struct {
+    IP       net.IP // len 4 for IPv4 or 16 for IPv6
+    UDP, TCP uint16 // port numbers
+    ID       NodeID // the node's public key
+    // This is a cached copy of sha3(ID) which is used for node
+    // distance calculations. This is part of Node in order to make it
+    // possible to write tests that need a node at a certain distance.
+    // In those tests, the content of sha will not actually correspond
+    // with ID.
+    sha common.Hash
+    // whether this node is currently being pinged in order to replace
+    // it in a bucket
+    contested bool
+}
+</code></pre>
+<p>节点超时处理</p>
+<pre><code>// ensureExpirer is a small helper method ensuring that the data expiration
+// mechanism is running. If the expiration goroutine is already running, this
+// method simply returns.
+// ensureExpirer方法用来确保expirer方法在运行。 如果expirer已经运行，那么这个方法就直接返回。
+// 这个方法设置的目的是为了在网络成功启动后在开始进行数据超时丢弃的工作(以防一些潜在的有用的种子节点被丢弃)。
+// The goal is to start the data evacuation only after the network successfully
+// bootstrapped itself (to prevent dumping potentially useful seed nodes). Since
+// it would require significant overhead to exactly trace the first successful
+// convergence, it's simpler to "ensure" the correct state when an appropriate
+// condition occurs (i.e. a successful bonding), and discard further events.
+func (db *nodeDB) ensureExpirer() {
+    db.runner.Do(func() { go db.expirer() })
+}
+
+// expirer should be started in a go routine, and is responsible for looping ad
+// infinitum and dropping stale data from the database.
+func (db *nodeDB) expirer() {
+    tick := time.Tick(nodeDBCleanupCycle)
+    for {
+        select {
+        case &lt;-tick:
+            if err := db.expireNodes(); err != nil {
+                log.Error("Failed to expire nodedb items", "err", err)
+            }
+
+        case &lt;-db.quit:
+            return
+        }
+    }
+}
+
+// expireNodes iterates over the database and deletes all nodes that have not
+// been seen (i.e. received a pong from) for some allotted time.
+//这个方法遍历所有的节点，如果某个节点最后接收消息超过指定值，那么就删除这个节点。
+func (db *nodeDB) expireNodes() error {
+    threshold := time.Now().Add(-nodeDBNodeExpiration)
+
+    // Find discovered nodes that are older than the allowance
+    it := db.lvl.NewIterator(nil, nil)
+    defer it.Release()
+
+    for it.Next() {
+        // Skip the item if not a discovery node
+        id, field := splitKey(it.Key())
+        if field != nodeDBDiscoverRoot {
+            continue
+        }
+        // Skip the node if not expired yet (and not self)
+        if !bytes.Equal(id[:], db.self[:]) {
+            if seen := db.lastPong(id); seen.After(threshold) {
+                continue
+            }
+        }
+        // Otherwise delete all associated information
+        db.deleteNode(id)
+    }
+    return nil
+}
+</code></pre>
+<p>一些状态更新函数</p>
+<pre><code>// lastPing retrieves the time of the last ping packet send to a remote node,
+// requesting binding.
+func (db *nodeDB) lastPing(id NodeID) time.Time {
+    return time.Unix(db.fetchInt64(makeKey(id, nodeDBDiscoverPing)), 0)
+}
+
+// updateLastPing updates the last time we tried contacting a remote node.
+func (db *nodeDB) updateLastPing(id NodeID, instance time.Time) error {
+    return db.storeInt64(makeKey(id, nodeDBDiscoverPing), instance.Unix())
+}
+
+// lastPong retrieves the time of the last successful contact from remote node.
+func (db *nodeDB) lastPong(id NodeID) time.Time {
+    return time.Unix(db.fetchInt64(makeKey(id, nodeDBDiscoverPong)), 0)
+}
+
+// updateLastPong updates the last time a remote node successfully contacted.
+func (db *nodeDB) updateLastPong(id NodeID, instance time.Time) error {
+    return db.storeInt64(makeKey(id, nodeDBDiscoverPong), instance.Unix())
+}
+
+// findFails retrieves the number of findnode failures since bonding.
+func (db *nodeDB) findFails(id NodeID) int {
+    return int(db.fetchInt64(makeKey(id, nodeDBDiscoverFindFails)))
+}
+
+// updateFindFails updates the number of findnode failures since bonding.
+func (db *nodeDB) updateFindFails(id NodeID, fails int) error {
+    return db.storeInt64(makeKey(id, nodeDBDiscoverFindFails), int64(fails))
+}
+</code></pre>
+<p>从数据库里面随机挑选合适种子节点</p>
+<pre><code>// querySeeds retrieves random nodes to be used as potential seed nodes
+// for bootstrapping.
+func (db *nodeDB) querySeeds(n int, maxAge time.Duration) []*Node {
+    var (
+        now   = time.Now()
+        nodes = make([]*Node, 0, n)
+        it    = db.lvl.NewIterator(nil, nil)
+        id    NodeID
+    )
+    defer it.Release()
+
+seek:
+    for seeks := 0; len(nodes) &lt; n &amp;&amp; seeks &lt; n*5; seeks++ {
+        // Seek to a random entry. The first byte is incremented by a
+        // random amount each time in order to increase the likelihood
+        // of hitting all existing nodes in very small databases.
+        ctr := id[0]
+        rand.Read(id[:])
+        id[0] = ctr + id[0]%16
+        it.Seek(makeKey(id, nodeDBDiscoverRoot))
+
+        n := nextNode(it)
+        if n == nil {
+            id[0] = 0
+            continue seek // iterator exhausted
+        }
+        if n.ID == db.self {
+            continue seek
+        }
+        if now.Sub(db.lastPong(n.ID)) &gt; maxAge {
+            continue seek
+        }
+        for i := range nodes {
+            if nodes[i].ID == n.ID {
+                continue seek // duplicate
+            }
+        }
+        nodes = append(nodes, n)
+    }
+    return nodes
+}
+
+// reads the next node record from the iterator, skipping over other
+// database entries.
+func nextNode(it iterator.Iterator) *Node {
+    for end := false; !end; end = !it.Next() {
+        id, field := splitKey(it.Key())
+        if field != nodeDBDiscoverRoot {
+            continue
+        }
+        var n Node
+        if err := rlp.DecodeBytes(it.Value(), &amp;n); err != nil {
+            log.Warn("Failed to decode node RLP", "id", id, "err", err)
+            continue
+        }
+        return &amp;n
+    }
+    return nil
+}
+</code></pre>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-node%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="以太坊源码分析-node源码分析"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: 以太坊源码分析-node源码分析</span></a><a class="button is-default" href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-p2p-dial.go%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="以太坊源码分析-p2p-dial.go源码分析"><span class="has-text-weight-semibold">Next: 以太坊源码分析-p2p-dial.go源码分析</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>
