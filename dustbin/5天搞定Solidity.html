@@ -1,0 +1,138 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>5天搞定Solidity</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"><link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><article id="page"><h1>5天搞定Solidity</h1><h1 id="总目标"><a href="#总目标" class="headerlink" title="总目标"></a>总目标</h1><ol>
+<li>掌握Solidity语法</li>
+<li>掌握Openzeeplin的使用，以ERC721为例写出完整合约</li>
+<li>掌握合约编写、测试、部署全过程</li>
+</ol>
+<h1 id="第一天（预计4h）"><a href="#第一天（预计4h）" class="headerlink" title="第一天（预计4h）"></a>第一天（预计4h）</h1><h2 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h2><ol>
+<li>准备开发常用工具</li>
+<li>准备测试币</li>
+</ol>
+<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><ol>
+<li>常用工具：<ul>
+<li>Remix：一款在线写Solidity的IDE，需要掌握编译、测试、部署、合约交互、调试的功能。很适合作为入门的开发环境选择。在Remix运行几个Solidity样例：<a target="_blank" rel="noopener" href="https://solidity-by-example.org/%EF%BC%8C%E8%BF%99%E5%B0%86%E6%9C%89%E5%8A%A9%E4%BA%8E%E7%90%86%E8%A7%A3Solidity">https://solidity-by-example.org/，这将有助于理解Solidity</a></li>
+<li>MetaMask：钱包，可以作为浏览器插件安装。创建自己的钱包，完成基本的导出助记词、私钥操作、配置Mumbai测试网络</li>
+</ul>
+</li>
+<li>领取测试币，因为部署合约需要消耗测试币。以Polygon测试链Mumbai为例，领币网站：<ul>
+<li><a target="_blank" rel="noopener" href="https://fauceth.komputing.org/?chain=5">https://fauceth.komputing.org/?chain=5</a></li>
+<li><a target="_blank" rel="noopener" href="https://goerlifaucet.com/">https://goerlifaucet.com/</a></li>
+</ul>
+</li>
+</ol>
+<h1 id="第二天（预计6h）"><a href="#第二天（预计6h）" class="headerlink" title="第二天（预计6h）"></a>第二天（预计6h）</h1><h2 id="目标-1"><a href="#目标-1" class="headerlink" title="目标"></a>目标</h2><ol>
+<li>掌握Solidity语法</li>
+</ol>
+<h2 id="过程-1"><a href="#过程-1" class="headerlink" title="过程"></a>过程</h2><ol>
+<li>Solidity基础课程：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=xv9OmztShIw&amp;list=PLO5VPQH6OWdVQwpQfw9rZ67O6Pjfo6q-p">https://www.youtube.com/watch?v=xv9OmztShIw&amp;list=PLO5VPQH6OWdVQwpQfw9rZ67O6Pjfo6q-p</a></li>
+</ol>
+<h1 id="第三天（预计6h）"><a href="#第三天（预计6h）" class="headerlink" title="第三天（预计6h）"></a>第三天（预计6h）</h1><h2 id="目标-2"><a href="#目标-2" class="headerlink" title="目标"></a>目标</h2><ol>
+<li>掌握Openzeeplin提供的ERC规范，熟悉规范内都有哪些功能</li>
+<li>熟练使用Openzeeplin进行NFT开发</li>
+</ol>
+<h2 id="过程-2"><a href="#过程-2" class="headerlink" title="过程"></a>过程</h2><ol>
+<li>阅读<a target="_blank" rel="noopener" href="https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts">OpenZeeplin</a> 合约下的代码，包括但不限于以下内容：<ul>
+<li>token：目录包括ERC20、721、777、1155合约</li>
+<li>security：这些合同旨在涵盖常见的安全实践</li>
+<li>access：该目录提供了限制谁可以访问合约功能或何时可以访问的方法</li>
+<li>poxy：这是一组低级合约，实现了具有和不具有可升级性的不同代理模式</li>
+<li>crosschain：该目录提供构建块来提高智能合约的跨链</li>
+<li>util：包含实用功能的杂项合约和库，可用于提高安全性、处理新数据类型或安全使用低级原语</li>
+</ul>
+</li>
+</ol>
+<h1 id="第四天（预计4h）"><a href="#第四天（预计4h）" class="headerlink" title="第四天（预计4h）"></a>第四天（预计4h）</h1><h2 id="目标-3"><a href="#目标-3" class="headerlink" title="目标"></a>目标</h2><ol>
+<li>使用OpenZepplin实现ERC721合约代码</li>
+<li>【可选】学习Hardhat，了解Hardhat部署合约过程</li>
+<li>【可选】基于Hardhat编写测试用例</li>
+</ol>
+<h2 id="过程-3"><a href="#过程-3" class="headerlink" title="过程"></a>过程</h2><ol>
+<li><p>使用OpenZepplin扩展我们的功能，继承合约：</p>
+<ul>
+<li><p>token目录的ERC721：ERC721实现</p>
+</li>
+<li><p>token目录的ERC721Burnable：支持Burn</p>
+</li>
+<li><p>token目录的ERC721Pausable：支持暂停</p>
+</li>
+<li><p>security目录的ReentrancyGuard：重入攻击</p>
+</li>
+<li><p>access目录的AccessControlEnumerable：启用权限控制</p>
+<pre><code class="solidity">pragma solidity ^0.8.4;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
+
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
+
+
+contract ContractName is
+ERC721,
+ERC721Burnable,
+ERC721Pausable,
+ReentrancyGuard,
+AccessControlEnumerable {
+...
+}
+</code></pre>
+</li>
+</ul>
+</li>
+<li><p>根据业务写相关代码，例如我们需要自己实现token_id和ipfs_hash的映射关系，那么我们添加代码：</p>
+<pre><code class="solidity">// key: token_id value: ipfs hash
+mapping(uint256 =&gt; string) private _tokenURIs;
+
+function _setTokenURI(uint32 tokenId, string calldata uri) internal {
+   require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+   _tokenURIs[tokenId] = uri;
+}
+
+function setTokenURI(uint32 tokenId, string calldata uri) public onlyMaintainer {
+   _tokenURIs[tokenId] = uri;
+}
+
+/**
+* @dev See {IERC721Metadata-tokenURI}.
+*/
+function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+   require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+   string memory base = _baseURI();
+   return bytes(base).length &gt; 0 ? string(abi.encodePacked(base, _tokenURIs[tokenId])) : "";
+}
+</code></pre>
+</li>
+<li><p>可按实际需求实现更多功能</p>
+</li>
+</ol>
+<h1 id="第五天（预计4h）"><a href="#第五天（预计4h）" class="headerlink" title="第五天（预计4h）"></a>第五天（预计4h）</h1><h2 id="目标-4"><a href="#目标-4" class="headerlink" title="目标"></a>目标</h2><ol>
+<li>部署合约</li>
+<li>测试合约</li>
+</ol>
+<h2 id="过程-4"><a href="#过程-4" class="headerlink" title="过程"></a>过程</h2><ol>
+<li>部署合约：<ul>
+<li>方式一：Hardhat：<br><code>npx hardhat --network mumbai run scripts/deploy.js</code></li>
+<li>方式二：Remix<br><img src="/images/ethereum/img.png" alt="img.png"></li>
+</ul>
+</li>
+<li>调用合约，使用Remix<br><img src="/images/ethereum/img_1.png" alt="img_1.png"></li>
+</ol>
+<h1 id="附件"><a href="#附件" class="headerlink" title="附件"></a>附件</h1><ol>
+<li><a href="#">Post not found: blockchain/ethereum/从零开始Solidity写NFT 按阶段从零开始Solidity写NFT</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/sugar-blockchain/blog-nft">ERC721实现博客NFT合约</a></li>
+</ol>
+</article><div id="paginator"></div></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script></body></html>

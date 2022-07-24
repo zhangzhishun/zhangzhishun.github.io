@@ -9,64 +9,22 @@ s.parentNode.insertBefore(hm, s);
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"><link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+
 <style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
-<link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
-</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><span>Tags · NFT</span></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><article class="post-container is-flex is-justify-content-center section container is-max-widescreen pt-4 px-2"><div class="columns is-variable is-1-tablet is-3-desktop-only is-2-widescreen is-full-width"><section class="column"><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/NFT"><i class="tag post-item-tag">NFT</i></a><a href="/tags/OpenZeppelin"><i class="tag post-item-tag">OpenZeppelin</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/05/20/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC1155%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">NFT框架 OpenZeppelin ERC1155源码分析</a></h2><time class="has-text-grey" datetime="2022-05-20T02:25:11.000Z">2022-05-20</time><p class="is-flex-grow-2 mt-2">一、介绍1. 代码版本release-v4.6
-2. 什么是ERC1155？ERC-1155：允许使用者在同一个智能合约中无限量地重复使用同质化或者非同质化的代币。是可以一次性铸造多种多量同质化及非同质化资产的以太坊标准
-二、源码分析ERC1155涉及到的合约列表
-Context
-IERC165、ERC165
-IERC1155, IERC1155MetadataURI
-ERC1155
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><span>Tags · NFT</span></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><article class="post-container is-flex is-justify-content-center section container is-max-widescreen pt-4 px-2"><div class="columns is-variable is-1-tablet is-3-desktop-only is-2-widescreen is-full-width"><section class="column"><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/NFT"><i class="tag post-item-tag">NFT</i></a><a href="/tags/OpenZeppelin"><i class="tag post-item-tag">OpenZeppelin</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/05/17/blockchain/nft/NFT%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">NFT源码分析</a></h2><time class="has-text-grey" datetime="2022-05-17T02:29:15.000Z">2022-05-17</time><p class="is-flex-grow-2 mt-2">0xcert 目录
+NFT框架-0xcert-ERC721源码分析
 
-1. Context参考： NFT框架 OpenZeppelin ERC721源码分析
-2. IERC165、ERC165参考： NFT框架 OpenZeppelin ERC721源码分析
-3. IERC1155MetadataURI、IERC1155// SPDX-License-Identifier: MIT
-// Op..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/05/20/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC1155%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Read more</a><span> </span></section></article><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/NFT"><i class="tag post-item-tag">NFT</i></a><a href="/tags/OpenZeppelin"><i class="tag post-item-tag">OpenZeppelin</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/05/15/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC721%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">NFT框架 OpenZeppelin ERC721源码分析</a></h2><time class="has-text-grey" datetime="2022-05-15T02:25:11.000Z">2022-05-15</time><p class="is-flex-grow-2 mt-2">一、介绍1. 代码版本release-v4.6
-2. 什么是ERC721？ERC-721 为 NFT 引入了一个标准，换言之， 这种类型的代币是独一无二的
-二、源码分析ERC721涉及到的合约列表
-Context
-IERC165、ERC165
-IERC721Metadata
-IERC721
-ERC721
 
-1. Context参考： NFT框架 OpenZeppelin ERC20源码分析
-2. IERC165、ERC165// SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
-pragma solidity ^0.8.0;
+Openzepplin 目录
+NFT框架-OpenZeppelin合约源码介绍
+NFT框架-OpenZeppelinERC20源码分析
+NFT框架-OpenZeppelinERC721源码分析
+NFT框架-OpenZeppelinERC1155源码分析
 
-/**
- * @dev ERC165 ..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/05/15/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC721%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Read more</a><span> </span></section></article><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/NFT"><i class="tag post-item-tag">NFT</i></a><a href="/tags/OpenZeppelin"><i class="tag post-item-tag">OpenZeppelin</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/05/10/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC20%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">NFT框架 OpenZeppelin ERC20源码分析</a></h2><time class="has-text-grey" datetime="2022-05-10T02:25:11.000Z">2022-05-10</time><p class="is-flex-grow-2 mt-2">一、介绍1. 代码版本release-v4.6
-2. 什么是ERC20？ERC20 代币合约跟踪可替代代币：
 
-任何一个代币都完全等同于任何其他代币
-没有任何代币具有与之相关的特殊权利或行为
-
-这使得 ERC20 代币可用于交换货币、投票权、质押等媒介
-二、源码分析ERC20涉及到的合约列表
-Context
-IERC20
-IERC20Metadata
-ERC20
-
-1. Context提供有关当前执行上下文的信息，包括交易的发送者及其数据，虽然可以通过 msg.sender 和 msg.data使用，但是不应直接访问它们，因为在处理元交易时，帐户发送和为执行付费可能不是实际的发送者（就应用程序而言被关注到）
-// SPDX-License-Identifier: MIT
-// OpenZeppelin Co..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/05/10/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelinERC20%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Read more</a><span> </span></section></article><article class="post-item-card"><section class="content post-card-content p-4 pb-5"><header><a href="/tags/NFT"><i class="tag post-item-tag">NFT</i></a><a href="/tags/OpenZeppelin"><i class="tag post-item-tag">OpenZeppelin</i></a></header><h2 class="mt-4 mb-0 is-family-serif"><a href="/2022/05/01/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelin%E5%90%88%E7%BA%A6%E6%BA%90%E7%A0%81%E4%BB%8B%E7%BB%8D/">NFT框架 OpenZeppelin合约源码结构介绍</a></h2><time class="has-text-grey" datetime="2022-05-01T02:25:11.000Z">2022-05-01</time><p class="is-flex-grow-2 mt-2">一、介绍1. 代码版本release-v4.6
-2. contracts文件夹access该目录提供了限制谁可以访问合约功能或何时可以访问的方法
-
-{AccessControl} 提供了一个通用的基于角色的访问控制机制。可以创建多个分层角色并将每个角色分配给多个帐户
-{Ownable} 是一种更简单的机制，具有可以分配给单个帐户的单个所有者“角色”。这种更简单的机制对于快速测试很有用，但有生产问题的项目可能会超过它
-
-crosschain该目录提供构建块来提高智能合约的跨链
-
-{CrossChainEnabled} 是一个抽象，包含访问器和修饰符来控制接收跨链消息时的执行流程
-
-finance该目录包括金融系统的原语：
-
-{PaymentSplitter} 允许在一组帐户之间拆分 Ether 和 ERC20..</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/05/01/blockchain/nft/NFT%E6%A1%86%E6%9E%B6-OpenZeppelin%E5%90%88%E7%BA%A6%E6%BA%90%E7%A0%81%E4%BB%8B%E7%BB%8D/">Read more</a><span> </span></section></article><section class="paginator is-flex is-justify-content-flex-end is-flex-wrap-wrap mt-5"><span class="page-number current">1</span><a class="page-number" href="/tags/NFT/page/2/">2</a><a class="extend next" rel="next" href="/tags/NFT/page/2/"><i class="iconfont icon-next has-text-grey"></i></a></section></section><aside class="column is-hidden-mobile is-4-tablet is-3-widescreen"><div style="position: sticky; top: 50px;"><main class="aside-card-container tag-widget is-in-tag-page"><h3>Tags</h3><section><a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6"><span class="tag post-item-tag" style="margin-bottom: 5px;">密码学</span></a><a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95"><span class="tag post-item-tag" style="margin-bottom: 5px;">数据结构与算法</span></a><a href="/tags/%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3"><span class="tag post-item-tag" style="margin-bottom: 5px;">部署文档</span></a><a href="/tags/Other"><span class="tag post-item-tag" style="margin-bottom: 5px;">Other</span></a><a href="/tags/Distributed%20Storage"><span class="tag post-item-tag" style="margin-bottom: 5px;">Distributed Storage</span></a><a href="/tags/Avalanche"><span class="tag post-item-tag" style="margin-bottom: 5px;">Avalanche</span></a><a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95"><span class="tag post-item-tag" style="margin-bottom: 5px;">共识算法</span></a><a href="/tags/Ethereum"><span class="tag post-item-tag" style="margin-bottom: 5px;">Ethereum</span></a><a href="/tags/Fabric"><span class="tag post-item-tag" style="margin-bottom: 5px;">Fabric</span></a><a href="/tags/Layer2"><span class="tag post-item-tag" style="margin-bottom: 5px;">Layer2</span></a><a href="/tags/NFT"><span class="tag post-item-tag" style="margin-bottom: 5px;">NFT</span></a><a href="/tags/OpenZeppelin"><span class="tag post-item-tag" style="margin-bottom: 5px;">OpenZeppelin</span></a><a href="/tags/Arweave"><span class="tag post-item-tag" style="margin-bottom: 5px;">Arweave</span></a><a href="/tags/Go"><span class="tag post-item-tag" style="margin-bottom: 5px;">Go</span></a><a href="/tags/0xcert"><span class="tag post-item-tag" style="margin-bottom: 5px;">0xcert</span></a></section></main></div></aside></div></article><script>$claudia.fadeInImage(null, $claudia.blurBackdropImg)
+</p><a class="button is-default mt-2 has-text-weight-semibold" href="/2022/05/17/blockchain/nft/NFT%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Read more</a><span> </span></section></article></section><aside class="column is-hidden-mobile is-4-tablet is-3-widescreen"><div style="position: sticky; top: 50px;"><main class="aside-card-container tag-widget is-in-tag-page"><h3>Tags</h3><section><a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6"><span class="tag post-item-tag" style="margin-bottom: 5px;">密码学</span></a><a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95"><span class="tag post-item-tag" style="margin-bottom: 5px;">数据结构与算法</span></a><a href="/tags/Distributed%20Storage"><span class="tag post-item-tag" style="margin-bottom: 5px;">Distributed Storage</span></a><a href="/tags/%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3"><span class="tag post-item-tag" style="margin-bottom: 5px;">部署文档</span></a><a href="/tags/Other"><span class="tag post-item-tag" style="margin-bottom: 5px;">Other</span></a><a href="/tags/Avalanche"><span class="tag post-item-tag" style="margin-bottom: 5px;">Avalanche</span></a><a href="/tags/%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95"><span class="tag post-item-tag" style="margin-bottom: 5px;">共识算法</span></a><a href="/tags/Ethereum"><span class="tag post-item-tag" style="margin-bottom: 5px;">Ethereum</span></a><a href="/tags/Fabric"><span class="tag post-item-tag" style="margin-bottom: 5px;">Fabric</span></a><a href="/tags/Layer2"><span class="tag post-item-tag" style="margin-bottom: 5px;">Layer2</span></a><a href="/tags/NFT"><span class="tag post-item-tag" style="margin-bottom: 5px;">NFT</span></a><a href="/tags/OpenZeppelin"><span class="tag post-item-tag" style="margin-bottom: 5px;">OpenZeppelin</span></a><a href="/tags/Arweave"><span class="tag post-item-tag" style="margin-bottom: 5px;">Arweave</span></a><a href="/tags/Go"><span class="tag post-item-tag" style="margin-bottom: 5px;">Go</span></a></section></main></div></aside></div></article><script>$claudia.fadeInImage(null, $claudia.blurBackdropImg)
 
 window.addEventListener('resize', $claudia.throttle(function () {
     var images = document.querySelectorAll('.js-img-fadeIn')

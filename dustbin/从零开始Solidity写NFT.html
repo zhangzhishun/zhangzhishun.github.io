@@ -1,0 +1,53 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>按阶段从零开始Solidity写NFT</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"><link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><article id="page"><h1>按阶段从零开始Solidity写NFT</h1><h1 id="一、准备工作"><a href="#一、准备工作" class="headerlink" title="一、准备工作"></a>一、准备工作</h1><h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h2><ol>
+<li>Remix：一款在线写Solidity的IDE，有编译、测试、部署、合约交互、调试的功能。很适合作为入门的开发环境选择。</li>
+<li>NodeJs：是一个开源和跨平台的JavaScript运行时环境。用于智能合约测试与部署</li>
+<li>MetaMask：钱包，需要安装<h2 id="测试链"><a href="#测试链" class="headerlink" title="测试链"></a>测试链</h2>以Polygon测试链Mumbai为例。</li>
+<li>领币：</li>
+</ol>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://fauceth.komputing.org/?chain=5">https://fauceth.komputing.org/?chain=5</a></li>
+<li><a target="_blank" rel="noopener" href="https://goerlifaucet.com/">https://goerlifaucet.com/</a></li>
+</ul>
+<h1 id="二、开始"><a href="#二、开始" class="headerlink" title="二、开始"></a>二、开始</h1><h2 id="基础知识阶段（建议先进入下一阶段，先尝试运行代码，再读文档会更好懂）"><a href="#基础知识阶段（建议先进入下一阶段，先尝试运行代码，再读文档会更好懂）" class="headerlink" title="基础知识阶段（建议先进入下一阶段，先尝试运行代码，再读文档会更好懂）"></a>基础知识阶段（建议先进入下一阶段，先尝试运行代码，再读文档会更好懂）</h2><ol>
+<li>【重点】Solidity：<ul>
+<li>Solidity official documentation: <a target="_blank" rel="noopener" href="https://docs.soliditylang.org/en/v0.8.14/">https://docs.soliditylang.org/en/v0.8.14/</a></li>
+<li>latest version solidity basics：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=xv9OmztShIw&amp;list=PLO5VPQH6OWdVQwpQfw9rZ67O6Pjfo6q-p">https://www.youtube.com/watch?v=xv9OmztShIw&amp;list=PLO5VPQH6OWdVQwpQfw9rZ67O6Pjfo6q-p</a></li>
+</ul>
+</li>
+<li>Hardhat：<a target="_blank" rel="noopener" href="https://hardhat.org/getting-started%EF%BC%8C%E5%88%9D%E6%9C%9F%E4%B9%9F%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8Remix%E8%B0%83%E7%94%A8%E5%92%8C%E9%83%A8%E7%BD%B2%E5%90%88%E7%BA%A6">https://hardhat.org/getting-started，初期也可以使用Remix调用和部署合约</a></li>
+</ol>
+<h2 id="阅读NFT框架阶段"><a href="#阅读NFT框架阶段" class="headerlink" title="阅读NFT框架阶段"></a>阅读NFT框架阶段</h2><ol>
+<li>阅读Solidity代码简单样例：<a target="_blank" rel="noopener" href="https://solidity-by-example.org/">https://solidity-by-example.org/</a></li>
+<li>Openzeeplin：<a target="_blank" rel="noopener" href="https://github.com/OpenZeppelin/openzeppelin-contracts">https://github.com/OpenZeppelin/openzeppelin-contracts</a><ul>
+<li>学习目前常用的NFT20、NFT721、NFT1155</li>
+<li>学习Ac~~cess Control、Security等，都在源码的contracts目录下</li>
+</ul>
+</li>
+</ol>
+<h2 id="开发阶段"><a href="#开发阶段" class="headerlink" title="开发阶段"></a>开发阶段</h2><ol>
+<li>明确需求</li>
+<li>【重点】编写Solidity代码</li>
+</ol>
+<h2 id="测试阶段"><a href="#测试阶段" class="headerlink" title="测试阶段"></a>测试阶段</h2><ol>
+<li>编写测试脚本</li>
+<li>使用Hardhat测试</li>
+</ol>
+<h2 id="部署阶段"><a href="#部署阶段" class="headerlink" title="部署阶段"></a>部署阶段</h2><ol>
+<li>使用Hardhat部署或使用Remix部署</li>
+</ol>
+<p>按着这个过程学习的结果：<a target="_blank" rel="noopener" href="https://github.com/sugar-blockchain/blog-nft">https://github.com/sugar-blockchain/blog-nft</a></p>
+</article><div id="paginator"></div></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script></body></html>

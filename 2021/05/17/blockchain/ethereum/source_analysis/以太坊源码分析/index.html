@@ -1,0 +1,86 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>以太坊源码分析</title><meta name="description" content="Blockchain knowledge record blog"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
+<!-- Baidu Analytics --><script>var _hmt = _hmt || [];
+(function() {
+var hm = document.createElement("script");
+hm.src = "//hm.baidu.com/hm.js?" + 'e574a92bc4bac2e317309d7ea1dfcb71';
+var s = document.getElementsByTagName("script")[0];
+s.parentNode.insertBefore(hm, s);
+})();</script><!-- End Baidu Analytics --><link rel="icon" href="/images/system/head_portrait.jpg"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="希望能够分析以太坊的代码来学习区块链技术和GO语言的使用
+分析go-ethereum的过程，我希望从依赖比较少的底层技术组件开始，慢慢深入到核心逻辑。
+目录
+go-ethereum代码阅读环境搭建
+以太坊黄皮书 符号索引
+rlp源码解析
+trie源码分析
+ethdb源码分析
+rpc源码分析
+p2p源码分析
+eth协议源码分析
+event源码分析
+node源码分析
+accounts源码分析
+core源码分析
+区块链索引 chain_indexer源码分析
+布隆过滤器索引
+state源码分析
+交易执行和处理部分源码分析
+vm 虚拟机源码分析
+虚拟机堆栈和内存数据结构分析
+虚拟机指令,跳转表,解释器源码分析
+虚拟机源码分析
+
+
+待确认交易池的管理txPool
+交易池数据结构源码分析
+交易池源码分析
+
+
+创世区块的.."><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.1.0"><link rel="alternate" href="/atom.xml" title="Sugar's blog" type="application/atom+xml">
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">Sugar's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">以太坊源码分析</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3><h3 class="is-inline-block"><a href="/works">Works</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95"><span class="toc-text">目录</span></a></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/Ethereum"><i class="tag post-item-tag">Ethereum</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">以太坊源码分析</h1><time class="has-text-grey" datetime="2021-05-17T02:29:15.000Z">2021-05-17</time><article class="mt-2 post-content"><p><strong>希望能够分析以太坊的代码来学习区块链技术和GO语言的使用</strong></p>
+<p>分析<a target="_blank" rel="noopener" href="https://github.com/ethereum/go-ethereum">go-ethereum</a>的过程，我希望从依赖比较少的底层技术组件开始，慢慢深入到核心逻辑。</p>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-go-ethereum%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="go-ethereum代码阅读环境搭建">go-ethereum代码阅读环境搭建</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E9%BB%84%E7%9A%AE%E4%B9%A6%E9%87%8C%E9%9D%A2%E5%87%BA%E7%8E%B0%E7%9A%84%E6%89%80%E6%9C%89%E7%9A%84%E7%AC%A6%E5%8F%B7%E7%B4%A2%E5%BC%95/" title="以太坊黄皮书 符号索引">以太坊黄皮书 符号索引</a></li>
+<li><a href="/2021/04/14/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-RLP%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="rlp源码解析">rlp源码解析</a></li>
+<li><a href="/2021/05/27/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E5%88%86%E6%9E%90%E5%8C%85Trie/" title="trie源码分析">trie源码分析</a></li>
+<li><a href="/2021/06/05/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-ethdb%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="ethdb源码分析">ethdb源码分析</a></li>
+<li><a href="/2021/04/14/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-RLP%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="rpc源码分析">rpc源码分析</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-p2p%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="p2p源码分析">p2p源码分析</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-eth%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="eth协议源码分析">eth协议源码分析</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-event%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="event源码分析">event源码分析</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-node%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="node源码分析">node源码分析</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-accounts%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="accounts源码分析">accounts源码分析</a></li>
+<li>core源码分析<ul>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-core-chain_indexer%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="区块链索引 chain_indexer源码分析">区块链索引 chain_indexer源码分析</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-core-bloombits%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="布隆过滤器索引">布隆过滤器索引</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-core-state%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="state源码分析">state源码分析</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-core-state-process%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="交易执行和处理部分源码分析">交易执行和处理部分源码分析</a></li>
+<li>vm 虚拟机源码分析<ul>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-core-vm-stack-memory%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="虚拟机堆栈和内存数据结构分析">虚拟机堆栈和内存数据结构分析</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-core-vm-jumptable-instruction/" title="虚拟机指令,跳转表,解释器源码分析">虚拟机指令,跳转表,解释器源码分析</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-core-vm%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="虚拟机源码分析">虚拟机源码分析</a></li>
+</ul>
+</li>
+<li>待确认交易池的管理txPool<ul>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-core-txlist%E4%BA%A4%E6%98%93%E6%B1%A0%E7%9A%84%E4%B8%80%E4%BA%9B%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="交易池数据结构源码分析">交易池数据结构源码分析</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-core-txpool%E4%BA%A4%E6%98%93%E6%B1%A0%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="交易池源码分析">交易池源码分析</a></li>
+</ul>
+</li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-core-genesis%E5%88%9B%E4%B8%96%E5%8C%BA%E5%9D%97%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="创世区块的源码分析">创世区块的源码分析</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-core-blockchain%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="core-blockchain源码分析">core-blockchain源码分析</a></li>
+</ul>
+</li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-miner%E6%8C%96%E7%9F%BF%E9%83%A8%E5%88%86%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90CPU%E6%8C%96%E7%9F%BF/" title="miner挖矿部分源码分析CPU挖矿">miner挖矿部分源码分析CPU挖矿</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-pow%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95/" title="pow一致性算法">pow一致性算法</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%B5%8B%E8%AF%95%E7%BD%91%E7%BB%9CClique_PoA%E4%BB%8B%E7%BB%8D/" title="以太坊测试网络Clique_PoA介绍">以太坊测试网络Clique_PoA介绍</a></li>
+<li><a href="/2021/05/17/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E4%BB%A5%E5%A4%AA%E5%9D%8A%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F/" title="以太坊随机数生成方式">以太坊随机数生成方式</a></li>
+<li><a href="/2021/05/27/blockchain/ethereum/source_analysis/%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E5%B0%81%E8%A3%85%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9F%BA%E7%A1%80%E5%B7%A5%E5%85%B7/" title="封装的一些基础工具">封装的一些基础工具</a>
+</li>
+</ul>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2021/09/24/blockchain/fabric/%E7%AC%AC12%E7%AB%A0-Fabric1-0%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1/" title="Fabric1.0架构与设计"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: Fabric1.0架构与设计</span></a><a class="button is-default" href="/1900/01/01/blockchain/fabric/%E5%9F%BA%E4%BA%8E%E5%8C%BA%E5%9D%97%E9%93%BE%E7%9A%84%E6%A1%A3%E6%A1%88%E5%88%86%E5%8F%91%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D/" title="基于区块链的档案分发系统介绍"><span class="has-text-weight-semibold">Next: 基于区块链的档案分发系统介绍</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="zhangzhishun/blockchain-blog-comment" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><a title="twitter" target="_blank" rel="noopener nofollow" href="//twitter.com/zhang_zhishun"><i class="iconfont icon-twitter"></i></a><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/zhangzhishun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><a title="rss" target="_blank" rel="noopener nofollow" href="/atom.xml"><i class="iconfont icon-rss"></i></a><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> Sugar 2022</span></p><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>
